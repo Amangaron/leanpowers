@@ -29,7 +29,7 @@ Subagents cannot start subagents, so there is no nesting. `auto` behaves as `swi
 
 ## CLI
 
-Run checks with `node "${extensionPath}/bin/leanpowers.mjs" <args>` (unverified).
+Run checks with `node "${extensionPath}/bin/leanpowers.mjs" <args>` (unverified); if `${extensionPath}` is not expanded, the extension folder is the one containing `gemini-extension.json`.
 
 Disabling: skills with `/skills disable <name>` (writes `skills.disabled`); agents with `agents.overrides.<n>.enabled=false`. Individual commands cannot be disabled.
 

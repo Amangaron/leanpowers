@@ -29,9 +29,9 @@ Translates leanpowers' neutral actions into OpenAI Codex tools.
 
 ## CLI
 
-Run checks with `node "$PLUGIN_ROOT/bin/leanpowers.mjs" <args>` (unverified for skills; fallback: use the path of the installed plugin).
+Run checks with `node "<this plugin>/bin/leanpowers.mjs" <args>`; the plugin folder is two levels above any leanpowers SKILL.md (each skill that uses the CLI carries this line). `$PLUGIN_ROOT` is not relied on (unverified).
 
-Disabling a skill: add `[[skills.config]]` with `path=...` and `enabled=false` to `config.toml`. leanpowers can set this from `leanpowers.json`.
+Disabling a skill: add `[[skills.config]]` with `path=...` and `enabled=false` to `config.toml`. `leanpowers skills --native codex` prints these blocks; leanpowers never edits Codex's configuration itself.
 
 Verification: run `scripts/verify-codex.sh` yourself (it changes your Codex configuration; agents never run it).
 
