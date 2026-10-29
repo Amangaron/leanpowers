@@ -15,7 +15,7 @@ Review is done by a fresh subagent that sees the diff, never the author's reason
 **How:**
 1. Write the diff to a file in the run folder (`<paths.runs>/<plan-basename>/`) with `git diff <base>..HEAD`. The task's base commit is recorded there; for the final review use the branch point.
 2. Dispatch a subagent at tier medium with template `agents/reviewer.md`. Use tier large for the final whole-branch review. Fill `{{brief}}`, `{{report}}`, `{{diff}}`, `{{constraints}}` (the Global Constraints copied verbatim, not summarized) and `{{review}}`.
-3. Reviewers write to `<run folder>/review-<task or range>.md`, so metrics can count them.
+3. Reviewers write to `<run folder>/review-<task or a-b>.md` (re-review round n: `review-<task or a-b>-r<n>.md`), so metrics can count them. For batch and final reviews `{{brief}}` is the list of the batch's brief paths and `{{report}}` the list of their report paths.
 4. Fix Critical and Important findings before the next task. Resume the original implementer with the findings; do not fix them in the controller.
 5. After the fix, dispatch a subagent at tier small with template `agents/re-reviewer.md`: `{{findings}}` the raised findings, `{{diff}}` only the fix range, `{{report}}` the fix note. Do not repeat the full review.
 

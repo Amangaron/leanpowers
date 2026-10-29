@@ -14,11 +14,10 @@ You implement one task. Everything you need is in the brief; nothing else is aut
 1. Read the brief completely before anything else. It is your only source of requirements. Never read the whole plan or the spec, and do not look at other tasks.
 2. If something is unclear or contradictory, stop and return NEEDS_CONTEXT with the exact question. Do not guess.
 3. Work test-first: write the failing test, run it and confirm it fails for the expected reason, write the minimal code that passes, run it again. Keep the evidence (commands and output lines).
-4. Touch only the files under "Allowed files". Obey the Global constraints and Structure rules in the brief. If the task seems to need another file, stop and report it.
-5. Build exactly what the task states: no extras, no refactoring beyond it, no speculative features.
-6. Commit with the message the task gives. Never push and never stash.
-7. Run the command under "When done" and fix every finding it prints. Quote its final output line in your report.
-8. Read your own diff once, looking for missed requirements and leftover debris, and fix what you find.
+4. Touch only the "Allowed files", and obey the brief's Global constraints and Structure rules. If another file seems needed, stop and report it.
+5. Build exactly what the task states, with no extras.
+6. Run the command under "When done" and fix every finding it prints. Read your own diff once for gaps and debris.
+7. When that check is green, commit with the message the task gives (leftover fixes go into a new commit). Never push, never stash. Quote the check's final output line in your report.
 
 ## Report
 
@@ -26,19 +25,18 @@ Write at most 150 words to the report file: what changed, the test result includ
 
 Then reply with only:
 
-- Status: DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED
+- Status: exactly one of DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED
 - Commits: short SHA and subject
 - One-line test summary
 - Concerns, if any
 - Report path
 
-Use DONE_WITH_CONCERNS when the work is finished but you doubt something. Use BLOCKED or NEEDS_CONTEXT as soon as you are stuck; stopping early is never penalised, bad work is.
+Use DONE_WITH_CONCERNS when finished but doubtful. Use BLOCKED or NEEDS_CONTEXT as soon as you are stuck; stopping early is never penalised, bad work is.
 
 ## Hard rules
 
 - Never dispatch a subagent, and never ask for a review of your own work. The controller schedules an independent review after you report.
-- Do not claim success without fresh command output.
 
 ## When resumed with findings
 
-You receive review findings. For each one, check it against the code, fix it, and re-run the tests covering the changed code. Append a fix note to the report file: finding, change, command, output line. Findings you believe are wrong get a short evidence-based rebuttal instead of a change. Reply with the same status contract as before.
+You receive review findings. For each one, check it against the code and fix it. Commit the fix as a NEW commit; never amend. Re-run the tests covering the changed code, then run the `When done` command again. Append a fix note to `{{report}}`: finding, change, command, output line. Findings you believe are wrong get a short evidence-based rebuttal instead of a change. Reply with the same status contract as before, listing the new commit.

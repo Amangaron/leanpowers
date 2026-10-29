@@ -35,11 +35,11 @@ Keep the RED and GREEN commands with the relevant output lines for the report.
 
 ## Exceptions
 
-Throwaway prototypes, generated code and pure configuration. Only with the user's consent; ask the user and say which exception you want. Without consent the rule holds.
+Throwaway prototypes, generated code and pure configuration. Only with the user's consent; ask the user and say which exception you want. A subagent worker returns NEEDS_CONTEXT instead of asking. Without consent the rule holds.
 
 ## Before you finish
 
 - Every new function or behavior has a test that was seen failing first.
 - Tests cover edge cases and error paths, not only the happy path.
 - Output is pristine: no warnings or stray logs.
-- Then run the `verify` skill.
+- Then invoke the `verify` skill.
