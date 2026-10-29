@@ -8,6 +8,6 @@
   "engines": { "node": ">=20" },
   "scripts": {
     "build": "node build/build.mjs",
-    "test": "node --test tests/"
+    "test": "node --test"
   }
 }

@@ -12,6 +12,8 @@ function repo() {
   git('init', '-q');
   git('config', 'user.email', 't@t');
   git('config', 'user.name', 't');
+  git('config', 'commit.gpgsign', 'false');
+  git('config', 'core.autocrlf', 'false');
   fs.mkdirSync(path.join(root, 'src'));
   fs.writeFileSync(path.join(root, 'src/a.ts'), 'a');
   fs.writeFileSync(path.join(root, '.gitignore'), 'ignored/\n');

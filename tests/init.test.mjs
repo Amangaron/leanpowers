@@ -7,6 +7,9 @@ import { fileURLToPath } from 'node:url';
 import { scanProject, proposeConfig, applyTemplate } from '../checks/init.mjs';
 import { validate } from '../checks/lib/config.mjs';
 
+// Keep the machine's real user config out of every in-process load and every spawn.
+process.env.XDG_CONFIG_HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-xdg-'));
+
 const repo = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const schema = JSON.parse(fs.readFileSync(path.join(repo, 'schema/leanpowers.schema.json'), 'utf8'));
 function project(files) {
@@ -57,8 +60,8 @@ test('scan skips the configured run folder, build folders and symlinks out of th
     'runs/out/r.json': '', 'dist/a.js': '', 'build/a.js': '', 'vendor/a.go': '',
     'src/a.js': '', 'src/node_modules/m/i.ts': '', 'docs/readme.md': '', 'empty/.gitkeep': '',
   });
-  fs.symlinkSync(path.join(outside, 'secret'), path.join(root, 'linked'));
-  fs.symlinkSync(path.join(outside, 'secret'), path.join(root, 'src/linked'));
+  fs.symlinkSync(path.join(outside, 'secret'), path.join(root, 'linked'), 'junction');
+  fs.symlinkSync(path.join(outside, 'secret'), path.join(root, 'src/linked'), 'junction');
   assert.deepEqual(scanProject(root).structure.rules, [
     { path: 'docs/**', allow: ['*.md'] },
     { path: 'src/**', allow: ['*.js'] },
@@ -82,7 +85,7 @@ test('template rejects unknown names and path tricks', () => {
 test('template does not follow a symlinked directory out of the project', () => {
   const outside = project({});
   const root = project({});
-  fs.symlinkSync(outside, path.join(root, 'docs'));
+  fs.symlinkSync(outside, path.join(root, 'docs'), 'junction');
   const skipped = [];
   const created = applyTemplate(repo, 'project-default', root, skipped);
   assert.deepEqual(fs.readdirSync(outside), []);
@@ -93,10 +96,12 @@ test('template does not follow a symlinked directory out of the project', () => 
 
 test('template skips a directory blocked by a file or dangling symlink and continues', () => {
   const root = project({ docs: 'a file' });
-  fs.symlinkSync(path.join(root, 'nowhere'), path.join(root, 'src'));
+  // A dangling file symlink needs a symlink privilege that Windows does not grant by default.
+  const dangling = process.platform !== 'win32';
+  if (dangling) fs.symlinkSync(path.join(root, 'nowhere'), path.join(root, 'src'));
   const skipped = [];
   const created = applyTemplate(repo, 'project-default', root, skipped);
-  assert.deepEqual(skipped, ['docs (blocked by existing file)', 'src (blocked by existing file)']);
+  assert.deepEqual(skipped, ['docs (blocked by existing file)', ...(dangling ? ['src (blocked by existing file)'] : [])]);
   assert.ok(created.includes('tests/.gitkeep'));
   assert.equal(fs.readFileSync(path.join(root, 'docs'), 'utf8'), 'a file');
 });

@@ -193,7 +193,7 @@ test('a relocated claude package runs its own CLI from the hook and in briefs', 
   assert.equal(context.trimEnd().split('\n').at(-1), `CLI: run leanpowers as node "${bin}".`);
 
   const git = (...a) => execFileSync('git', a, { cwd: project, stdio: 'pipe' });
-  git('init', '-q'); git('config', 'user.email', 't@t'); git('config', 'user.name', 't');
+  git('init', '-q'); git('config', 'user.email', 't@t'); git('config', 'user.name', 't'); git('config', 'commit.gpgsign', 'false'); git('config', 'core.autocrlf', 'false');
   fs.mkdirSync(path.join(project, 'docs/plans'), { recursive: true });
   fs.writeFileSync(path.join(project, 'docs/plans/demo.md'),
     '# Demo\n\n**Goal:** g\n\n## Global Constraints\n\n- c\n\n### Task 1: A\n\n**Risk:** low\n\n**Files:**\n- Create: `src/a.ts`\n');

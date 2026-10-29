@@ -1,11 +1,16 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { startText, cliCommand, COMMANDS } from '../checks/start.mjs';
 import { DEFAULTS } from '../checks/lib/defaults.mjs';
 import { estimateTokens } from '../checks/skill-lint.mjs';
+
+// Keep the machine's real user config out of the spawned CLI.
+process.env.XDG_CONFIG_HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-xdg-'));
 
 const repo = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 
