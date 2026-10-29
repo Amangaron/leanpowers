@@ -60,18 +60,35 @@ echo "Running codex exec in $WORK (output: $OUT)"
     "Use the leanpowers check skill or run its command and reply with the output." ) >"$OUT" 2>&1
 echo "codex exec exit status: $?"
 
-# The real CLI output line is "✔ leanpowers check: ok ..." or "✖ leanpowers check: N failed ...".
-# A bare "leanpowers check:" would also match skill or source text echoed by the model.
+# PASS needs ONE event (one JSONL line) in which a command running `node ... leanpowers.mjs` and the
+# real CLI output line appear together. The output line is "✔ leanpowers check: ok (gates...)" or
+# "✖ leanpowers check: N failed ...". Skill text that merely shows that line, or an unrelated mention of
+# leanpowers.mjs (cat, ls), is therefore not enough. Event field names are unverified, so every string
+# in the event is inspected: strings under a "command"/"cmd" key are the command; all others are output.
 echo
 RESULT=1
-if grep -Eq '(✔|✖) leanpowers check: (ok|[0-9]+ failed)' "$OUT"; then
-  if grep -q 'leanpowers\.mjs' "$OUT"; then
-    echo "PASS codex-check: CLI output line found and the events show leanpowers.mjs being run"
-    RESULT=0
-  else
-    echo "FAIL codex-check: output line found, but no event shows leanpowers.mjs being run; inspect $OUT"
-  fi
+if node -e '
+const lines = require("fs").readFileSync(process.argv[1], "utf8").split("\n");
+const re = /(✔|✖) leanpowers check: (ok \([a-z]|[0-9]+ failed)/;
+const walk = (v, key, cmds, outs) => {
+  if (typeof v === "string") (/^(command|cmd)$/.test(key || "") ? cmds : outs).push(v);
+  else if (Array.isArray(v)) v.forEach((x) => walk(x, key, cmds, outs));
+  else if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) walk(x, k, cmds, outs);
+};
+let sawLine = false;
+for (const line of lines) {
+  let ev; try { ev = JSON.parse(line); } catch { continue; }
+  const cmds = [], outs = []; walk(ev, "", cmds, outs);
+  const ran = cmds.some((c) => /\bnode\b/.test(c) && c.includes("leanpowers.mjs"));
+  const out = outs.some((o) => re.test(o));
+  if (out) sawLine = true;
+  if (ran && out) process.exit(0);
+}
+process.exit(sawLine ? 3 : 1);
+' "$OUT"; then
+  echo "PASS codex-check: one event shows a node leanpowers.mjs command together with the CLI output line"
+  RESULT=0
 else
-  echo "FAIL codex-check: no '(✔|✖) leanpowers check:' output line found; inspect $OUT"
+  echo "FAIL codex-check: no single event combines a node leanpowers.mjs command with the '(✔|✖) leanpowers check:' output line; inspect $OUT"
 fi
 exit "$RESULT"

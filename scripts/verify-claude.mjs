@@ -3,7 +3,7 @@
 // Session-only (--plugin-dir): nothing is installed into the user's configuration.
 // Usage: node scripts/verify-claude.mjs
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, realpathSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -18,10 +18,15 @@ if (ver.error || ver.status !== 0) {
   process.exit(2);
 }
 console.log(`claude ${ver.stdout.trim()}`);
+console.log('note: --bare is not used (it skips plugin hooks and OAuth), so other installed plugins stay visible');
 // Note: --bare is deliberately not used. It skips plugin hooks (session-start could not be tested)
 // and reads only ANTHROPIC_API_KEY (no OAuth). Other installed plugins therefore stay visible.
 const work = mkdtempSync(join(tmpdir(), 'leanpowers-verify-'));
 spawnSync('git', ['init', '-q'], { cwd: work });
+
+const samePath = (a, b) => {
+  try { return realpathSync(a) === realpathSync(b); } catch { return false; }
+};
 
 let failed = false;
 let unclear = false;
@@ -50,7 +55,8 @@ function run(label, prompt, maxTurns, extra = []) {
     ` cacheRead=${u.cache_read_input_tokens ?? '?'} cacheWrite=${u.cache_creation_input_tokens ?? '?'}` +
     ` models=${Object.keys(result.modelUsage ?? {}).join('+') || '?'}`;
   const text = String(result.result ?? '');
-  const spawnFailed = Boolean(res.error) || res.status === null;
+  // Spawn error, timeout, or exit without a result event (other than auth) cannot say anything about the package.
+  const spawnFailed = Boolean(res.error) || res.status === null || !result.type;
   const authFailed = result.is_error === true && /authenticat|OAuth|log ?in/i.test(text);
   return { events, init, result, text, usage, authFailed, spawnFailed, stderr: res.stderr ?? '' };
 }
@@ -58,7 +64,7 @@ function run(label, prompt, maxTurns, extra = []) {
 // 1. Session-start injection (hook output reaches the model).
 const r1 = run('start', "Reply with the exact line that starts with 'Commands:' from your session context, nothing else.", 1);
 report(r1.authFailed || r1.spawnFailed ? 'UNCLEAR' : r1.text.includes('Commands: design, plan') ? 'PASS' : 'FAIL', 'session-start',
-  `${r1.usage} result=${JSON.stringify(r1.text.slice(0, 120))}${r1.authFailed ? ' (not logged in: run `claude` and `/login`, then re-run)' : r1.spawnFailed ? ' (claude did not run to completion: spawn error or timeout)' : ''}`);
+  `${r1.usage} result=${JSON.stringify(r1.text.slice(0, 120))}${r1.authFailed ? ' (not logged in: run `claude` and `/login`, then re-run)' : r1.spawnFailed ? ' (claude did not run to completion: spawn error, timeout or no result event)' : ''}`);
 
 // Plugin wiring from the init event of run 1 (no model turn needed). The CLI's init event has no
 // plugin_errors field in 2.1.289, so loading is inferred from the plugin list and the namespaced entries.
@@ -71,7 +77,7 @@ const both = commands.filter((n) => skills.includes(n));
 if (!r1.init.type) {
   report('UNCLEAR', 'coexist', `no init event; stderr=${r1.stderr.slice(0, 120)}`);
 } else {
-  const ok = Boolean(mine) && resolve(mine.path) === pluginDir && has('check') && has('plan');
+  const ok = Boolean(mine) && samePath(mine.path, pluginDir) && has('check') && has('plan');
   report(ok ? 'PASS' : 'FAIL', 'coexist',
     `plugin=${mine ? `${mine.name}@${mine.version ?? '?'} ${mine.path}` : 'missing'} plugin_errors field=` +
     `${'plugin_errors' in r1.init ? JSON.stringify(r1.init.plugin_errors) : 'absent'} slashEntries=${commands.length}` +

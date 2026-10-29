@@ -25,7 +25,8 @@ im Lauf sichtbar; die Prüfstrings (`Commands: design, plan`, `leanpowers check:
 leanpowers-spezifisch.
 
 Das Skript meldet Startfehler, Zeitüberschreitung und fehlendes `claude` als UNCLEAR (Exit-Code 2),
-nicht als FAIL.
+nicht als FAIL; das gilt auch für einen Lauf ohne `result`-Ereignis. Pfade werden mit `realpath`
+verglichen.
 
 ## Was offen bleibt
 
@@ -33,8 +34,9 @@ nicht als FAIL.
   `claude` (`/login`) laufen: `node scripts/verify-claude.mjs` (erwartete Kosten unter 0,10 USD).
   Bis dahin bleiben die `(unverified)`-Markierungen in `platforms/claude.md` bestehen.
 - Codex: ungeprüft, bis der Nutzer `bash scripts/verify-codex.sh` selbst ausführt (das Skript
-  ändert die Codex-Konfiguration und wird nie von einem Agenten gestartet). Es prüft die echte
-  Ausgabezeile `leanpowers check: ok|N failed` und dass ein Ereignis `leanpowers.mjs` ausführt;
+  ändert die Codex-Konfiguration und wird nie von einem Agenten gestartet). Es meldet PASS nur, wenn ein
+  einzelnes JSONL-Ereignis sowohl einen Befehl `node … leanpowers.mjs` als auch die echte
+  Ausgabezeile `✔|✖ leanpowers check:` enthält (Skill-Text mit der Beispielzeile genügt nicht);
   mit `CODEX_MODEL=<kleines Modell>` lässt sich ein günstiges Modell wählen; die Entfernungs-
   hinweise erscheinen auch bei Fehlern.
 - Gemini CLI: vollständig ungeprüft.
