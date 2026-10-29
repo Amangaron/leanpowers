@@ -41,3 +41,18 @@ test('CLI start prints plain text or Claude hook JSON', () => {
   assert.equal(out.hookSpecificOutput.hookEventName, 'SessionStart');
   assert.match(out.hookSpecificOutput.additionalContext, /^Commands: /m);
 });
+
+test('start text tells how to run the CLI unless it is on PATH', () => {
+  const saved = process.env.LEANPOWERS_CLI;
+  delete process.env.LEANPOWERS_CLI;
+  try {
+    const plain = startText(repo, DEFAULTS, 'leanpowers');
+    assert.doesNotMatch(plain, /^CLI:/m);
+    const t = startText(repo, DEFAULTS);
+    assert.match(t.trimEnd().split('\n').at(-1), /^CLI: run leanpowers as node ".*\/bin\/leanpowers\.mjs"\.$/);
+    assert.ok(estimateTokens(t) <= 150);
+    assert.equal(startText(repo, DEFAULTS, 'lp').trimEnd().split('\n').at(-1), 'CLI: run leanpowers as lp.');
+  } finally {
+    if (saved !== undefined) process.env.LEANPOWERS_CLI = saved;
+  }
+});
