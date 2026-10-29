@@ -4,13 +4,14 @@ German version: [README.de.md](README.de.md)
 
 leanpowers is a lean workflow plugin: it turns an idea into a design, a plan and a task-by-task
 subagent run, with deterministic checks instead of model calls where possible. Always-loaded text
-is about 515 tokens, against about 1,030 for Superpowers 6.3.0 (counted with the same method; calculated, not measured).
+is about 515 tokens, against about 1,030 for Superpowers 6.3.0 (counted with the same method;
+calculated, not measured).
 
 ## Platform status
 
 | Platform | Package | Status |
 | --- | --- | --- |
-| Claude Code | `dist/claude-plugin` | built, verification in progress (loads (inferred from the init event); model runs pending, see `docs/research/2026-10-29-verifikation.md`) |
+| Claude Code | `dist/claude-plugin` | built, verification in progress (loads, inferred from the init event; model runs pending, see `docs/research/2026-10-29-verifikation.md`) |
 | Codex | `dist/codex-plugin` | built, unverified |
 | Gemini CLI | `dist/gemini-extension` | built from docs, unverified |
 
@@ -39,7 +40,8 @@ Verify it yourself:
 
 - Claude Code: after `/login`, run `node scripts/verify-claude.mjs`. It makes a few small model
   calls with your own Claude login (so it uses your quota) and creates a temporary git repository.
-- Codex: run `bash scripts/verify-codex.sh`.
+- Codex: run `bash scripts/verify-codex.sh`. It asks before it changes your Codex
+  configuration (adds a local marketplace and the plugin) and prints how to remove it again.
 
 See [CHANGELOG.md](../CHANGELOG.md) and [RELEASE.md](RELEASE.md).
 
@@ -70,7 +72,8 @@ codex plugin add leanpowers@leanpowers-marketplace
 Codex has no slash commands for plugins and no session hook: invoke a skill as
 `$leanpowers-<name>` and run the CLI via its path, `node <plugin-path>/bin/leanpowers.mjs <command>`.
 Every skill that uses the CLI carries a line saying so in the Codex package.
-To verify the package yourself, run `bash scripts/verify-codex.sh`.
+To verify the package yourself, run `bash scripts/verify-codex.sh`. It asks before it changes your
+Codex configuration (adds a local marketplace and the plugin) and prints how to remove it again.
 
 **Gemini CLI** (unverified)
 

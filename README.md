@@ -34,8 +34,8 @@ codex plugin marketplace add Amangaron/leanpowers
 codex plugin add leanpowers@leanpowers-marketplace
 ```
 
-Gemini CLI (built from docs, unverified; the install line works after the first release push of the
-`gemini-extension` branch):
+Gemini CLI (built from docs, unverified; the install line is available after the first release push of the
+`gemini-extension` branch, unverified):
 
 ```
 gemini extensions install https://github.com/Amangaron/leanpowers --ref gemini-extension
@@ -67,7 +67,8 @@ Verify it yourself:
 
 - Claude Code: after `/login`, run `node scripts/verify-claude.mjs`. It makes a few small model
   calls with your own Claude login (so it uses your quota) and creates a temporary git repository.
-- Codex: run `bash scripts/verify-codex.sh`.
+- Codex: run `bash scripts/verify-codex.sh`. It asks before it changes your Codex
+  configuration (adds a local marketplace and the plugin) and prints how to remove it again.
 
 See [CHANGELOG.md](CHANGELOG.md) and [docs/RELEASE.md](docs/RELEASE.md).
 

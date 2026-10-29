@@ -11,7 +11,7 @@ etwa 1.030 Token (mit derselben Methode gezählt; berechnet, nicht gemessen).
 
 | Plattform | Paket | Stand |
 | --- | --- | --- |
-| Claude Code | `dist/claude-plugin` | gebaut, Verifikation läuft (lädt (aus dem Init-Ereignis geschlossen); Modelläufe stehen aus, siehe `docs/research/2026-10-29-verifikation.md`) |
+| Claude Code | `dist/claude-plugin` | gebaut, Verifikation läuft (lädt – aus dem Init-Ereignis geschlossen; Modelläufe stehen aus, siehe `docs/research/2026-10-29-verifikation.md`) |
 | Codex | `dist/codex-plugin` | gebaut, ungeprüft |
 | Gemini CLI | `dist/gemini-extension` | aus der Dokumentation gebaut, ungeprüft |
 
@@ -41,7 +41,8 @@ Selbst prüfen:
 - Claude Code: nach `/login` `node scripts/verify-claude.mjs` ausführen. Das Skript macht einige
   kleine Modellaufrufe mit Ihrem eigenen Claude-Login (verbraucht also Ihr Kontingent) und legt ein
   temporäres Git-Repository an.
-- Codex: `bash scripts/verify-codex.sh` ausführen.
+- Codex: `bash scripts/verify-codex.sh` ausführen. Sie werden gefragt, bevor Ihre Codex-Konfiguration geändert wird (lokaler Marktplatz und Plugin
+  werden hinzugefügt); das Skript gibt auch aus, wie Sie beides wieder entfernen.
 
 Siehe [CHANGELOG.md](../CHANGELOG.md) und [RELEASE.md](RELEASE.md) (englisch).
 
@@ -73,7 +74,9 @@ codex plugin add leanpowers@leanpowers-marketplace
 Codex hat für Plugins keine Slash-Befehle und keinen Session-Hook: Skills rufen Sie mit
 `$leanpowers-<name>` auf, die Kommandozeile über ihren Pfad, `node <Plugin-Pfad>/bin/leanpowers.mjs <Befehl>`.
 Im Codex-Paket nennt jeder Skill, der die Kommandozeile benutzt, diesen Aufruf selbst.
-Zum Prüfen des Pakets starten Sie selbst `bash scripts/verify-codex.sh`.
+Zum Prüfen des Pakets starten Sie selbst `bash scripts/verify-codex.sh`. Das Skript fragt nach,
+bevor es Ihre Codex-Konfiguration ändert (lokaler Marktplatz und Plugin), und gibt aus, wie Sie
+beides wieder entfernen.
 
 **Gemini CLI** (ungeprüft)
 
