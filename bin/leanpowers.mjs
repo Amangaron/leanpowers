@@ -1,19 +1,33 @@
 #!/usr/bin/env node
+import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { runCheck } from '../checks/check.mjs';
 import { loadConfig } from '../checks/lib/config.mjs';
 import { toPosix } from '../checks/lib/glob.mjs';
 import { writeBrief, runDirFor } from '../checks/brief.mjs';
 import { writeMetrics } from '../checks/metrics.mjs';
+import { startText } from '../checks/start.mjs';
+import { proposeConfig, applyTemplate } from '../checks/init.mjs';
+import { listSkills, setSkills, nativeHint, formatList, parseSet, interactiveChecklist, loadSkillConfig, NATIVE_PLATFORMS } from '../checks/skills-cmd.mjs';
 
-const USAGE = 'usage: leanpowers <check|brief|metrics|config> [--all] [--plan <file>] [--task <n>]';
+const USAGE = [
+  'usage: leanpowers <check|brief|metrics|config|start|skills|init> [options]',
+  '  check [--all] [--plan <file> --task <n>]',
+  '  brief --plan <file> --task <n>',
+  '  metrics --plan <file>',
+  '  config',
+  '  start [--format plain|claude]',
+  '  skills [--list | --set <name>=on|off,... | --native claude|codex|gemini]',
+  '  init [--write | --template <name>]',
+].join('\n');
 
 function usage() {
   console.error(USAGE);
   process.exit(2);
 }
 
-function parseArgs(argv) {
+function parseArgs(argv, { skills = false, init = false } = {}) {
   const opts = { all: false };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
@@ -25,6 +39,20 @@ function parseArgs(argv) {
       const value = argv[++i];
       if (!/^[1-9]\d*$/.test(value ?? '')) usage();
       opts.task = Number(value);
+    } else if (arg === '--format') {
+      opts.format = argv[++i];
+      if (!['plain', 'claude'].includes(opts.format)) usage();
+    } else if (skills && arg === '--list') opts.list = true;
+    else if (skills && arg === '--set') {
+      opts.set = argv[++i];
+      if (!opts.set) usage();
+    } else if (skills && arg === '--native') {
+      opts.native = argv[++i];
+      if (!NATIVE_PLATFORMS.includes(opts.native)) usage();
+    } else if (init && arg === '--write') opts.write = true;
+    else if (init && arg === '--template') {
+      opts.template = argv[++i];
+      if (!opts.template) usage();
     } else usage();
   }
   return opts;
@@ -68,6 +96,99 @@ switch (command) {
     const { config, errors } = loadConfig(root);
     console.log(JSON.stringify(config, null, 2));
     for (const e of errors) console.error(e);
+    break;
+  }
+  case 'start': {
+    const { format = 'plain' } = parseArgs(rest);
+    const { config } = loadConfig(root);
+    const pluginRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+    const text = startText(pluginRoot, config);
+    console.log(format === 'claude'
+      ? JSON.stringify({ hookSpecificOutput: { hookEventName: 'SessionStart', additionalContext: text } })
+      : text);
+    break;
+  }
+  case 'skills': {
+    const opts = parseArgs(rest, { skills: true });
+    if ([opts.list, opts.set, opts.native].filter((v) => v !== undefined).length > 1) usage();
+    const pluginRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+    const { config, errors } = loadSkillConfig(root);
+    let warned = false;
+    const warn = () => {
+      if (!warned) for (const e of errors) console.error(`warning: ${e}`);
+      warned = true;
+    };
+    const list = listSkills(pluginRoot, root, config);
+    const save = (changes) => {
+      try {
+        const file = setSkills(root, changes);
+        warn();
+        console.log(`updated ${toPosix(path.relative(root, file))}`);
+      } catch (err) {
+        // A broken leanpowers.json is already named by the error itself.
+        if (!err.message.startsWith('leanpowers.json:')) warn();
+        console.error(err.message);
+        process.exit(1);
+      }
+    };
+    if (opts.set !== undefined) {
+      let changes;
+      try {
+        changes = parseSet(opts.set);
+      } catch (err) {
+        console.error(err.message);
+        process.exit(2);
+      }
+      save(changes);
+    } else if (opts.native !== undefined) {
+      warn();
+      console.log(nativeHint(opts.native, list.filter((s) => !s.enabled), pluginRoot));
+    } else if (opts.list || !process.stdin.isTTY || !process.stdout.isTTY) {
+      warn();
+      console.log(formatList(list));
+    } else {
+      warn();
+      const after = await interactiveChecklist(list.map(({ name, enabled }) => ({ name, enabled })));
+      const changes = {};
+      for (const [i, item] of (after ?? []).entries()) if (item.enabled !== list[i].enabled) changes[item.name] = item.enabled;
+      if (!after) console.log('cancelled');
+      else if (!Object.keys(changes).length) console.log('no changes');
+      else save(changes);
+    }
+    break;
+  }
+  case 'init': {
+    const opts = parseArgs(rest, { init: true });
+    if (opts.write && opts.template !== undefined) usage();
+    const pluginRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+    if (opts.template !== undefined) {
+      let created;
+      const skipped = [];
+      try {
+        created = applyTemplate(pluginRoot, opts.template, root, skipped);
+      } catch (err) {
+        if (!err.message.startsWith('unknown template: ')) throw err;
+        console.error(err.message);
+        process.exit(1);
+      }
+      const lines = [...created.map((f) => `created ${f}`), ...skipped.map((f) => `skipped ${f}`)];
+      console.log(lines.length ? lines.join('\n') : 'nothing to create: all template files exist');
+      break;
+    }
+    const text = `${JSON.stringify(proposeConfig(root), null, 2)}\n`;
+    if (!opts.write) {
+      console.log(text.trimEnd());
+      console.log('run "leanpowers init --write" to save it');
+      break;
+    }
+    try {
+      fs.writeFileSync(path.join(root, 'leanpowers.json'), text, { flag: 'wx' });
+    } catch (err) {
+      if (err.code !== 'EEXIST') throw err;
+      console.error('leanpowers.json exists — not overwritten');
+      process.exit(1);
+    }
+    console.log('created leanpowers.json');
     break;
   }
   default:

@@ -7,6 +7,7 @@ import { execFileSync } from 'node:child_process';
 import { parsePlan } from '../checks/lib/plan.mjs';
 import { buildBrief, runDirFor, writeBrief } from '../checks/brief.mjs';
 import { DEFAULTS } from '../checks/lib/defaults.mjs';
+import { cliCommand } from '../checks/start.mjs';
 
 const PLAN = `# Demo\n\n**Goal:** g\n\n**Spec:** \`docs/specs/s.md\`\n\n## Global Constraints\n\n- Node >= 20\n\n---\n\n### Task 1: Button\n\n**Risk:** high\n\n**Files:**\n- Create: \`src/components/Button.tsx\`\n- Test: \`tests/button.test.ts\`\n\n- [ ] **Step 1: do**\n\n### Task 2: Other\n\n**Risk:** low\n\n**Files:**\n- Create: \`lib/x.ts\`\n`;
 const config = { ...DEFAULTS, structure: { newFolders: 'ask', rules: [
@@ -30,7 +31,7 @@ test('brief contains only what the implementer needs', () => {
 
 test('brief names the plan path in the check command', () => {
   const b = buildBrief(parsePlan(PLAN), 1, config, 'r', 'docs/plans/demo.md');
-  assert.match(b, /Run `leanpowers check --plan docs\/plans\/demo\.md --task 1`\./);
+  assert.match(b, /Run `(node ".*\/bin\/leanpowers\.mjs"|[^`]+) check --plan docs\/plans\/demo\.md --task 1`\./);
   const d = buildBrief(parsePlan(PLAN), 1, config, 'r');
   assert.match(d, /--plan the plan --task 1/);
 });
@@ -90,4 +91,22 @@ test('writeBrief keeps an existing base sha when re-run', () => {
   git('add', '.'); git('commit', '-qm', 'next');
   writeBrief(root, 'docs/plans/p.md', 1, config);
   assert.equal(fs.readFileSync(path.join(path.dirname(briefPath), 'task-1-base.txt'), 'utf8').trim(), first);
+});
+
+test('brief names exactly the resolvable CLI command', () => {
+  const b = buildBrief(parsePlan(PLAN), 1, config, '.leanpowers/runs/demo', 'docs/plans/demo.md');
+  assert.ok(b.includes(`Run \`${cliCommand()} check --plan docs/plans/demo.md --task 1\``));
+  assert.doesNotMatch(b, /Run `leanpowers check/);
+});
+
+test('brief uses LEANPOWERS_CLI when set', () => {
+  const old = process.env.LEANPOWERS_CLI;
+  process.env.LEANPOWERS_CLI = 'lp';
+  try {
+    const b = buildBrief(parsePlan(PLAN), 1, config, 'r', 'docs/plans/demo.md');
+    assert.ok(b.includes('Run `lp check --plan docs/plans/demo.md --task 1`'));
+  } finally {
+    if (old === undefined) delete process.env.LEANPOWERS_CLI;
+    else process.env.LEANPOWERS_CLI = old;
+  }
 });

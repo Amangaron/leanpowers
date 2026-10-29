@@ -1,0 +1,10 @@
+leanpowers uses ideas, workflow structure and adapted text from Superpowers
+(https://github.com/obra/superpowers), Copyright (c) 2025 Jesse Vincent,
+licensed under the MIT License. Adapted parts are listed below.
+
+Adapted from Superpowers skills: design (brainstorming), plan (writing-plans),
+run (subagent-driven-development, dispatching-parallel-agents,
+executing-plans), review (requesting/receiving-code-review), tdd, debug
+(systematic-debugging), verify (verification-before-completion), worktrees
+(using-git-worktrees), finish (finishing-a-development-branch), write-skill
+(writing-skills), and the implementer/reviewer/re-reviewer templates.

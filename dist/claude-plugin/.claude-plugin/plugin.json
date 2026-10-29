@@ -1,0 +1,10 @@
+{
+  "name": "leanpowers",
+  "version": "0.0.1",
+  "description": "Lean, cross-assistant workflow plugin: design, plan, subagent execution, deterministic checks.",
+  "author": {
+    "name": "Dominic Shin"
+  },
+  "repository": "https://github.com/Amangaron/leanpowers",
+  "license": "MIT"
+}

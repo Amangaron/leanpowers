@@ -1,0 +1,4 @@
+description = "Propose or create the leanpowers project files"
+prompt = """
+Run `node \"${extensionPath}/bin/leanpowers.mjs\" init {{args}}` and show the output. (If `${extensionPath}` is not expanded, the extension folder is the one containing gemini-extension.json.)
+"""

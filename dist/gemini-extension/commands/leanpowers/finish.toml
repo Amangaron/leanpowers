@@ -1,0 +1,4 @@
+description = "Merge, push, keep or discard the finished branch"
+prompt = """
+Invoke the leanpowers finish skill. {{args}}
+"""

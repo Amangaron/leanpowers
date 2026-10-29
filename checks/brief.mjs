@@ -3,6 +3,7 @@ import path from 'node:path';
 import { parsePlan } from './lib/plan.mjs';
 import { headSha } from './lib/git.mjs';
 import { matchesAny, toPosix } from './lib/glob.mjs';
+import { cliCommand } from './start.mjs';
 
 /** Run directory for a plan: <root>/<paths.runs>/<plan basename without .md>, self-ignoring. */
 export function runDirFor(root, config, planPath) {
@@ -34,7 +35,7 @@ export function buildBrief(plan, n, config, runDirRel, planRel = 'the plan') {
     `## Global constraints\n\n${plan.globalConstraints}`,
     `## Structure rules\n\n${structure}`,
     `## Task\n\n${body}`,
-    `## When done\n\nRun \`leanpowers check --plan ${planRel} --task ${n}\`. Write your report (max 150 words) to \`${reportPath}\`: what changed, test result, open questions.`,
+    `## When done\n\nRun \`${cliCommand()} check --plan ${planRel} --task ${n}\`. Write your report (max 150 words) to \`${reportPath}\`: what changed, test result, open questions.`,
   ].join('\n\n') + '\n';
 }
 

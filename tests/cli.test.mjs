@@ -35,7 +35,20 @@ function project() {
 test('unknown command prints usage and exits 2', () => {
   const r = run('nope');
   assert.equal(r.status, 2);
-  assert.match(r.stderr, /usage: leanpowers <check\|brief\|metrics\|config>/);
+  assert.match(r.stderr, /usage: leanpowers <check\|brief\|metrics\|config\|start\|skills\|init>/);
+});
+
+test('usage lists every command with its flags', () => {
+  const lines = run('nope').stderr.split('\n').map((l) => l.trim());
+  for (const line of [
+    'check [--all] [--plan <file> --task <n>]',
+    'brief --plan <file> --task <n>',
+    'metrics --plan <file>',
+    'config',
+    'start [--format plain|claude]',
+    'skills [--list | --set <name>=on|off,... | --native claude|codex|gemini]',
+    'init [--write | --template <name>]',
+  ]) assert.ok(lines.includes(line), line);
 });
 
 test('config prints merged JSON', () => {
@@ -52,7 +65,7 @@ test('check with only --plan or only --task is a usage error', () => {
   for (const args of [['--plan', 'x.md'], ['--task', '1']]) {
     const r = run('check', ...args);
     assert.equal(r.status, 2);
-    assert.match(r.stderr, /usage: leanpowers <check\|brief\|metrics\|config>/);
+    assert.match(r.stderr, /usage: leanpowers <check\|brief\|metrics\|config\|start\|skills\|init>/);
   }
 });
 
@@ -93,4 +106,49 @@ test('metrics prints a summary line', () => {
   const r = spawn(root, 'metrics', '--plan', 'docs/plans/demo.md');
   assert.equal(r.status, 0, r.stderr);
   assert.match(r.stdout, /^metrics: /);
+});
+
+test('init prints a proposal and the write hint without touching disk', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-cli-init-'));
+  fs.mkdirSync(path.join(root, 'src'));
+  fs.writeFileSync(path.join(root, 'src/a.ts'), '');
+  const r = spawn(root, 'init');
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /"path": "src\/\*\*"/);
+  assert.match(r.stdout, /run "leanpowers init --write" to save it/);
+  assert.equal(fs.existsSync(path.join(root, 'leanpowers.json')), false);
+});
+
+test('init --write creates leanpowers.json once and never overwrites', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-cli-init-'));
+  assert.equal(spawn(root, 'init', '--write').status, 0);
+  const saved = JSON.parse(fs.readFileSync(path.join(root, 'leanpowers.json'), 'utf8'));
+  assert.equal(saved.$schema, 'https://raw.githubusercontent.com/Amangaron/leanpowers/main/schema/leanpowers.schema.json');
+  fs.writeFileSync(path.join(root, 'leanpowers.json'), '{"keep":true}');
+  const again = spawn(root, 'init', '--write');
+  assert.equal(again.status, 1);
+  assert.match(again.stderr, /leanpowers\.json exists — not overwritten/);
+  assert.equal(fs.readFileSync(path.join(root, 'leanpowers.json'), 'utf8'), '{"keep":true}');
+});
+
+test('init --template lists created files and reports unknown templates', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-cli-init-'));
+  const r = spawn(root, 'init', '--template', 'project-default');
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /created docs\/specs\/\.gitkeep/);
+  assert.equal(fs.existsSync(path.join(root, 'tests/.gitkeep')), true);
+  const bad = spawn(root, 'init', '--template', 'nope');
+  assert.equal(bad.status, 1);
+  assert.match(bad.stderr, /unknown template: nope/);
+  assert.equal(spawn(root, 'init', '--write', '--template', 'project-default').status, 2);
+});
+
+test('init --template reports skipped entries without a stack trace', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-cli-init-'));
+  fs.writeFileSync(path.join(root, 'docs'), 'a file');
+  const r = spawn(root, 'init', '--template', 'project-default');
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /skipped docs \(blocked by existing file\)/);
+  assert.match(r.stdout, /created src\/\.gitkeep/);
+  assert.equal(r.stderr, '');
 });
