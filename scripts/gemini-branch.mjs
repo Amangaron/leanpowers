@@ -27,16 +27,20 @@ const git = (cwd, args, { allowFail = false } = {}) => {
  */
 export function prepareGeminiBranch(repoRoot, { branch = 'gemini-extension' } = {}) {
   const ref = `refs/heads/${branch}`;
-  if (git(repoRoot, ['symbolic-ref', '-q', 'HEAD'], { allowFail: true }) === ref) {
-    throw new Error(`refusing to rewrite the checked-out branch ${branch}`);
-  }
+  // Any worktree (main or linked) with the branch checked out would be left dirty by moving the ref.
+  const checkedOut = git(repoRoot, ['worktree', 'list', '--porcelain']).split('\n').includes(`branch ${ref}`);
+  if (checkedOut) throw new Error(`refusing to rewrite the checked-out branch ${branch}`);
   const tree = git(repoRoot, ['rev-parse', '--verify', '-q', `HEAD:${SOURCE}`], { allowFail: true });
   if (!tree) throw new Error(`${SOURCE} is not committed in HEAD: run "npm run build" and commit dist/ first`);
   // Staged, modified or untracked changes under the source would make the branch differ from what is on disk.
-  if (git(repoRoot, ['status', '--porcelain', '--', SOURCE])) {
+  if (git(repoRoot, ['--no-optional-locks', 'status', '--porcelain', '--', SOURCE])) {
     throw new Error(`${SOURCE} has uncommitted changes: commit or discard them first`);
   }
   const previous = git(repoRoot, ['rev-parse', '--verify', '-q', ref], { allowFail: true });
+  // Unrelated history must not be chained (and later published): the branch root is always a Gemini extension.
+  if (previous && git(repoRoot, ['cat-file', '-e', `${previous}:gemini-extension.json`], { allowFail: true }) === null) {
+    throw new Error(`branch ${branch} exists but its root has no gemini-extension.json: not a leanpowers branch, refusing to add to it`);
+  }
   const short = git(repoRoot, ['rev-parse', '--short', 'HEAD']);
   const args = ['commit-tree', tree, ...(previous ? ['-p', previous] : []), '-m', `release: gemini-extension from ${short}`];
   const commit = git(repoRoot, args);

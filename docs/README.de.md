@@ -54,6 +54,8 @@ Zum Prüfen des Pakets starten Sie selbst `bash scripts/verify-codex.sh`.
 gemini extensions install https://github.com/Amangaron/leanpowers --ref gemini-extension
 ```
 
+Verfügbar nach dem ersten Release-Push des Zweigs `gemini-extension`.
+
 Der Zweig `gemini-extension` enthält nur die gebaute Erweiterung im Wurzelverzeichnis (die
 Wurzel des Repositorys enthält Quell-Skills, die Gemini sonst laden würde). Er wird bei jedem
 Release mit `node scripts/gemini-branch.mjs` neu erzeugt; das Skript baut ihn lokal aus dem

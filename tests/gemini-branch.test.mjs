@@ -79,3 +79,22 @@ test('refuses when the target branch is the checked-out branch', () => {
   const root = makeRepo();
   assert.throws(() => prepareGeminiBranch(root, { branch: 'main' }), /checked-out/);
 });
+
+test('refuses when the branch is checked out in a linked worktree', () => {
+  const root = makeRepo();
+  prepareGeminiBranch(root);
+  const wt = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-gemwt-')) + '/wt';
+  git(root, 'worktree', 'add', '-q', wt, 'gemini-extension');
+  const before = git(root, 'rev-parse', 'gemini-extension');
+  assert.throws(() => prepareGeminiBranch(root), /checked-out/);
+  assert.equal(git(root, 'rev-parse', 'gemini-extension'), before);
+  assert.equal(git(wt, 'status', '--porcelain'), '');
+});
+
+test('refuses to add to an existing branch that is not a gemini extension', () => {
+  const root = makeRepo();
+  git(root, 'branch', 'gemini-extension', 'main');
+  const before = git(root, 'rev-parse', 'gemini-extension');
+  assert.throws(() => prepareGeminiBranch(root), /no gemini-extension\.json/);
+  assert.equal(git(root, 'rev-parse', 'gemini-extension'), before);
+});
