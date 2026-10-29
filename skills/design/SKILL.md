@@ -22,7 +22,7 @@ Unsure → take the larger class. If hidden complexity shows up later, stop, say
 
 Read the relevant code and ask only the questions that matter, one at a time. Present the design in chat — for small one or two sentences; for medium the approach, files touched and how it is tested. **Stop and wait for an explicit yes.** Presenting and starting in the same message skips the gate.
 
-After approval: small → implement, then run `leanpowers check`. Medium → write the approved design to `<paths.runs>/YYYY-MM-DD-<topic>/task-1-brief.md` (a new folder gets a `.gitignore` containing `*`), dispatch a subagent at tier medium with template `agents/implementer.md`, then run `leanpowers check`. No spec, no plan.
+After approval: small → implement, then run `leanpowers check`. Medium → write `<paths.runs>/YYYY-MM-DD-<topic>/task-1-brief.md` (a new folder gets a `.gitignore` containing `*`) in the task-brief shape: `## Allowed files`; `## Global constraints` (the user's project rules); `## Task` (the approved design); `## When done`: run `leanpowers check` and write the report to `task-1-report.md` in the same folder. Dispatch a subagent at tier medium with template `agents/implementer.md`, `{{brief}}` that file and `{{report}}` the report path. Handle its status as `run` does (per task, step 3), then run `leanpowers check`. No spec, no plan.
 
 ## 3. Large
 

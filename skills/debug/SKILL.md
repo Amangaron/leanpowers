@@ -37,7 +37,7 @@ If `skills.debug` is false in leanpowers.json, say "leanpowers: debug is disable
 
 ## When fixes keep failing
 
-Count your fix attempts. After **3 failed fixes**, stop. Each fix revealing a new problem elsewhere, or needing a large refactor to work, signals an architectural problem, not a bad hypothesis. Summarize what you tried and learned, then ask the user whether to question the design before attempting a fourth fix.
+Count your fix attempts. After **3 failed fixes**, stop. Each fix revealing a new problem elsewhere, or needing a large refactor to work, signals an architectural problem, not a bad hypothesis. Summarize what you tried and learned, then ask the user whether to question the design before attempting a fourth fix; a subagent worker returns BLOCKED instead.
 
 ## Red flags
 

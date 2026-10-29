@@ -14,7 +14,7 @@ Run `leanpowers check --all`. If it is not green, show the user the findings. Me
 
 ## 2. Establish the base
 
-Find the branch this work started from (for a plan run, the run base recorded in the ledger; otherwise the nearest of `main` or `master`). If unsure, ask the user.
+Find the branch this work merges into. For a plan run, read it from the ledger's `Base branch:` line (not a commit); otherwise take the nearest of `main` or `master`. If unsure, ask the user.
 
 ## 3. Offer exactly four options
 
@@ -27,7 +27,7 @@ Present these four, nothing more (while the check is red, mark options 1 and 2 a
 
 ## 4. Execute the choice
 
-**Merge locally:** check out the base, update it if a remote exists, merge the feature branch, run `leanpowers check --all` again on the merged result. Red: report, delete and remove nothing. Green: clean up (step 5), which ends with the safe branch delete (`git branch -d`).
+**Merge locally:** from the main checkout (not inside the worktree), check out the base, update it if a remote exists, merge the feature branch, run `leanpowers check --all` again on the merged result. Red: report, delete and remove nothing. Green: clean up (step 5), which ends with the safe branch delete (`git branch -d`).
 
 **Push and PR:** push the branch with upstream tracking, then open a pull request whose body has a short summary and a test plan taken from the plan and the check output. Show the user the PR link. Keep the worktree: review may need changes.
 
@@ -45,7 +45,7 @@ After a merge or confirmed discard only:
 
 ## Never
 
-- Proceed with a red `leanpowers check --all`.
+- Merge or open a pull request with a red `leanpowers check --all`.
 - Push, merge, force-push or delete a branch without the user's explicit choice.
 - Discard without the typed confirmation.
 - Remove a worktree or run folder after "keep" or "push and PR".

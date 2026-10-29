@@ -2,17 +2,25 @@
 
 `<run folder>/progress.md` is the run's memory. It survives a lost context; your recollection does not. Append one line per event, in the order events happen; never rewrite earlier lines.
 
+## Branch guard and worktree
+
+Before creating the ledger:
+
+1. If `git worktree list` already shows a worktree on this plan's branch, continue there and resume from the ledger in its run folder.
+2. If HEAD is on the repository's default branch (the remote's HEAD branch, else `main` or `master`): when `skills.worktrees` is true, invoke the `worktrees` skill; otherwise create and switch to `feat/<plan-topic>`. Log it as a ruling. User instructions that name a branch or allow work on the default branch win.
+3. With a worktree, the run folder is the one inside the worktree root: copy `besetzung.md` there before writing the ledger. From then on every dispatch (implementers, reviewers, re-reviewers, the final fix wave) names the worktree root as the working directory, and every `leanpowers` call runs there.
+
 ## Header
 
 ```markdown
 # leanpowers ledger — plan: <plan path>
 
-Run base: <sha7> · Branch: <branch>
+Run base: <sha7> · Base branch: <name> · Branch: <branch> · Worktree: <path or none>
 
 ## Tasks
 ```
 
-The first line names the plan. Every later line goes under `## Tasks`.
+The first line names the plan. `Base branch` is the branch you started from: the one the guard switched away from, or, when no switch was needed, the default branch unless user instructions name another. `finish` merges into it. Every later line goes under `## Tasks`.
 
 ## Run folder files
 
@@ -25,7 +33,7 @@ The first line names the plan. Every later line goes under `## Tasks`.
 | `task-<n>-report.md` | implementer report (`{{report}}`) |
 | `review-<id>.diff`, `review-<id>.md` | diff and review |
 | `review-<id>-r<r>.diff`, `review-<id>-r<r>.md` | review round r: fix diff and re-review |
-| `task-final-brief.md` | final fix wave, in the shape of a task brief: the open Critical and Important findings as the task, the files they name under `## Allowed files`, the Global Constraints verbatim, `leanpowers check --all` under `## When done`, commit message `fix: final review findings` |
+| `task-final-brief.md` | final fix wave, in the shape of a task brief: the open Critical and Important findings (plus minors marked `fix now`) as the task, the files they name under `## Allowed files`, the Global Constraints verbatim, `leanpowers check --all` under `## When done`, commit message `fix: final review findings` |
 | `task-final-report.md` | report of the final fix wave |
 
 ## Lines

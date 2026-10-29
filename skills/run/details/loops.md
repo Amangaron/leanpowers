@@ -27,6 +27,6 @@ When all have returned, run each task's normal gate. Ignore only scope findings 
 
 ## Final fix wave
 
-Only when the final review leaves Critical or Important findings. Write `task-final-brief.md` (shape in [ledger.md](ledger.md)), dispatch one implementer at tier medium with report `task-final-report.md`, gate with `leanpowers check --all`, then one re-review into `review-final-r1.md`. Rule on what remains; there is no second wave.
+Only when the final review leaves Critical or Important findings; deferred minors it marked `fix now` join the wave but never start one. Write `task-final-brief.md` (shape in [ledger.md](ledger.md)), dispatch one implementer at tier medium with report `task-final-report.md`, gate with `leanpowers check --all`, then one re-review into `review-final-r1.md`. Rule on what remains; there is no second wave.
 
 `leanpowers check --all` red, here or at the end → the gate rules above apply (retry, escalate, stop). Never invoke `finish` while it is red; report the red check and the ledger path to the user instead.
