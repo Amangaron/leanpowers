@@ -23,7 +23,7 @@ function parseArgs(argv) {
       if (!opts.plan) usage();
     } else if (arg === '--task') {
       const value = argv[++i];
-      if (!/^\d+$/.test(value ?? '')) usage();
+      if (!/^[1-9]\d*$/.test(value ?? '')) usage();
       opts.task = Number(value);
     } else usage();
   }
@@ -46,7 +46,13 @@ switch (command) {
     const { plan, task } = parseArgs(rest);
     if (!plan || task === undefined) usage();
     const { config } = loadConfig(root);
-    console.log(toPosix(path.relative(root, writeBrief(root, plan, task, config))));
+    try {
+      console.log(toPosix(path.relative(root, writeBrief(root, plan, task, config))));
+    } catch (err) {
+      if (!String(err.message).startsWith('plan not found: ')) throw err;
+      console.error(err.message);
+      process.exit(1);
+    }
     break;
   }
   case 'metrics': {

@@ -95,3 +95,75 @@ test('non-gate results are capped at 20 lines plus a rest marker', () => {
   assert.equal(text.split('\n').filter((l) => l.startsWith('  not in brief: ')).length, 20);
   assert.match(text, /✖ scope[\s\S]*  … 5 more/);
 });
+
+test('task check with only a plan or only a task fails instead of passing', () => {
+  const root = project({ commands: { test: 'node ok.mjs' } });
+  for (const opts of [{ plan: 'docs/plans/demo.md' }, { task: 1 }]) {
+    const r = runCheck({ root, ...opts, userConfigPath: NO_USER });
+    assert.equal(r.ok, false);
+    assert.match(r.text, /✖ scope\n  check needs both --plan and --task/);
+    assert.doesNotMatch(r.text, /structure/);
+  }
+});
+
+test('paths are root-relative when the project sits in a monorepo subdirectory', () => {
+  const mono = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-mono-'));
+  const git = (...a) => execFileSync('git', a, { cwd: mono, stdio: 'pipe' });
+  git('init', '-q'); git('config', 'user.email', 't@t'); git('config', 'user.name', 't');
+  const root = path.join(mono, 'pkg');
+  fs.mkdirSync(path.join(root, 'docs/plans'), { recursive: true });
+  fs.mkdirSync(path.join(root, 'src'));
+  fs.writeFileSync(path.join(root, 'src/.keep'), '');
+  fs.writeFileSync(path.join(root, 'docs/plans/demo.md'), PLAN);
+  fs.writeFileSync(path.join(root, 'ok.mjs'), 'process.exit(0)');
+  fs.writeFileSync(path.join(root, 'leanpowers.json'), JSON.stringify({
+    commands: { test: 'node ok.mjs' },
+    structure: { newFolders: 'deny', rules: [{ path: 'src/**', allow: ['*.ts'] }] },
+  }));
+  fs.writeFileSync(path.join(root, '.gitignore'), '.leanpowers/\n');
+  git('add', '.'); git('commit', '-qm', 'init');
+  const { config } = loadConfig(root, { userConfigPath: NO_USER });
+  writeBrief(root, 'docs/plans/demo.md', 1, config);
+  fs.writeFileSync(path.join(root, 'src/a.ts'), 'a');
+  fs.mkdirSync(path.join(root, 'src/newdir'));
+  fs.writeFileSync(path.join(root, 'src/newdir/b.js'), 'b');
+  fs.writeFileSync(path.join(mono, 'outside.txt'), 'o');
+  const r = runCheck({ root, plan: 'docs/plans/demo.md', task: 1, userConfigPath: NO_USER });
+  assert.equal(r.ok, false);
+  assert.match(r.text, /✖ scope\n  not in brief: src\/newdir\/b\.js/);
+  assert.doesNotMatch(r.text, /pkg\//);
+  assert.doesNotMatch(r.text, /outside\.txt/);
+  assert.doesNotMatch(r.text, /not in brief: src\/a\.ts/);
+  assert.match(r.text, /src\/newdir\/b\.js: not allowed by rule src\/\*\*/);
+  assert.match(r.text, /new folder not allowed: src\/newdir/);
+});
+
+test('an absolute --plan path works for check', () => {
+  const root = project({ commands: { test: 'node ok.mjs' } });
+  const { config } = loadConfig(root, { userConfigPath: NO_USER });
+  const abs = path.join(root, 'docs/plans/demo.md');
+  writeBrief(root, abs, 1, config);
+  fs.writeFileSync(path.join(root, 'src/a.ts'), 'a');
+  assert.equal(runCheck({ root, plan: abs, task: 1, userConfigPath: NO_USER }).text,
+    '✔ leanpowers check: ok (gates:test, scope, structure)');
+});
+
+test('a missing plan is a one-line failure without a run directory', () => {
+  const root = project({ commands: { test: 'node ok.mjs' } });
+  const r = runCheck({ root, plan: 'docs/plans/nope.md', task: 1, userConfigPath: NO_USER });
+  assert.equal(r.ok, false);
+  assert.match(r.text, /✖ scope\n  plan not found: docs\/plans\/nope\.md$/);
+  assert.equal(fs.existsSync(path.join(root, '.leanpowers/runs/nope')), false);
+});
+
+test('re-running brief keeps the original task base', () => {
+  const root = project({ commands: { test: 'node ok.mjs' } });
+  const git = (...a) => execFileSync('git', a, { cwd: root, stdio: 'pipe' });
+  const { config } = loadConfig(root, { userConfigPath: NO_USER });
+  writeBrief(root, 'docs/plans/demo.md', 1, config);
+  fs.writeFileSync(path.join(root, 'extra.txt'), 'e');
+  git('add', '.'); git('commit', '-qm', 'work');
+  writeBrief(root, 'docs/plans/demo.md', 1, config);
+  const r = runCheck({ root, plan: 'docs/plans/demo.md', task: 1, userConfigPath: NO_USER });
+  assert.match(r.text, /✖ scope\n  not in brief: extra\.txt/);
+});

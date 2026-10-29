@@ -57,3 +57,37 @@ test('writeBrief writes brief and base sha into a self-ignoring run dir', () => 
   assert.match(brief, /--plan docs\/plans\/2026-01-01-demo\.md --task 1/);
   assert.match(brief, /`\.leanpowers\/runs\/2026-01-01-demo\/task-1-report\.md`/);
 });
+
+test('writeBrief accepts an absolute plan path and names it root-relative', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-brief-'));
+  const git = (...a) => execFileSync('git', a, { cwd: root, stdio: 'pipe' });
+  git('init', '-q'); git('config', 'user.email', 't@t'); git('config', 'user.name', 't');
+  fs.mkdirSync(path.join(root, 'docs/plans'), { recursive: true });
+  const abs = path.join(root, 'docs/plans/2026-01-01-demo.md');
+  fs.writeFileSync(abs, PLAN);
+  git('add', '.'); git('commit', '-qm', 'init');
+  const briefPath = writeBrief(root, abs, 1, config);
+  assert.equal(briefPath, path.join(root, '.leanpowers/runs/2026-01-01-demo/task-1-brief.md'));
+  assert.match(fs.readFileSync(briefPath, 'utf8'), /--plan docs\/plans\/2026-01-01-demo\.md --task 1/);
+});
+
+test('writeBrief on a missing plan throws a plan-not-found error', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-brief-'));
+  assert.throws(() => writeBrief(root, 'docs/plans/nope.md', 1, config), /plan not found: docs\/plans\/nope\.md/);
+  assert.equal(fs.existsSync(path.join(root, '.leanpowers')), false);
+});
+
+test('writeBrief keeps an existing base sha when re-run', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-brief-'));
+  const git = (...a) => execFileSync('git', a, { cwd: root, stdio: 'pipe' }).toString().trim();
+  git('init', '-q'); git('config', 'user.email', 't@t'); git('config', 'user.name', 't');
+  fs.mkdirSync(path.join(root, 'docs/plans'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'docs/plans/p.md'), PLAN);
+  git('add', '.'); git('commit', '-qm', 'init');
+  const first = git('rev-parse', 'HEAD');
+  const briefPath = writeBrief(root, 'docs/plans/p.md', 1, config);
+  fs.writeFileSync(path.join(root, 'x.txt'), 'x');
+  git('add', '.'); git('commit', '-qm', 'next');
+  writeBrief(root, 'docs/plans/p.md', 1, config);
+  assert.equal(fs.readFileSync(path.join(path.dirname(briefPath), 'task-1-base.txt'), 'utf8').trim(), first);
+});

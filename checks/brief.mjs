@@ -40,11 +40,16 @@ export function buildBrief(plan, n, config, runDirRel, planRel = 'the plan') {
 
 /** Write task-<n>-brief.md and task-<n>-base.txt into the run dir; returns the brief path. */
 export function writeBrief(root, planPath, n, config) {
-  const plan = parsePlan(fs.readFileSync(path.join(root, planPath), 'utf8'));
-  const runDir = runDirFor(root, config, planPath);
+  const planAbs = path.resolve(root, planPath);
+  const planRel = toPosix(path.relative(root, planAbs));
+  if (!fs.existsSync(planAbs)) throw new Error(`plan not found: ${planRel}`);
+  const plan = parsePlan(fs.readFileSync(planAbs, 'utf8'));
+  const runDir = runDirFor(root, config, planAbs);
   const runDirRel = toPosix(path.relative(root, runDir));
   const briefPath = path.join(runDir, `task-${n}-brief.md`);
-  fs.writeFileSync(briefPath, buildBrief(plan, n, config, runDirRel, toPosix(planPath)));
-  fs.writeFileSync(path.join(runDir, `task-${n}-base.txt`), `${headSha(root)}\n`);
+  fs.writeFileSync(briefPath, buildBrief(plan, n, config, runDirRel, planRel));
+  // The base is the state before the task started: re-running brief must not move it.
+  const baseFile = path.join(runDir, `task-${n}-base.txt`);
+  if (!fs.existsSync(baseFile)) fs.writeFileSync(baseFile, `${headSha(root)}\n`);
   return briefPath;
 }

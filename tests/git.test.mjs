@@ -61,14 +61,20 @@ test('changedFiles lists a committed deletion', () => {
   assert.deepEqual(changedFiles(root, base), ['src/a.ts']);
 });
 
-test('changedFiles and dirsAt are toplevel-relative when root is a subdirectory', () => {
-  const { root } = repo();
-  const base = headSha(root);
+test('changedFiles and dirsAt are relative to root when root is a subdirectory', () => {
+  const { root, git } = repo();
+  fs.mkdirSync(path.join(root, 'pkg/lib'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'pkg/lib/x.ts'), 'x');
+  git('add', '.');
+  git('commit', '-qm', 'pkg');
+  const pkg = path.join(root, 'pkg');
+  const base = headSha(pkg);
   fs.writeFileSync(path.join(root, 'top.txt'), 't');
   fs.writeFileSync(path.join(root, 'src/b.ts'), 'b');
-  const sub = path.join(root, 'src');
-  assert.deepEqual(changedFiles(sub, base), changedFiles(root, base));
-  assert.deepEqual(changedFiles(sub, base), ['src/b.ts', 'top.txt']);
-  assert.deepEqual([...dirsAt(sub, base)].sort(), ['src']);
-  assert.equal(headSha(sub), headSha(root));
+  fs.writeFileSync(path.join(pkg, 'lib/y.ts'), 'y');
+  fs.writeFileSync(path.join(pkg, 'z.ts'), 'z');
+  fs.writeFileSync(path.join(pkg, 'lib/x.ts'), 'changed');
+  assert.deepEqual(changedFiles(pkg, base), ['lib/x.ts', 'lib/y.ts', 'z.ts']);
+  assert.deepEqual([...dirsAt(pkg, base)].sort(), ['lib']);
+  assert.equal(headSha(pkg), headSha(root));
 });

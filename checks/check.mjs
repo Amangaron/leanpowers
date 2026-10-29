@@ -14,14 +14,17 @@ import { runDirFor } from './brief.mjs';
 
 /** Scope and structure checks for one task, measured against the base recorded in its brief. */
 function taskChecks(root, config, plan, task) {
-  const baseFile = path.join(runDirFor(root, config, plan), `task-${task}-base.txt`);
+  const planAbs = path.resolve(root, plan);
+  const planRel = toPosix(path.relative(root, planAbs));
+  if (!fs.existsSync(planAbs)) return [{ name: 'scope', ok: false, messages: [`plan not found: ${planRel}`] }];
+  const baseFile = path.join(runDirFor(root, config, planAbs), `task-${task}-base.txt`);
   if (!fs.existsSync(baseFile)) {
-    const msg = `no brief for task ${task}, run: leanpowers brief --plan ${toPosix(plan)} --task ${task}`;
+    const msg = `no brief for task ${task}, run: leanpowers brief --plan ${planRel} --task ${task}`;
     return [{ name: 'scope', ok: false, messages: [msg] }];
   }
   const base = fs.readFileSync(baseFile, 'utf8').trim();
-  const taskDef = parsePlan(fs.readFileSync(path.join(root, plan), 'utf8')).tasks.find((t) => t.n === task);
-  if (!taskDef) return [{ name: 'scope', ok: false, messages: [`task ${task} not found in ${toPosix(plan)}`] }];
+  const taskDef = parsePlan(fs.readFileSync(planAbs, 'utf8')).tasks.find((t) => t.n === task);
+  if (!taskDef) return [{ name: 'scope', ok: false, messages: [`task ${task} not found in ${planRel}`] }];
 
   const changed = changedFiles(root, base);
   const allowed = taskDef.files.map((f) => f.path);
@@ -49,7 +52,10 @@ function taskChecks(root, config, plan, task) {
 export function runCheck({ root, plan, task, all = false, userConfigPath }) {
   const { config, errors } = loadConfig(root, userConfigPath ? { userConfigPath } : undefined);
   const results = runGates(config, root);
-  if (plan && task) results.push(...taskChecks(root, config, plan, task));
+  if (plan !== undefined && task !== undefined) results.push(...taskChecks(root, config, plan, task));
+  else if (plan !== undefined || task !== undefined) {
+    results.push({ name: 'scope', ok: false, messages: ['check needs both --plan and --task'] });
+  }
   if (all) results.push(lintDocs(root, config), lintSkills(root, config));
   // Gate results are already compressed by runGates.
   const compressed = results.map((r) => (r.name.startsWith('gates:') ? r : { ...r, messages: compress(r.messages, 20) }));
