@@ -38,6 +38,19 @@ test('unknown command prints usage and exits 2', () => {
   assert.match(r.stderr, /usage: leanpowers <check\|brief\|metrics\|config\|start\|skills\|init>/);
 });
 
+test('usage lists every command with its flags', () => {
+  const lines = run('nope').stderr.split('\n').map((l) => l.trim());
+  for (const line of [
+    'check [--all] [--plan <file> --task <n>]',
+    'brief --plan <file> --task <n>',
+    'metrics --plan <file>',
+    'config',
+    'start [--format plain|claude]',
+    'skills [--list | --set <name>=on|off,... | --native claude|codex|gemini]',
+    'init [--write | --template <name>]',
+  ]) assert.ok(lines.includes(line), line);
+});
+
 test('config prints merged JSON', () => {
   const r = run('config');
   assert.equal(r.status, 0);
@@ -110,7 +123,7 @@ test('init --write creates leanpowers.json once and never overwrites', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-cli-init-'));
   assert.equal(spawn(root, 'init', '--write').status, 0);
   const saved = JSON.parse(fs.readFileSync(path.join(root, 'leanpowers.json'), 'utf8'));
-  assert.equal(saved.$schema, './node_modules/leanpowers/schema/leanpowers.schema.json');
+  assert.equal(saved.$schema, 'https://raw.githubusercontent.com/Amangaron/leanpowers/main/schema/leanpowers.schema.json');
   fs.writeFileSync(path.join(root, 'leanpowers.json'), '{"keep":true}');
   const again = spawn(root, 'init', '--write');
   assert.equal(again.status, 1);

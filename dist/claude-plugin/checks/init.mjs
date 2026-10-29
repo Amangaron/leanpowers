@@ -4,7 +4,7 @@ import { loadConfig } from './lib/config.mjs';
 import { toPosix } from './lib/glob.mjs';
 
 const SKIP_DIRS = new Set(['node_modules', 'dist', 'build', 'vendor']);
-const SCHEMA_REF = './node_modules/leanpowers/schema/leanpowers.schema.json';
+const SCHEMA_REF = 'https://raw.githubusercontent.com/Amangaron/leanpowers/main/schema/leanpowers.schema.json';
 const NPM_COMMANDS = { test: 'npm test', typecheck: 'npm run typecheck', lint: 'npm run lint' };
 const MAKE_TARGETS = ['test', 'lint'];
 

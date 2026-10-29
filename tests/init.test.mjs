@@ -125,3 +125,11 @@ test('Makefile variable assignments are not targets', () => {
   const root = project({ Makefile: 'test := foo\nlint ::= bar\nlint:\n\ttrue\n' });
   assert.deepEqual(scanProject(root).commands, { test: '', typecheck: '', lint: 'make lint' });
 });
+
+test('proposals and templates point $schema at the published schema URL', () => {
+  const url = 'https://raw.githubusercontent.com/Amangaron/leanpowers/main/schema/leanpowers.schema.json';
+  assert.equal(proposeConfig(fs.mkdtempSync(path.join(os.tmpdir(), 'lp-init-url-'))).$schema, url);
+  for (const rel of ['templates/leanpowers.json', 'templates/project-default/leanpowers.json']) {
+    assert.equal(JSON.parse(fs.readFileSync(path.join(repo, rel), 'utf8')).$schema, url, rel);
+  }
+});

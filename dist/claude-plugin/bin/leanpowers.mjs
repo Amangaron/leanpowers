@@ -11,7 +11,16 @@ import { startText } from '../checks/start.mjs';
 import { proposeConfig, applyTemplate } from '../checks/init.mjs';
 import { listSkills, setSkills, nativeHint, formatList, parseSet, interactiveChecklist, loadSkillConfig, NATIVE_PLATFORMS } from '../checks/skills-cmd.mjs';
 
-const USAGE = 'usage: leanpowers <check|brief|metrics|config|start|skills|init> [--all] [--plan <file>] [--task <n>] [--format plain|claude]';
+const USAGE = [
+  'usage: leanpowers <check|brief|metrics|config|start|skills|init> [options]',
+  '  check [--all] [--plan <file> --task <n>]',
+  '  brief --plan <file> --task <n>',
+  '  metrics --plan <file>',
+  '  config',
+  '  start [--format plain|claude]',
+  '  skills [--list | --set <name>=on|off,... | --native claude|codex|gemini]',
+  '  init [--write | --template <name>]',
+].join('\n');
 
 function usage() {
   console.error(USAGE);
