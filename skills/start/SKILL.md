@@ -4,7 +4,7 @@ description: Use when a session starts - explains when leanpowers workflows appl
 ---
 leanpowers picks the workflow by size; unclear size → next larger:
 - Small (one file, clear fix): do it, then run `leanpowers check`.
-- Medium (bounded change in existing code): short design in chat, user approval, one subagent, `leanpowers check`.
+- Medium (bounded change in existing code): `design` (short, in chat), user approval, one subagent, `leanpowers check`.
 - Large (new feature or project, several areas, interfaces): `design` → `plan` → `staff` → `run` → `finish`.
 
 Commands: design, plan, staff, run, debug, finish, check, skills, init.

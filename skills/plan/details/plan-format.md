@@ -6,7 +6,7 @@
 
 - `# <title>` as the first line.
 - `**Goal:** <one sentence>` — the rest of the line is the goal; backticks are dropped.
-- `**Spec:** <path to the spec>` — same rule.
+- `**Spec:** <path to the spec>` — same rule. Without a spec file, use a one-line summary of the request instead, e.g. `**Spec:** user request 2026-01-01: add a greet command`, and put the requirements into Goal and Global Constraints.
 - Other header lines (architecture, tech stack) are allowed and ignored.
 
 ## Global Constraints
