@@ -15,9 +15,7 @@ without the maintainer's decision.
    `git status --porcelain -- dist .claude-plugin .agents` must both be empty after committing the
    rebuilt output (CI checks the same).
 5. Add a section `## [<version>] - <date>` to `CHANGELOG.md`.
-6. Commit, then `git tag v<version>`.
-7. `node scripts/gemini-branch.mjs` builds the `gemini-extension` branch locally from the committed
-   `dist/gemini-extension` and prints the push command. It never pushes.
+6. Commit. Do not tag yet — the tag is set in step 13, after CI is green.
 
 For the first release (0.1.0) the version, CHANGELOG and dist steps (3 to 5) are already done and
 committed. If the release happens later than 2026-10-29, adjust the date in the CHANGELOG section.
@@ -26,18 +24,20 @@ committed. If the release happens later than 2026-10-29, adjust the date in the 
 
 These steps publish to GitHub. Do them only when the maintainer has decided to release.
 
-8. Create the empty public repository `Amangaron/leanpowers` on GitHub, without README, license or
-   .gitignore, so the first push is not rejected (only with the maintainer's decision).
-9. The remote `origin` must exist. If it does not, add it, again only with the maintainer's
-   decision: `git remote add origin https://github.com/Amangaron/leanpowers.git`.
-10. Push `master` only: `git push origin master`. Do not push the tag yet.
-11. Wait until the CI run on GitHub is green in all six cells: macOS, Windows and Linux, each with
-    Node 20 and 22.
-12. Once CI is green, update `README.md`, `docs/README.md`, `docs/README.de.md` and `CHANGELOG.md`,
-    which still say "CI configured, not run yet" (German: "eingerichtet, noch nicht gelaufen"),
-    and commit. If that commit comes before the tag, move the tag to it.
-13. Push the tag: `git push origin v<version>`.
-14. Push the Gemini branch: `git push origin gemini-extension`.
+7. Create the empty public repository `Amangaron/leanpowers` on GitHub, without README, license or
+   .gitignore, so the first push is not rejected.
+8. The remote `origin` must exist. If it does not: `git remote add origin
+   https://github.com/Amangaron/leanpowers.git`.
+9. Push `master`: `git push origin master`.
+10. Wait until the CI run on GitHub is green in all six cells: macOS, Windows and Linux, each with
+    Node 20 and 22. If a cell fails, fix it on `master`, push again and wait for green.
+11. Update the CI status lines in `README.md`, `docs/README.md`, `docs/README.de.md`
+    ("configured, not run yet" / "eingerichtet, noch nicht gelaufen") and `CHANGELOG.md`
+    ("configured; not run yet"), commit, and push `master` again.
+12. Wait until CI is green on that commit too.
+13. Tag that commit and push the tag: `git tag v<version>`, then `git push origin v<version>`.
+14. Build and push the Gemini branch from it: `node scripts/gemini-branch.mjs` (local only, prints
+    the push command), then `git push origin gemini-extension`.
 15. Optional: create a GitHub Release for the tag from the CHANGELOG section (web UI, or
     `gh release create v<version> --notes-file <file with the CHANGELOG section>`).
 
