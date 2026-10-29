@@ -10,5 +10,6 @@
   },
   "review": { "batch": 3, "maxFixRounds": 2 },
   "models": { "small": "auto", "medium": "auto", "large": "auto" },
-  "summarizer": "none"
+  "summarizer": "none",
+  "orchestration": "auto"
 }

@@ -1,22 +1,31 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { toPosix } from './lib/glob.mjs';
+import { stripCode } from './lib/plan.mjs';
 
 const MAX_SKILL_WORDS = 600;
 const MAX_AGENT_WORDS = 400;
 const MAX_START_TOKENS = 150;
 const MAX_DESCRIPTION_WORDS = 60;
 
-/** Parse `---` delimited frontmatter (simple `key: value` lines). Returns null when absent. */
+/** Parse `---` delimited frontmatter (`key: value` lines, plus `>`/`|` block values). Returns null when absent. */
 export function parseFrontmatter(text) {
   const lines = text.replaceAll('\r\n', '\n').split('\n');
   if (lines[0] !== '---') return null;
   const end = lines.indexOf('---', 1);
   if (end === -1) return null;
   const data = {};
-  for (const line of lines.slice(1, end)) {
+  for (let n = 1; n < end; n++) {
+    const line = lines[n];
     const i = line.indexOf(': ');
-    if (i > 0) data[line.slice(0, i).trim()] = line.slice(i + 2).trim();
+    if (i <= 0) continue;
+    let value = line.slice(i + 2).trim();
+    if (['>', '>-', '|', '|-'].includes(value)) {
+      const block = [];
+      while (n + 1 < end && /^\s/.test(lines[n + 1])) block.push(lines[++n].trim());
+      value = block.join(' ');
+    }
+    data[line.slice(0, i).trim()] = value;
   }
   return { data, body: lines.slice(end + 1).join('\n') };
 }
@@ -45,7 +54,7 @@ export function lintSkillFile(file, { name, maxWords }) {
   }
   const bodyWords = countWords(fm.body);
   if (bodyWords > maxWords) messages.push(`${bodyWords} words (max ${maxWords})`);
-  for (const match of fm.body.matchAll(/\]\(([^)\s]+)\)/g)) {
+  for (const match of stripCode(fm.body).matchAll(/\]\(([^)\s]+)\)/g)) {
     const target = match[1];
     if (/^https?:/i.test(target) || target.startsWith('#')) continue;
     const local = target.split(/[#?]/)[0];
@@ -56,7 +65,15 @@ export function lintSkillFile(file, { name, maxWords }) {
 
 function subdirs(dir) {
   if (!fs.existsSync(dir)) return [];
-  return fs.readdirSync(dir, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name);
+  // statSync follows symlinks and junctions; dangling links are skipped.
+  const isDir = (name) => {
+    try {
+      return fs.statSync(path.join(dir, name)).isDirectory();
+    } catch {
+      return false;
+    }
+  };
+  return fs.readdirSync(dir).filter(isDir);
 }
 
 /** Check word/token limits, frontmatter and relative links of skills, agents and the start text. */

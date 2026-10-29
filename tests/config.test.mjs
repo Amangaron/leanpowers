@@ -103,3 +103,9 @@ test('root-level type errors use (root) as path', () => {
   const { errors } = loadConfig(root, NO_USER);
   assert.deepEqual(errors, ['leanpowers.json: (root): expected object']);
 });
+
+test('orchestration defaults to auto and is validated', () => {
+  assert.equal(DEFAULTS.orchestration, 'auto');
+  assert.ok(validate({ orchestration: 'sometimes' }, schema).includes('orchestration: must be one of auto, switch, recommend'));
+  assert.deepEqual(validate({ orchestration: 'switch' }, schema), []);
+});
