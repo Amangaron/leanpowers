@@ -1,0 +1,13 @@
+{
+  "name": "leanpowers-marketplace",
+  "owner": {
+    "name": "Dominic Shin"
+  },
+  "plugins": [
+    {
+      "name": "leanpowers",
+      "source": "./dist/codex-plugin",
+      "description": "Lean, cross-assistant workflow plugin: design, plan, subagent execution, deterministic checks."
+    }
+  ]
+}

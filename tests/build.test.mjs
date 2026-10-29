@@ -37,3 +37,28 @@ test('marketplace points at the claude package', () => {
   assert.equal(m.plugins[0].name, 'leanpowers');
   assert.equal(m.plugins[0].source, './dist/claude-plugin');
 });
+
+test('codex package has manifest with skills and no session hook', () => {
+  const pj = JSON.parse(read('codex-plugin/.codex-plugin/plugin.json'));
+  assert.equal(pj.name, 'leanpowers');
+  assert.equal(pj.skills, './skills/');
+  assert.deepEqual(pj.hooks ?? {}, {});
+  assert.ok(exists('codex-plugin/skills/design/SKILL.md'));
+  assert.ok(exists('codex-plugin/prompts/reviewer.md'));
+  const m = JSON.parse(fs.readFileSync(path.join(repo, '.agents/plugins/marketplace.json'), 'utf8'));
+  assert.equal(m.plugins[0].source, './dist/codex-plugin');
+});
+
+test('both marketplaces carry the package.json description', () => {
+  const { description } = JSON.parse(fs.readFileSync(path.join(repo, 'package.json'), 'utf8'));
+  for (const file of ['.claude-plugin/marketplace.json', '.agents/plugins/marketplace.json']) {
+    const m = JSON.parse(fs.readFileSync(path.join(repo, file), 'utf8'));
+    assert.equal(m.plugins[0].description, description, file);
+  }
+});
+
+test('built text files use LF line endings', () => {
+  for (const rel of ['claude-plugin/skills/run/SKILL.md', 'codex-plugin/skills/run/SKILL.md', 'codex-plugin/prompts/reviewer.md']) {
+    assert.ok(!read(rel).includes('\r'), rel);
+  }
+});

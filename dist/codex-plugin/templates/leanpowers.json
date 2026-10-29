@@ -1,0 +1,15 @@
+{
+  "$schema": "./node_modules/leanpowers/schema/leanpowers.schema.json",
+  "skills": { "worktrees": false, "design.visualCompanion": false },
+  "extraSkillDirs": [],
+  "paths": { "specs": "docs/specs", "plans": "docs/plans", "reports": "docs/reports", "runs": ".leanpowers/runs" },
+  "commands": { "test": "npm test", "typecheck": "", "lint": "" },
+  "structure": {
+    "newFolders": "ask",
+    "rules": [{ "path": "src/components/**", "allow": ["*.tsx", "*.ts"] }]
+  },
+  "review": { "batch": 3, "maxFixRounds": 2 },
+  "models": { "small": "auto", "medium": "auto", "large": "auto" },
+  "summarizer": "none",
+  "orchestration": "auto"
+}

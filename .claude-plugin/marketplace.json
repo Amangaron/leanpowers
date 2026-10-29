@@ -1,6 +1,8 @@
 {
   "name": "leanpowers-marketplace",
-  "owner": { "name": "Dominic Shin" },
+  "owner": {
+    "name": "Dominic Shin"
+  },
   "plugins": [
     {
       "name": "leanpowers",

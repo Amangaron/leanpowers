@@ -1,7 +1,7 @@
-import fs from 'node:fs';
 import path from 'node:path';
 import { COMMANDS, COMMAND_SKILL } from '../checks/start.mjs';
-import { copyRuntime, writeText } from './build.mjs';
+import { copyRuntime, writeText } from './runtime.mjs';
+import { packageMeta } from './meta.mjs';
 
 const CLI = 'node "${CLAUDE_PLUGIN_ROOT}/bin/leanpowers.mjs"';
 
@@ -27,19 +27,19 @@ function commandBody(cmd) {
 
 /** Claude Code plugin: manifest, SessionStart hook, commands and the shared runtime. */
 export function buildClaude(repoRoot, outDir) {
-  const pkg = JSON.parse(fs.readFileSync(path.join(repoRoot, 'package.json'), 'utf8'));
+  const meta = packageMeta(repoRoot);
   const written = copyRuntime(repoRoot, outDir);
   const emit = (rel, text) => {
     writeText(path.join(outDir, rel), text);
     written.push(rel);
   };
   emit('.claude-plugin/plugin.json', `${JSON.stringify({
-    name: pkg.name,
-    version: pkg.version,
-    description: pkg.description,
-    author: { name: 'Dominic Shin' },
-    repository: 'https://github.com/Amangaron/leanpowers',
-    license: pkg.license,
+    name: meta.name,
+    version: meta.version,
+    description: meta.description,
+    author: { name: meta.author },
+    repository: meta.repository,
+    license: meta.license,
   }, null, 2)}\n`);
   emit('hooks/hooks.json', `${JSON.stringify({
     hooks: {
