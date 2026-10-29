@@ -10,8 +10,9 @@ All notable changes to leanpowers are documented here. The format follows
 
 - Deterministic checks as plain Node scripts, not model calls: `check` (gates, scope, structure,
   doc lint, skill lint), `brief`, `metrics` and `config`.
-- Workflow skills (`design`, `plan`, `staff`, `run`, `debug`, `finish`, plus `review`, `tdd`,
-  `verify`, `worktrees`, `write-skill`) and the agent prompts for implementer, reviewer and staffer.
+- Workflow skills (`start`, `design`, `plan`, `staff`, `run`, `debug`, `finish`, plus `review`,
+  `tdd`, `verify`, `worktrees`, `write-skill`) and the agent prompts (implementer, reviewer,
+  re-reviewer, staffer, orchestrator).
 - Packages for Claude Code, Codex and Gemini CLI, built from one source into `dist/`, with
   marketplace files for Claude Code and Codex and a `gemini-extension` release branch script.
 - CLI commands `start` (session start text), `skills` (list and switch skills) and `init`

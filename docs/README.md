@@ -4,7 +4,7 @@ German version: [README.de.md](README.de.md)
 
 leanpowers is a lean workflow plugin: it turns an idea into a design, a plan and a task-by-task
 subagent run, with deterministic checks instead of model calls where possible. Always-loaded text
-is about 515 tokens, against about 1,030 for Superpowers 6.3.0 (same measuring method).
+is about 515 tokens, against about 1,030 for Superpowers 6.3.0 (counted with the same method; calculated, not measured).
 
 ## Platform status
 
@@ -24,19 +24,21 @@ section 16); this is what is and is not confirmed.
 
 Confirmed:
 
-- The deterministic tests pass (CI on macOS, Windows and Linux with Node 20 and 22, once pushed).
+- The deterministic tests pass locally (macOS).
 - The Claude Code package loads (inferred from the init event).
 
 Not confirmed:
 
 - How models behave with the skills.
 - The token saving in practice. About 50 % less always-loaded text is calculated, not measured.
+- CI on macOS, Windows and Linux with Node 20 and 22: configured, not run yet.
 - The Codex and Gemini CLI packages.
 - On Windows, the Claude Code SessionStart hook (the tests do not exercise it).
 
 Verify it yourself:
 
-- Claude Code: after `/login`, run `node scripts/verify-claude.mjs`.
+- Claude Code: after `/login`, run `node scripts/verify-claude.mjs`. It makes a few small model
+  calls with your own Claude login (so it uses your quota) and creates a temporary git repository.
 - Codex: run `bash scripts/verify-codex.sh`.
 
 See [CHANGELOG.md](../CHANGELOG.md) and [RELEASE.md](RELEASE.md).

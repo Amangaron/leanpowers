@@ -5,7 +5,7 @@ Englische Version: [README.md](README.md)
 leanpowers ist ein schlankes Workflow-Plugin: Es führt von der Idee über Entwurf und Plan zu einem
 Lauf, der Aufgabe für Aufgabe von Subagenten ausgeführt wird. Wo möglich, prüfen Skripte statt
 Modellaufrufen. Der immer geladene Text umfasst etwa 515 Token, bei Superpowers 6.3.0 sind es
-etwa 1.030 Token (gleiche Messmethode).
+etwa 1.030 Token (mit derselben Methode gezählt; berechnet, nicht gemessen).
 
 ## Stand der Plattformen
 
@@ -25,20 +25,22 @@ Entscheidung, siehe Entwurf, Abschnitt 16). So ist der Stand:
 
 Bestätigt:
 
-- Die deterministischen Tests laufen durch (CI auf macOS, Windows und Linux mit Node 20 und 22,
-  sobald veröffentlicht).
+- Die deterministischen Tests laufen lokal durch (macOS).
 - Das Claude-Code-Paket lädt (aus dem Init-Ereignis geschlossen).
 
 Nicht bestätigt:
 
 - Wie sich Modelle mit den Skills verhalten.
 - Die Token-Ersparnis in der Praxis. Rund 50 % weniger immer geladener Text sind berechnet, nicht gemessen.
+- CI auf macOS, Windows und Linux mit Node 20 und 22: eingerichtet, noch nicht gelaufen.
 - Die Pakete für Codex und Gemini CLI.
 - Unter Windows der SessionStart-Hook von Claude Code (die Tests prüfen ihn nicht).
 
 Selbst prüfen:
 
-- Claude Code: nach `/login` `node scripts/verify-claude.mjs` ausführen.
+- Claude Code: nach `/login` `node scripts/verify-claude.mjs` ausführen. Das Skript macht einige
+  kleine Modellaufrufe mit Ihrem eigenen Claude-Login (verbraucht also Ihr Kontingent) und legt ein
+  temporäres Git-Repository an.
 - Codex: `bash scripts/verify-codex.sh` ausführen.
 
 Siehe [CHANGELOG.md](../CHANGELOG.md) und [RELEASE.md](RELEASE.md) (englisch).

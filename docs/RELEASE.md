@@ -20,7 +20,7 @@ without the maintainer's decision.
 
 These steps publish to GitHub. Do them only when the maintainer has decided to release.
 
-7. `git push origin main --tags`
+7. `git push origin master --tags`
 8. `git push origin gemini-extension`
 9. Check the CI run on GitHub: all of macOS, Windows and Linux with Node 20 and 22 must be green.
 
@@ -29,6 +29,8 @@ These steps publish to GitHub. Do them only when the maintainer has decided to r
 The authors made no paid test runs. Users who want to confirm the packages on their machine:
 
 - Claude Code: log in with `/login`, then run `node scripts/verify-claude.mjs`. It loads
-  `dist/claude-plugin` for one session only (`--plugin-dir`) and installs nothing.
+  `dist/claude-plugin` for one session only (`--plugin-dir`) and installs nothing. It makes a few
+  small model calls with your own Claude login (so it uses your quota) and creates a temporary
+  git repository.
 - Codex: run `bash scripts/verify-codex.sh`. It changes your Codex configuration (adds a local
   marketplace and a plugin), so read the script first.
