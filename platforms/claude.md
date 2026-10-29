@@ -29,7 +29,7 @@ A `models.*` entry in `leanpowers.json` overrides the alias; `auto` means this t
 
 ## CLI
 
-Run checks with `node "${CLAUDE_PLUGIN_ROOT}/bin/leanpowers.mjs" <args>`.
+Run checks with `node "${CLAUDE_PLUGIN_ROOT}/bin/leanpowers.mjs" <args>` (unverified).
 
 Disabling a skill: plugin skills have no per-skill switch (`skillOverrides` does not apply). Options:
 - `permissions.deny: ["Skill(<name>)"]` blocks invocation; whether it also removes the description from context is (unverified).

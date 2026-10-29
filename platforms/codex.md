@@ -6,8 +6,8 @@ Translates leanpowers' neutral actions into OpenAI Codex tools.
 
 | Action | Codex mechanism |
 | --- | --- |
-| Dispatch a subagent at a tier with a template | `spawn_agent` with `task_name`, `message` (the template text), `model`, `reasoning_effort` and `fork_turns: "none"`. |
-| Resume a subagent with a message | `send_message` or `followup_task` to the existing agent. |
+| Dispatch a subagent at a tier with a template | `spawn_agent` with `task_name`, `message` (the template text), `model`, `reasoning_effort` and `fork_turns: "none"` (unverified value). |
+| Resume a subagent with a message | `send_message` or `followup_task` (unverified) to the existing agent. |
 | Ask the user | Ask in chat. |
 | Track tasks | Use the built-in plan tool. |
 | Invoke a skill | `$leanpowers-<name>`; plugins have no real slash commands. |

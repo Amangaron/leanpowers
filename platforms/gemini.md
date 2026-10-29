@@ -7,7 +7,7 @@ Translates leanpowers' neutral actions into Gemini CLI tools.
 | Action | Gemini CLI mechanism |
 | --- | --- |
 | Dispatch a subagent at a tier with a template | `invoke_agent` with `agent_name` `lp-small`, `lp-medium` or `lp-large` and the template text as `prompt`. There is no model parameter, so one agent file exists per tier (Plan 3 generates them). |
-| Resume a subagent with a message | Not supported. Re-dispatch a fresh subagent and give it the report file path. |
+| Resume a subagent with a message | leanpowers does not resume on Gemini; re-dispatch with the report file path. |
 | Ask the user | Ask in chat. |
 | Track tasks | Use the built-in todo tool. |
 | Invoke a skill | Activate the skill by name via the skill mechanism. |
@@ -29,7 +29,7 @@ Subagents cannot start subagents, so there is no nesting. `auto` behaves as `swi
 
 ## CLI
 
-Run checks with `node "${extensionPath}/bin/leanpowers.mjs" <args>`.
+Run checks with `node "${extensionPath}/bin/leanpowers.mjs" <args>` (unverified).
 
 Disabling: skills with `/skills disable <name>` (writes `skills.disabled`); agents with `agents.overrides.<n>.enabled=false`. Individual commands cannot be disabled.
 
