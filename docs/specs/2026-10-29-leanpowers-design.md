@@ -166,7 +166,7 @@ Alle Fähigkeiten von Superpowers 6.3.0 bleiben erhalten. Sie werden zusammengef
 
 ## 8. Prüf-Skripte (`checks/`, ohne KI)
 
-- **Aufruf:** über einen Einstiegspunkt `leanpowers check [--task N | --all]`, auf allen Plattformen gleich.
+- **Aufruf:** über einen Einstiegspunkt `leanpowers check [--all] [--plan <file> --task <n>]`, auf allen Plattformen gleich.
 - **Ausgabe im Erfolgsfall:** genau eine Zeile.
 - **Ausgabe bei Fehlern:** nur die ersten 20 entdoppelten Fehlermeldungen pro Prüfung.
 
@@ -192,7 +192,7 @@ Alle Fähigkeiten von Superpowers 6.3.0 bleiben erhalten. Sie werden zusammengef
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/<konto>/leanpowers/main/schema/leanpowers.schema.json",
+  "$schema": "https://raw.githubusercontent.com/Amangaron/leanpowers/main/schema/leanpowers.schema.json",
   "skills": { "worktrees": false, "design.visualCompanion": false },
   "extraSkillDirs": [],
   "paths": {
@@ -286,6 +286,6 @@ Alle Fähigkeiten von Superpowers 6.3.0 bleiben erhalten. Sie werden zusammengef
 
 ## 14. Offene Punkte (in der Planung zu klären)
 
-- **O1:** Name des persönlichen GitHub-Kontos (wird für `$schema`-URL und Marketplace gebraucht). Wird vor der Veröffentlichung eingetragen, bis dahin gilt eine relative Schema-Referenz.
+- **O1 (erledigt 2026-10-29):** GitHub-Konto ist `Amangaron`; Repository `github.com/Amangaron/leanpowers`.
 - **O2:** Technischer Mechanismus, um einen Skill auf der jeweiligen Plattform auszublenden, für Claude Code, Codex und Gemini CLI. Ist das nicht möglich, gilt die Rückfallebene aus Abschnitt 9.
 - **O3:** Subagenten-Fähigkeiten von Codex und Gemini CLI zum Planungszeitpunkt: ob sie verfügbar sind, wie die Modellwahl pro Subagent funktioniert und wie sich der Starttext für Subagenten unterdrücken lässt. Die Zuordnung in `platforms/*.md` richtet sich danach.
