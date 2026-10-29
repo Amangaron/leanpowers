@@ -7,6 +7,10 @@ import { toPosix } from './lib/glob.mjs';
 
 const PLUGIN_ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const NOT_SWITCHABLE = new Set(['start']);
+const isPlainObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+
+/** Bad command-line usage; the CLI exits 2 for it. */
+export class UsageError extends Error {}
 
 function skillsIn(dir, source) {
   if (!fs.existsSync(dir)) return [];
@@ -15,7 +19,7 @@ function skillsIn(dir, source) {
     const file = path.join(dir, e.name, 'SKILL.md');
     if (!e.isDirectory() || NOT_SWITCHABLE.has(e.name) || !fs.existsSync(file)) continue;
     const fm = parseFrontmatter(fs.readFileSync(file, 'utf8'));
-    out.push({ name: e.name, source, description: fm?.data.description ?? '' });
+    out.push({ name: e.name, source, description: fm?.data.description ?? '', path: toPosix(file) });
   }
   return out;
 }
@@ -33,15 +37,43 @@ export function listSkills(pluginRoot, root, config) {
     .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
 }
 
+/**
+ * loadConfig plus lenient skill discovery: when a config file was rejected, its raw
+ * `extraSkillDirs` still count so extra skills stay switchable. `errors` are warnings.
+ */
+export function loadSkillConfig(root) {
+  const { config, errors } = loadConfig(root);
+  if (errors.length) {
+    try {
+      const raw = JSON.parse(fs.readFileSync(path.join(root, 'leanpowers.json'), 'utf8'));
+      const dirs = isPlainObject(raw) && Array.isArray(raw.extraSkillDirs) ? raw.extraSkillDirs.filter((d) => typeof d === 'string') : [];
+      config.extraSkillDirs = [...new Set([...(config.extraSkillDirs ?? []), ...dirs])];
+    } catch { /* unreadable file: the loadConfig error already says so */ }
+  }
+  return { config, errors };
+}
+
+function readProjectConfig(file) {
+  if (!fs.existsSync(file)) return {};
+  let parsed;
+  try {
+    parsed = JSON.parse(fs.readFileSync(file, 'utf8'));
+  } catch (e) {
+    throw new Error(`leanpowers.json: invalid JSON (${e.message})`);
+  }
+  if (!isPlainObject(parsed)) throw new Error('leanpowers.json: expected an object');
+  if (parsed.skills !== undefined && !isPlainObject(parsed.skills)) throw new Error('leanpowers.json: skills must be an object');
+  return parsed;
+}
+
 /** Write `skills.<name>` switches into `<root>/leanpowers.json`, keeping every other key. Returns the file path. */
 export function setSkills(root, changes) {
-  const { config } = loadConfig(root);
-  const known = new Set(listSkills(PLUGIN_ROOT, root, config).map((s) => s.name));
+  const file = path.join(root, 'leanpowers.json');
+  const current = readProjectConfig(file);
+  const known = new Set(listSkills(PLUGIN_ROOT, root, loadSkillConfig(root).config).map((s) => s.name));
   for (const name of Object.keys(changes)) {
     if (!known.has(name)) throw new Error(`unknown skill: ${name}`);
   }
-  const file = path.join(root, 'leanpowers.json');
-  const current = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : {};
   current.skills = { ...current.skills, ...changes };
   fs.writeFileSync(file, `${JSON.stringify(current, null, 2)}\n`);
   return file;
@@ -60,19 +92,25 @@ export function toggle(state, key) {
 
 export const NATIVE_PLATFORMS = ['claude', 'codex', 'gemini'];
 
-/** Text telling the user how to switch skills off in the assistant itself. Never applied by leanpowers. */
+/**
+ * Text telling the user how to switch skills off in the assistant itself. Never applied by leanpowers.
+ * `disabled` holds skill names or listSkills() entries (which carry the real SKILL.md path).
+ */
 export function nativeHint(platform, disabled, pluginRoot = PLUGIN_ROOT) {
-  const names = disabled.length ? disabled.join(', ') : '(none)';
+  const skills = disabled.map((d) => (typeof d === 'string'
+    ? { name: d, path: toPosix(path.join(pluginRoot, 'skills', d, 'SKILL.md')) }
+    : d));
+  const names = skills.length ? skills.map((d) => d.name).join(', ') : '(none)';
   switch (platform) {
     case 'claude':
       return `Claude Code has no per-skill switch for plugin skills; leanpowers.json already disables: ${names}`;
     case 'codex':
       return [
         '# Paste into ~/.codex/config.toml',
-        ...disabled.map((name) => `[[skills.config]]\npath = "${toPosix(path.join(pluginRoot, 'skills', name, 'SKILL.md'))}"\nenabled = false`),
+        ...skills.map((d) => `[[skills.config]]\npath = "${d.path}"\nenabled = false`),
       ].join('\n\n');
     case 'gemini':
-      return disabled.length ? disabled.map((name) => `/skills disable ${name}`).join('\n') : '# no disabled skills';
+      return skills.length ? skills.map((d) => `/skills disable ${d.name}`).join('\n') : '# no disabled skills';
     default:
       throw new Error(`unknown platform: ${platform}`);
   }
@@ -87,10 +125,24 @@ export function parseSet(value) {
   const changes = {};
   for (const pair of String(value ?? '').split(',')) {
     const m = /^([^=\s]+)=(on|off)$/.exec(pair.trim());
-    if (!m) throw new Error(`invalid --set entry: ${pair || '(empty)'} (expected name=on|off)`);
+    if (!m) throw new UsageError(`invalid --set entry: ${pair || '(empty)'} (expected name=on|off)`);
     changes[m[1]] = m[2] === 'on';
   }
   return changes;
+}
+
+/** Split a stdin chunk into key names: up, down, space, enter, cancel. Unknown input is ignored. */
+export function tokenizeKeys(chunk) {
+  if (chunk === '\x1b') return ['cancel'];
+  const keys = [];
+  for (const token of chunk.match(/\x1b\[[0-9;]*[A-Za-z~]|\x1bO.|[\s\S]/g) ?? []) {
+    if (token === '\x1b[A' || token === '\x1bOA') keys.push('up');
+    else if (token === '\x1b[B' || token === '\x1bOB') keys.push('down');
+    else if (token === ' ') keys.push('space');
+    else if (token === '\r' || token === '\n') keys.push('enter');
+    else if (token === 'q' || token === '\x03') keys.push('cancel');
+  }
+  return keys;
 }
 
 function render(state) {
@@ -119,12 +171,10 @@ export function interactiveChecklist(items, { input = process.stdin, output = pr
       resolve(result);
     };
     const onData = (buf) => {
-      for (const key of buf.toString().match(/\x1b\[[A-D]|[\s\S]/g) ?? []) {
-        if (key === '\x1b[A') state = toggle(state, 'up');
-        else if (key === '\x1b[B') state = toggle(state, 'down');
-        else if (key === ' ') state = toggle(state, 'space');
-        else if (key === '\r' || key === '\n') return finish(state.items);
-        else if (key === 'q' || key === '\x1b' || key === '\x03') return finish(null);
+      for (const key of tokenizeKeys(buf.toString())) {
+        if (key === 'enter') return finish(state.items);
+        if (key === 'cancel') return finish(null);
+        state = toggle(state, key);
       }
       draw();
     };

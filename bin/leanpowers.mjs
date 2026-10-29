@@ -7,7 +7,7 @@ import { toPosix } from '../checks/lib/glob.mjs';
 import { writeBrief, runDirFor } from '../checks/brief.mjs';
 import { writeMetrics } from '../checks/metrics.mjs';
 import { startText } from '../checks/start.mjs';
-import { listSkills, setSkills, nativeHint, formatList, parseSet, interactiveChecklist, NATIVE_PLATFORMS } from '../checks/skills-cmd.mjs';
+import { listSkills, setSkills, nativeHint, formatList, parseSet, interactiveChecklist, loadSkillConfig, NATIVE_PLATFORMS } from '../checks/skills-cmd.mjs';
 
 const USAGE = 'usage: leanpowers <check|brief|metrics|config|start|skills|init> [--all] [--plan <file>] [--task <n>] [--format plain|claude]';
 
@@ -97,27 +97,48 @@ switch (command) {
     const opts = parseArgs(rest, { skills: true });
     if ([opts.list, opts.set, opts.native].filter((v) => v !== undefined).length > 1) usage();
     const pluginRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-    const list = () => listSkills(pluginRoot, root, loadConfig(root).config);
-    if (opts.set !== undefined) {
+    const { config, errors } = loadSkillConfig(root);
+    let warned = false;
+    const warn = () => {
+      if (!warned) for (const e of errors) console.error(`warning: ${e}`);
+      warned = true;
+    };
+    const list = listSkills(pluginRoot, root, config);
+    const save = (changes) => {
       try {
-        const file = setSkills(root, parseSet(opts.set));
+        const file = setSkills(root, changes);
+        warn();
         console.log(`updated ${toPosix(path.relative(root, file))}`);
       } catch (err) {
+        // A broken leanpowers.json is already named by the error itself.
+        if (!err.message.startsWith('leanpowers.json:')) warn();
         console.error(err.message);
-        process.exit(err.message.startsWith('invalid --set') ? 2 : 1);
+        process.exit(1);
       }
+    };
+    if (opts.set !== undefined) {
+      let changes;
+      try {
+        changes = parseSet(opts.set);
+      } catch (err) {
+        console.error(err.message);
+        process.exit(2);
+      }
+      save(changes);
     } else if (opts.native !== undefined) {
-      console.log(nativeHint(opts.native, list().filter((s) => !s.enabled).map((s) => s.name), pluginRoot));
+      warn();
+      console.log(nativeHint(opts.native, list.filter((s) => !s.enabled), pluginRoot));
     } else if (opts.list || !process.stdin.isTTY || !process.stdout.isTTY) {
-      console.log(formatList(list()));
+      warn();
+      console.log(formatList(list));
     } else {
-      const before = list();
-      const after = await interactiveChecklist(before.map(({ name, enabled }) => ({ name, enabled })));
+      warn();
+      const after = await interactiveChecklist(list.map(({ name, enabled }) => ({ name, enabled })));
       const changes = {};
-      for (const [i, item] of (after ?? []).entries()) if (item.enabled !== before[i].enabled) changes[item.name] = item.enabled;
+      for (const [i, item] of (after ?? []).entries()) if (item.enabled !== list[i].enabled) changes[item.name] = item.enabled;
       if (!after) console.log('cancelled');
       else if (!Object.keys(changes).length) console.log('no changes');
-      else console.log(`updated ${toPosix(path.relative(root, setSkills(root, changes)))}`);
+      else save(changes);
     }
     break;
   }
