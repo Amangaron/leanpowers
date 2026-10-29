@@ -6,5 +6,8 @@
   "license": "MIT",
   "bin": { "leanpowers": "bin/leanpowers.mjs" },
   "engines": { "node": ">=20" },
-  "scripts": { "test": "node --test tests/" }
+  "scripts": {
+    "build": "node build/build.mjs",
+    "test": "node --test tests/"
+  }
 }
