@@ -59,7 +59,7 @@ Hier ist nur die lokale Installation beschrieben. Der Aufbau für die Installati
 GitHub wird in Plan 4 festgelegt. Die Befehle liegen im Namensraum `leanpowers`; drei erzeugte
 Agenten (`lp-small`, `lp-medium`, `lp-large`) stehen für die Modellstufen.
 
-Jedes Paket enthält seine Plattform-Zuordnung als `platform.md` (aus `platforms/<Plattform>.md`):
+Jedes Paket enthält seine Plattform-Zuordnung als `platform.md` (aus `platforms/<Plattform>-<cli>.md`, zum Beispiel `platforms/claude-code.md`):
 wie Subagenten gestartet werden, welche Modelle die Stufen meinen und ob Subagenten verschachtelt
 werden können.
 

@@ -14,6 +14,10 @@ const PACKAGES = {
   gemini: { dir: 'gemini-extension', build: buildGemini },
 };
 
+// Source platform map per platform. Never name them claude.md/gemini.md/agents.md: on case-insensitive
+// file systems an assistant would load such a file as its memory file. Packages still ship it as platform.md.
+export const PLATFORM_MAP = { claude: 'claude-code', codex: 'codex-cli', gemini: 'gemini-cli' };
+
 /** Build the platform packages into outRoot. Returns written files (posix, relative to outRoot). */
 export function build(repoRoot, outRoot = path.join(repoRoot, 'dist'), platforms = ['claude', 'codex', 'gemini']) {
   const written = [];
@@ -24,7 +28,7 @@ export function build(repoRoot, outRoot = path.join(repoRoot, 'dist'), platforms
     fs.rmSync(outDir, { recursive: true, force: true });
     const files = pkg.build(repoRoot, outDir);
     // The platform map tells the skills how to dispatch, which models the tiers mean and whether nesting works.
-    writeText(path.join(outDir, 'platform.md'), fs.readFileSync(path.join(repoRoot, 'platforms', `${platform}.md`), 'utf8'));
+    writeText(path.join(outDir, 'platform.md'), fs.readFileSync(path.join(repoRoot, 'platforms', `${PLATFORM_MAP[platform]}.md`), 'utf8'));
     files.push('platform.md');
     for (const file of files.sort()) written.push(`${pkg.dir}/${file}`);
   }

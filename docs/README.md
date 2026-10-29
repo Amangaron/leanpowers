@@ -57,7 +57,7 @@ Only the local install is documented here. The layout for installing straight fr
 decided in plan 4. Commands live in the `leanpowers` namespace; three generated agents
 (`lp-small`, `lp-medium`, `lp-large`) stand for the model tiers.
 
-Each package ships its platform map as `platform.md` (from `platforms/<platform>.md`): how to
+Each package ships its platform map as `platform.md` (from `platforms/<platform>-<cli>.md`, for example `platforms/claude-code.md`): how to
 dispatch subagents, which models the tiers mean and whether subagents can nest.
 
 ## Commands
