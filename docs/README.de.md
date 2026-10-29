@@ -18,6 +18,31 @@ etwa 1.030 Token (gleiche Messmethode).
 Bisher ist nichts als geprüft markiert. Angaben, die noch einen echten Lauf brauchen, stehen in
 `platforms/*.md` mit dem Zusatz `(unverified)`.
 
+## Stand / Selbst prüfen
+
+Version 0.1.0. Die Autoren haben keine kostenpflichtigen Testläufe gemacht (bewusste
+Entscheidung, siehe Entwurf, Abschnitt 16). So ist der Stand:
+
+Bestätigt:
+
+- Die deterministischen Tests laufen durch (CI auf macOS, Windows und Linux mit Node 20 und 22,
+  sobald veröffentlicht).
+- Das Claude-Code-Paket lädt (aus dem Init-Ereignis geschlossen).
+
+Nicht bestätigt:
+
+- Wie sich Modelle mit den Skills verhalten.
+- Die Token-Ersparnis in der Praxis. Rund 50 % weniger immer geladener Text sind berechnet, nicht gemessen.
+- Die Pakete für Codex und Gemini CLI.
+- Unter Windows der SessionStart-Hook von Claude Code (die Tests prüfen ihn nicht).
+
+Selbst prüfen:
+
+- Claude Code: nach `/login` `node scripts/verify-claude.mjs` ausführen.
+- Codex: `bash scripts/verify-codex.sh` ausführen.
+
+Siehe [CHANGELOG.md](../CHANGELOG.md) und [RELEASE.md](RELEASE.md) (englisch).
+
 ## Installation
 
 Die Pakete in `dist/` sind eingecheckt, eine Installation über den Marktplatz braucht keinen

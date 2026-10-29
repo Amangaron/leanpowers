@@ -17,6 +17,30 @@ is about 515 tokens, against about 1,030 for Superpowers 6.3.0 (same measuring m
 Nothing is marked verified yet. Statements that still need a real run are tagged `(unverified)`
 in `platforms/*.md`.
 
+## Status / Verify it yourself
+
+Version 0.1.0. The authors made no paid test runs (a deliberate decision, see the design spec,
+section 16); this is what is and is not confirmed.
+
+Confirmed:
+
+- The deterministic tests pass (CI on macOS, Windows and Linux with Node 20 and 22, once pushed).
+- The Claude Code package loads (inferred from the init event).
+
+Not confirmed:
+
+- How models behave with the skills.
+- The token saving in practice. About 50 % less always-loaded text is calculated, not measured.
+- The Codex and Gemini CLI packages.
+- On Windows, the Claude Code SessionStart hook (the tests do not exercise it).
+
+Verify it yourself:
+
+- Claude Code: after `/login`, run `node scripts/verify-claude.mjs`.
+- Codex: run `bash scripts/verify-codex.sh`.
+
+See [CHANGELOG.md](../CHANGELOG.md) and [RELEASE.md](RELEASE.md).
+
 ## Install
 
 The packages in `dist/` are committed, so a marketplace install needs no build step.

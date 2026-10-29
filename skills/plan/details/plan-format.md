@@ -101,6 +101,6 @@ test('greet command prints the greeting', () => {
 
 - [ ] **Step 2: Run it** — `node --test tests/cli.test.mjs` → FAIL, unknown command.
 - [ ] **Step 3: Implement** — add a `greet` branch to the command switch; keep existing commands unchanged.
-- [ ] **Step 4: Run it** — same command → PASS; then `node --test tests/` → all PASS.
+- [ ] **Step 4: Run it** — same command → PASS; then `node --test` → all PASS.
 - [ ] **Step 5: Commit** — `git commit -m "feat: greet command"`
 ````

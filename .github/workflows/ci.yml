@@ -24,3 +24,4 @@ jobs:
       - run: node bin/leanpowers.mjs check --all
       - run: npm run build
       - run: git diff --exit-code -- dist .claude-plugin .agents
+      - run: node -e "const o=require('node:child_process').execSync('git status --porcelain -- dist .claude-plugin .agents').toString();if(o.trim()){console.error('Untracked or changed build output:\n'+o);process.exit(1)}"

@@ -47,7 +47,7 @@ leanpowers/
   skills/<skill>/details/*.md  Vertiefung, wird nur bei Bedarf gelesen
   agents/*.md                  Auftrags-Vorlagen für Subagenten (implementer, reviewer, staffer), je max. 400 Wörter
   checks/                      KI-unabhängige Prüf-Skripte (Node >= 20, keine Abhängigkeiten)
-  platforms/{claude,codex,gemini}.md   Zuordnung „Handlung → Werkzeug“ je Assistent
+  platforms/{claude-code,codex-cli,gemini-cli}.md   Zuordnung „Handlung → Werkzeug“ je Assistent
   build/                       Build-Skript: erzeugt dist/ aus skills/, agents/, platforms/, checks/
   dist/claude-plugin/          erzeugt: .claude-plugin/plugin.json, Hooks, Befehle, Skills
   dist/codex-plugin/           erzeugt: .codex-plugin/plugin.json, Skills, AGENTS.md-Baustein
@@ -63,7 +63,7 @@ leanpowers/
 
 **Grundprinzip:** Skills nennen keine Werkzeuge, sondern Handlungen, z. B. „dispatch a subagent“, „run check“ oder „ask the user“. Was das auf welcher Plattform bedeutet, steht in `platforms/*.md`. Das Build-Skript fügt beides zusammen.
 
-**Neue Plattform:** Wer eine Plattform ergänzen will, schreibt `platforms/<name>.md` und eine Build-Funktion. An den Skills ändert sich nichts.
+**Neue Plattform:** Wer eine Plattform ergänzen will, schreibt `platforms/<name>-<cli>.md` und eine Build-Funktion. An den Skills ändert sich nichts.
 
 ## 5. Skills
 
