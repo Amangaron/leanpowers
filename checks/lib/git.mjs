@@ -1,12 +1,18 @@
 import { execFileSync } from 'node:child_process';
 import { toPosix } from './glob.mjs';
 
-function git(root, args) {
+function run(cwd, args) {
   return execFileSync('git', ['-c', 'core.quotePath=false', ...args], {
-    cwd: root,
+    cwd,
     stdio: ['ignore', 'pipe', 'pipe'],
     maxBuffer: 64 * 1024 * 1024,
   }).toString();
+}
+
+/** Run git at the repository toplevel so all returned paths are toplevel-relative. */
+function git(root, args) {
+  const top = run(root, ['rev-parse', '--show-toplevel']).trim();
+  return run(top, args);
 }
 
 function lines(output) {
@@ -23,7 +29,7 @@ export function headSha(root) {
  * (respecting .gitignore). Sorted, posix, deduplicated.
  */
 export function changedFiles(root, base) {
-  const tracked = lines(git(root, ['diff', '--name-only', base]));
+  const tracked = lines(git(root, ['diff', '--name-only', '--no-renames', base]));
   const untracked = lines(git(root, ['ls-files', '--others', '--exclude-standard']));
   return [...new Set([...tracked, ...untracked].map(toPosix))].sort();
 }
