@@ -1,8 +1,9 @@
 # leanpowers
 
 A lean workflow plugin for AI coding assistants: design, plan, subagent execution and
-deterministic checks, with as little always-loaded text as possible. It runs on Claude Code,
-Codex and Gemini CLI, has zero dependencies and needs Node.js 20 or newer.
+deterministic checks, with as little always-loaded text as possible. It is built for Claude Code,
+Codex and Gemini CLI (status: see the [platform table](docs/README.md#platform-status)), has zero
+dependencies and needs Node.js 20 or newer.
 
 ## Why lean
 

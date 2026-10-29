@@ -11,7 +11,7 @@ etwa 1.030 Token (gleiche Messmethode).
 
 | Plattform | Paket | Stand |
 | --- | --- | --- |
-| Claude Code | `dist/claude-plugin` | gebaut, Verifikation läuft (Plan 3, Task 8) |
+| Claude Code | `dist/claude-plugin` | gebaut, Verifikation läuft (lädt fehlerfrei; Modelläufe stehen aus, siehe `docs/research/2026-10-29-verifikation.md`) |
 | Codex | `dist/codex-plugin` | gebaut, ungeprüft |
 | Gemini CLI | `dist/gemini-extension` | aus der Dokumentation gebaut, ungeprüft |
 
@@ -31,7 +31,9 @@ claude plugin install leanpowers@leanpowers-marketplace
 ```
 
 Ein SessionStart-Hook gibt einen kurzen Starttext aus. Befehle: `/leanpowers:design`, `plan`,
-`staff`, `run`, `debug`, `finish`, `check`, `skills`, `init`.
+`staff`, `run`, `debug`, `finish`, `check`, `skills`, `init` (die Verdrahtung der Befehle ist
+`(unverified)`: das Plugin lädt fehlerfrei mit Befehlen und gleichnamigen Skills nebeneinander,
+aber noch kein Modelllauf hat einen Befehl bestätigt).
 
 **Codex** (ungeprüft)
 
@@ -40,8 +42,9 @@ codex plugin marketplace add Amangaron/leanpowers
 codex plugin add leanpowers@leanpowers-marketplace
 ```
 
-Codex-Plugins haben keine Slash-Befehle und keinen Session-Hook: Skills werden mit
-`$leanpowers-<name>` aufgerufen.
+Codex hat für Plugins keine Slash-Befehle und keinen Session-Hook: Skills rufen Sie mit
+`$leanpowers-<name>` auf, die Kommandozeile über ihren Pfad, `node <Plugin-Pfad>/bin/leanpowers.mjs <Befehl>`.
+Zum Prüfen des Pakets starten Sie selbst `bash scripts/verify-codex.sh`.
 
 **Gemini CLI** (ungeprüft)
 
@@ -61,7 +64,7 @@ Klon starten Sie `node bin/leanpowers.mjs <Befehl>`.
 
 | Befehl | Wirkung |
 | --- | --- |
-| `check [--all]` | Führt die deterministischen Prüfungen aus (Gates, Doc-Lint, Skill-Lint). |
+| `check [--all]` | Führt die Gates aus (Test-, Typecheck- und Lint-Befehle); `--all` ergänzt Doc-Lint und Skill-Lint. |
 | `check --plan <Datei> --task <n>` | Prüft zusätzlich Scope und Struktur einer Plan-Aufgabe. |
 | `brief --plan <Datei> --task <n>` | Schreibt den Brief für eine Plan-Aufgabe und gibt den Pfad aus. |
 | `metrics --plan <Datei>` | Zählt Briefs, Berichte und Reviews eines Laufs. |
@@ -97,7 +100,8 @@ Skills benutzt.
 ## Konfiguration: `leanpowers.json`
 
 Die Datei liegt im Projekt-Root. Eine optionale Benutzerdatei unter
-`~/.config/leanpowers/config.json` wird ebenfalls gelesen; die Projektdatei hat Vorrang. Fehlende
+`~/.config/leanpowers/config.json` (bzw. `$XDG_CONFIG_HOME/leanpowers/config.json`, wenn die
+Variable gesetzt ist) wird ebenfalls gelesen; die Projektdatei hat Vorrang. Fehlende
 Schlüssel erhalten Standardwerte. Eine ungültige Datei wird mit Pfad und Feld gemeldet, danach
 gelten die Standardwerte. Das Schema liegt in `schema/leanpowers.schema.json`.
 

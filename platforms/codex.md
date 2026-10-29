@@ -33,4 +33,6 @@ Run checks with `node "$PLUGIN_ROOT/bin/leanpowers.mjs" <args>` (unverified for 
 
 Disabling a skill: add `[[skills.config]]` with `path=...` and `enabled=false` to `config.toml`. leanpowers can set this from `leanpowers.json`.
 
+Verification: run `scripts/verify-codex.sh` yourself (it changes your Codex configuration; agents never run it).
+
 Start context: SessionStart hooks need user confirmation (`/hooks`) and exclude a plugin from the public directory, so rely on the skill descriptions instead of a hook.

@@ -10,7 +10,7 @@ is about 515 tokens, against about 1,030 for Superpowers 6.3.0 (same measuring m
 
 | Platform | Package | Status |
 | --- | --- | --- |
-| Claude Code | `dist/claude-plugin` | built, verification in progress (plan 3, task 8) |
+| Claude Code | `dist/claude-plugin` | built, verification in progress (loads without errors; model runs pending, see `docs/research/2026-10-29-verifikation.md`) |
 | Codex | `dist/codex-plugin` | built, unverified |
 | Gemini CLI | `dist/gemini-extension` | built from docs, unverified |
 
@@ -29,7 +29,9 @@ claude plugin install leanpowers@leanpowers-marketplace
 ```
 
 A SessionStart hook prints a short start text. Commands: `/leanpowers:design`, `plan`, `staff`,
-`run`, `debug`, `finish`, `check`, `skills`, `init`.
+`run`, `debug`, `finish`, `check`, `skills`, `init` (the command wiring is `(unverified)`: the plugin
+loads without errors with commands and same-named skills side by side, but no model run has
+confirmed a command yet).
 
 **Codex** (unverified)
 
@@ -38,8 +40,9 @@ codex plugin marketplace add Amangaron/leanpowers
 codex plugin add leanpowers@leanpowers-marketplace
 ```
 
-Codex plugins have no slash commands and no session hook: skills are invoked as
-`$leanpowers-<name>`.
+Codex has no slash commands for plugins and no session hook: invoke a skill as
+`$leanpowers-<name>` and run the CLI via its path, `node <plugin-path>/bin/leanpowers.mjs <command>`.
+To verify the package yourself, run `bash scripts/verify-codex.sh`.
 
 **Gemini CLI** (unverified)
 
@@ -59,7 +62,7 @@ The CLI is `bin/leanpowers.mjs`. Inside a plugin, the commands run it for you; f
 
 | Command | What it does |
 | --- | --- |
-| `check [--all]` | Run the deterministic checks (gates, doc lint, skill lint). |
+| `check [--all]` | Run the gates (test, typecheck, lint commands); `--all` adds doc lint and skill lint. |
 | `check --plan <file> --task <n>` | Also check scope and structure of one plan task. |
 | `brief --plan <file> --task <n>` | Write the brief for one plan task and print its path. |
 | `metrics --plan <file>` | Count the briefs, reports and reviews of a run. |
@@ -93,7 +96,7 @@ skill; `review`, `tdd`, `verify`, `worktrees` and `write-skill` are used by thos
 ## Configuration: `leanpowers.json`
 
 The file sits in the project root. An optional user file at `~/.config/leanpowers/config.json`
-is also read; the project file wins. Missing keys use the defaults. An invalid file is reported
+(or `$XDG_CONFIG_HOME/leanpowers/config.json` if that variable is set) is also read; the project file wins. Missing keys use the defaults. An invalid file is reported
 with its path and field, and the defaults are used. The schema is `schema/leanpowers.schema.json`.
 
 | Key | Meaning | Default |
