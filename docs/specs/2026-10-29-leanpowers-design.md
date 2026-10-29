@@ -32,7 +32,7 @@ Design → Plan → Subagenten-Ausführung → Abschluss ab und hat dabei folgen
 | Plattformen v0.1 | Claude Code, OpenAI Codex, Gemini CLI |
 | Auslösung | Nach Aufgabengröße, ohne „1 %-Regel“ |
 | Review | Gestaffelt nach Risiko, höchstens 2 Korrekturrunden |
-| Orchestrierung | Ein kleines Modell erstellt eine Besetzung, danach wird nach Bestätigung das Modell der Sitzung umgeschaltet |
+| Orchestrierung | Ein kleines Modell erstellt eine Besetzung; das gewählte Modell übernimmt automatisch als Orchestrierungs-Subagent (Claude Code, Codex), auf Gemini CLI per Umschalten (Entscheidung 2026-10-29, ersetzt „immer umschalten“) |
 | Skills | Alle Superpowers-Fähigkeiten werden übernommen, erweiterbar und einzeln abschaltbar |
 | Schalter | Konfig-Datei + Terminal-Ankreuzliste; LIDO Code Studio zeigt Checkboxen |
 | Sprache | Skills auf Englisch, Doku auf Englisch und Deutsch, Antworten in der Sprache des Nutzers |
@@ -127,9 +127,12 @@ Alle Fähigkeiten von Superpowers 6.3.0 bleiben erhalten. Sie werden zusammengef
 2. Er schreibt `besetzung.md` (max. 200 Wörter) in den Run-Ordner. Die Datei enthält:
    - das empfohlene Modell für die Orchestrierung, mit Begründung (Umfang, Risiko, Art der Aufgaben)
    - die Modellstufe pro Aufgabe für Implementer und Reviewer
-3. Das Hauptfenster zeigt die Empfehlung an. Nach Bestätigung durch den Nutzer wird das Modell der Sitzung umgeschaltet: auf Claude Code, Codex und Gemini CLI über deren `/model`-Befehl, später in LIDO Code Studio per Klick.
-4. Danach führt dieselbe Sitzung `run` aus.
-5. Ist kein Umschalten möglich oder lehnt der Nutzer ab, geht die Arbeit mit dem aktuellen Modell weiter. Die Modellstufen pro Aufgabe gelten trotzdem.
+3. Das Hauptfenster zeigt die Empfehlung an. Wie das gewählte Modell übernimmt, bestimmt `orchestration` in der Konfig:
+   - `auto` (Standard): Wo die Plattform verschachtelte Subagenten mit Modellwahl kann (Claude Code, Codex), startet das Hauptfenster einen **Orchestrierungs-Subagenten** mit dem gewählten Modell. Dieser führt `run` aus und startet Implementer und Reviewer selbst. Das Hauptfenster leitet nur Rückfragen weiter und meldet das Ergebnis. Rückfragen, die der Orchestrierer nicht selbst per Ruling entscheiden darf (die vier Stopp-Gründe aus `run`), gibt er mit Status `NEEDS_USER` an das Hauptfenster zurück; danach wird er mit der Antwort fortgesetzt. Auf Plattformen ohne Verschachtelung (Gemini CLI) gilt automatisch `switch`.
+   - `switch`: Nach Bestätigung schaltet der Nutzer das Modell der Sitzung um (`/model`, später in LIDO Code Studio per Klick); dieselbe Sitzung führt `run` aus.
+   - `recommend`: Die Orchestrierung bleibt beim aktuellen Modell; nur die Modellstufen pro Aufgabe gelten.
+4. Ist kein Umschalten möglich oder lehnt der Nutzer ab, geht die Arbeit mit dem aktuellen Modell weiter. Die Modellstufen pro Aufgabe gelten trotzdem.
+5. Die Tiefe bleibt begrenzt: Orchestrierer → Implementer/Reviewer. Implementer und Reviewer starten nie eigene Subagenten.
 6. **Modellstufen:** Die Konfig arbeitet mit Stufen (`small`, `medium`, `large`). Pro Plattform werden sie auf konkrete Modellnamen abgebildet. So bleibt die Konfig unabhängig vom Assistenten.
 
 ### 7.3 Ablauf pro Aufgabe (`run`)
@@ -206,6 +209,7 @@ Alle Fähigkeiten von Superpowers 6.3.0 bleiben erhalten. Sie werden zusammengef
   },
   "review": { "batch": 3, "maxFixRounds": 2 },
   "models": { "small": "auto", "medium": "auto", "large": "auto" },
+  "orchestration": "auto",
   "summarizer": "none"
 }
 ```
