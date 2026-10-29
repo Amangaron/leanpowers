@@ -129,3 +129,13 @@ test('init --template lists created files and reports unknown templates', () => 
   assert.match(bad.stderr, /unknown template: nope/);
   assert.equal(spawn(root, 'init', '--write', '--template', 'project-default').status, 2);
 });
+
+test('init --template reports skipped entries without a stack trace', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-cli-init-'));
+  fs.writeFileSync(path.join(root, 'docs'), 'a file');
+  const r = spawn(root, 'init', '--template', 'project-default');
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /skipped docs \(blocked by existing file\)/);
+  assert.match(r.stdout, /created src\/\.gitkeep/);
+  assert.equal(r.stderr, '');
+});

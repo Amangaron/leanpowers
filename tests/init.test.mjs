@@ -78,3 +78,50 @@ test('template rejects unknown names and path tricks', () => {
   assert.throws(() => applyTemplate(repo, 'nope', root), /unknown template: nope/);
   assert.throws(() => applyTemplate(repo, '../tests', root), /unknown template/);
 });
+
+test('template does not follow a symlinked directory out of the project', () => {
+  const outside = project({});
+  const root = project({});
+  fs.symlinkSync(outside, path.join(root, 'docs'));
+  const skipped = [];
+  const created = applyTemplate(repo, 'project-default', root, skipped);
+  assert.deepEqual(fs.readdirSync(outside), []);
+  assert.ok(!created.some((f) => f.startsWith('docs/')));
+  assert.ok(created.includes('src/.gitkeep'));
+  assert.deepEqual(skipped, ['docs (symlink, not followed)']);
+});
+
+test('template skips a directory blocked by a file or dangling symlink and continues', () => {
+  const root = project({ docs: 'a file' });
+  fs.symlinkSync(path.join(root, 'nowhere'), path.join(root, 'src'));
+  const skipped = [];
+  const created = applyTemplate(repo, 'project-default', root, skipped);
+  assert.deepEqual(skipped, ['docs (blocked by existing file)', 'src (blocked by existing file)']);
+  assert.ok(created.includes('tests/.gitkeep'));
+  assert.equal(fs.readFileSync(path.join(root, 'docs'), 'utf8'), 'a file');
+});
+
+test('template skips a file blocking a nested directory', () => {
+  const root = project({ 'docs/specs': 'a file' });
+  const skipped = [];
+  const created = applyTemplate(repo, 'project-default', root, skipped);
+  assert.deepEqual(skipped, ['docs/specs (blocked by existing file)']);
+  assert.ok(created.includes('docs/plans/.gitkeep'));
+});
+
+test('scan skips unreadable subdirectories', { skip: process.platform === 'win32' || process.getuid?.() === 0 }, () => {
+  const root = project({ 'src/a.js': '', 'locked/b.py': '', 'src/private/c.rb': '' });
+  fs.chmodSync(path.join(root, 'locked'), 0);
+  fs.chmodSync(path.join(root, 'src/private'), 0);
+  try {
+    assert.deepEqual(scanProject(root).structure.rules, [{ path: 'src/**', allow: ['*.js'] }]);
+  } finally {
+    fs.chmodSync(path.join(root, 'locked'), 0o755);
+    fs.chmodSync(path.join(root, 'src/private'), 0o755);
+  }
+});
+
+test('Makefile variable assignments are not targets', () => {
+  const root = project({ Makefile: 'test := foo\nlint ::= bar\nlint:\n\ttrue\n' });
+  assert.deepEqual(scanProject(root).commands, { test: '', typecheck: '', lint: 'make lint' });
+});

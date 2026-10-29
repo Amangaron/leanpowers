@@ -154,14 +154,16 @@ switch (command) {
     const pluginRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
     if (opts.template !== undefined) {
       let created;
+      const skipped = [];
       try {
-        created = applyTemplate(pluginRoot, opts.template, root);
+        created = applyTemplate(pluginRoot, opts.template, root, skipped);
       } catch (err) {
         if (!err.message.startsWith('unknown template: ')) throw err;
         console.error(err.message);
         process.exit(1);
       }
-      console.log(created.length ? created.map((f) => `created ${f}`).join('\n') : 'nothing to create: all template files exist');
+      const lines = [...created.map((f) => `created ${f}`), ...skipped.map((f) => `skipped ${f}`)];
+      console.log(lines.length ? lines.join('\n') : 'nothing to create: all template files exist');
       break;
     }
     const text = `${JSON.stringify(proposeConfig(root), null, 2)}\n`;
