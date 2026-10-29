@@ -68,3 +68,27 @@ test('extraSkillDirs are linted too', () => {
 test('no skills at all is ok', () => {
   assert.equal(lintSkills(project({}), DEFAULTS).ok, true);
 });
+
+test('block descriptions are joined and counted', () => {
+  assert.deepEqual(
+    parseFrontmatter('---\nname: a\ndescription: >\n  one two\n  three\n---\nb'),
+    { data: { name: 'a', description: 'one two three' }, body: 'b' },
+  );
+  const root = project({ 'skills/a/SKILL.md': `---\nname: a\ndescription: >-\n  ${words(30)}\n  ${words(31)}\n---\nbody\n` });
+  assert.deepEqual(lintSkills(root, DEFAULTS).messages, ['skills/a/SKILL.md: description 61 words (max 60)']);
+});
+
+test('links inside code are not checked', () => {
+  const body = 'Example:\n```\n[x](missing.md)\n```\nand `[y](gone.md)`';
+  const root = project({ 'skills/a/SKILL.md': skill('a', body) });
+  assert.equal(lintSkills(root, DEFAULTS).ok, true);
+});
+
+test('symlinked skill directories are linted', () => {
+  const root = project({});
+  const real = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-real-'));
+  fs.writeFileSync(path.join(real, 'SKILL.md'), skill('linked', words(700)));
+  fs.mkdirSync(path.join(root, 'skills'), { recursive: true });
+  fs.symlinkSync(real, path.join(root, 'skills/linked'), 'junction');
+  assert.deepEqual(lintSkills(root, DEFAULTS).messages, ['skills/linked/SKILL.md: 700 words (max 600)']);
+});

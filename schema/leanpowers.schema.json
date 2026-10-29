@@ -66,6 +66,7 @@
         "large": { "type": "string" }
       }
     },
-    "summarizer": { "type": "string" }
+    "summarizer": { "type": "string" },
+    "orchestration": { "type": "string", "enum": ["auto", "switch", "recommend"] }
   }
 }

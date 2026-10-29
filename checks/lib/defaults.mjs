@@ -15,4 +15,5 @@ export const DEFAULTS = deepFreeze({
   review: { batch: 3, maxFixRounds: 2 },
   models: { small: 'auto', medium: 'auto', large: 'auto' },
   summarizer: 'none',
+  orchestration: 'auto',
 });
