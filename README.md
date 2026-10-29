@@ -34,7 +34,14 @@ codex plugin marketplace add Amangaron/leanpowers
 codex plugin add leanpowers@leanpowers-marketplace
 ```
 
-Gemini CLI (built from docs, unverified): clone the repository, then
+Gemini CLI (built from docs, unverified):
+
+```
+gemini extensions install https://github.com/Amangaron/leanpowers --ref gemini-extension
+```
+
+The `gemini-extension` branch holds only the built extension and is regenerated per release with
+`node scripts/gemini-branch.mjs`. Or clone the repository and run
 `gemini extensions link <clone>/dist/gemini-extension`.
 
 ## More

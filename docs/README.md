@@ -49,12 +49,22 @@ To verify the package yourself, run `bash scripts/verify-codex.sh`.
 **Gemini CLI** (unverified)
 
 ```
+gemini extensions install https://github.com/Amangaron/leanpowers --ref gemini-extension
+```
+
+The `gemini-extension` branch contains only the built extension at its root (the repository root
+holds source skills Gemini would otherwise load). It is regenerated per release with
+`node scripts/gemini-branch.mjs`, which builds it locally from the committed `dist/gemini-extension`
+and prints the `git push origin gemini-extension` command for you to run; it never pushes.
+
+Local install from a clone:
+
+```
 git clone https://github.com/Amangaron/leanpowers
 gemini extensions link <clone>/dist/gemini-extension
 ```
 
-Only the local install is documented here. The layout for installing straight from GitHub is
-decided in plan 4. Commands live in the `leanpowers` namespace; three generated agents
+Commands live in the `leanpowers` namespace; three generated agents
 (`lp-small`, `lp-medium`, `lp-large`) stand for the model tiers.
 
 Each package ships its platform map as `platform.md` (from `platforms/<platform>-<cli>.md`, for example `platforms/claude-code.md`): how to
