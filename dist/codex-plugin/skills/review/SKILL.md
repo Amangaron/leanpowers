@@ -4,6 +4,8 @@ description: Use when a high-risk task, a batch of low-risk tasks or a whole bra
 ---
 If `skills.review` is false in leanpowers.json, say "leanpowers: review is disabled" and stop.
 
+CLI: run `leanpowers` as `node "<this plugin>/bin/leanpowers.mjs"`; the plugin folder is two levels above this SKILL.md.
+
 # Review
 
 Review is done by a fresh subagent that sees the diff, never the author's reasoning. Deterministic gates (`leanpowers check`) run first; a reviewer judges what a script cannot.

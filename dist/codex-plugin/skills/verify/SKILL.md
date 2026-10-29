@@ -4,6 +4,8 @@ description: Use when about to say work is done, fixed, passing or ready, before
 ---
 If `skills.verify` is false in leanpowers.json, say "leanpowers: verify is disabled" and stop.
 
+CLI: run `leanpowers` as `node "<this plugin>/bin/leanpowers.mjs"`; the plugin folder is two levels above this SKILL.md.
+
 # Verify
 
 **Iron rule:** no completion claim without fresh evidence from this turn. Evidence comes from running the check, not from remembering or inferring. Claiming success without it is a false report, not a shortcut.

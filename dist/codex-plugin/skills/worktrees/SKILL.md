@@ -4,6 +4,8 @@ description: Use when starting feature work that should be isolated from the cur
 ---
 If `skills.worktrees` is false in leanpowers.json, say "leanpowers: worktrees is disabled" and stop.
 
+CLI: run `leanpowers` as `node "<this plugin>/bin/leanpowers.mjs"`; the plugin folder is two levels above this SKILL.md.
+
 # Worktrees
 
 A git worktree gives the work its own directory and branch while sharing the repository. This skill is off by default; it runs only when `skills.worktrees` is true.

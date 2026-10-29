@@ -11,7 +11,7 @@ etwa 1.030 Token (gleiche Messmethode).
 
 | Plattform | Paket | Stand |
 | --- | --- | --- |
-| Claude Code | `dist/claude-plugin` | gebaut, Verifikation läuft (lädt fehlerfrei; Modelläufe stehen aus, siehe `docs/research/2026-10-29-verifikation.md`) |
+| Claude Code | `dist/claude-plugin` | gebaut, Verifikation läuft (lädt (aus dem Init-Ereignis geschlossen); Modelläufe stehen aus, siehe `docs/research/2026-10-29-verifikation.md`) |
 | Codex | `dist/codex-plugin` | gebaut, ungeprüft |
 | Gemini CLI | `dist/gemini-extension` | aus der Dokumentation gebaut, ungeprüft |
 
@@ -30,10 +30,11 @@ claude plugin marketplace add Amangaron/leanpowers
 claude plugin install leanpowers@leanpowers-marketplace
 ```
 
-Ein SessionStart-Hook gibt einen kurzen Starttext aus. Befehle: `/leanpowers:design`, `plan`,
-`staff`, `run`, `debug`, `finish`, `check`, `skills`, `init` (die Verdrahtung der Befehle ist
-`(unverified)`: das Plugin lädt fehlerfrei mit Befehlen und gleichnamigen Skills nebeneinander,
-aber noch kein Modelllauf hat einen Befehl bestätigt).
+Ein SessionStart-Hook gibt einen kurzen Starttext aus. Die Workflow-Skills rufen Sie direkt als
+`/leanpowers:<Name>` auf (`/leanpowers:design`, `plan`, `staff`, `run`, `debug`, `finish`); nur die
+Kommandozeilen-Befehle `/leanpowers:check`, `skills` und `init` sind Befehlsdateien. Das ist
+`(unverified)` bis zum Prüflauf: das Plugin lädt (aus dem Init-Ereignis geschlossen), aber noch
+kein Modelllauf hat einen Befehl oder Skill-Aufruf bestätigt.
 
 **Codex** (ungeprüft)
 
@@ -44,6 +45,7 @@ codex plugin add leanpowers@leanpowers-marketplace
 
 Codex hat für Plugins keine Slash-Befehle und keinen Session-Hook: Skills rufen Sie mit
 `$leanpowers-<name>` auf, die Kommandozeile über ihren Pfad, `node <Plugin-Pfad>/bin/leanpowers.mjs <Befehl>`.
+Im Codex-Paket nennt jeder Skill, der die Kommandozeile benutzt, diesen Aufruf selbst.
 Zum Prüfen des Pakets starten Sie selbst `bash scripts/verify-codex.sh`.
 
 **Gemini CLI** (ungeprüft)
@@ -56,6 +58,10 @@ gemini extensions link <clone>/dist/gemini-extension
 Hier ist nur die lokale Installation beschrieben. Der Aufbau für die Installation direkt von
 GitHub wird in Plan 4 festgelegt. Die Befehle liegen im Namensraum `leanpowers`; drei erzeugte
 Agenten (`lp-small`, `lp-medium`, `lp-large`) stehen für die Modellstufen.
+
+Jedes Paket enthält seine Plattform-Zuordnung als `platform.md` (aus `platforms/<Plattform>.md`):
+wie Subagenten gestartet werden, welche Modelle die Stufen meinen und ob Subagenten verschachtelt
+werden können.
 
 ## Befehle
 
@@ -74,8 +80,8 @@ Klon starten Sie `node bin/leanpowers.mjs <Befehl>`.
 | `init` | Schlägt Projektdateien vor oder legt sie an (siehe unten). |
 
 Die Workflow-Befehle `design`, `plan`, `staff`, `run`, `debug` und `finish` starten den
-passenden Skill; `review`, `tdd`, `verify`, `worktrees` und `write-skill` werden von diesen
-Skills benutzt.
+passenden Skill (in Claude Code sind sie die Skills selbst); `review`, `tdd`, `verify`,
+`worktrees` und `write-skill` werden von diesen Skills benutzt.
 
 ## Skills umschalten: `leanpowers skills`
 

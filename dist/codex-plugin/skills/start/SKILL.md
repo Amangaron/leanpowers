@@ -2,6 +2,8 @@
 name: start
 description: Use when a session starts - explains when leanpowers workflows apply and lists its commands.
 ---
+CLI: run `leanpowers` as `node "<this plugin>/bin/leanpowers.mjs"`; the plugin folder is two levels above this SKILL.md.
+
 Subagents ignore this text.
 
 leanpowers picks the workflow by size; unclear size → next larger:

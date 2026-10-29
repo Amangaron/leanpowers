@@ -8,4 +8,4 @@ leanpowers picks the workflow by size; unclear size → next larger:
 Commands: design, plan, staff, run, debug, finish, check, skills, init.
 
 User instructions and explicit requests always win. Answer in the user's language.
-CLI: run leanpowers as node "${extensionPath}/bin/leanpowers.mjs".
+CLI: run leanpowers as node "${extensionPath}/bin/leanpowers.mjs" (if `${extensionPath}` is not expanded, the extension folder is the one containing gemini-extension.json).

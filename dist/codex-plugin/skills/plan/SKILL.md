@@ -4,6 +4,8 @@ description: Use when an approved spec or clear multi-step requirements need an 
 ---
 If `skills.plan` is false in leanpowers.json, say "leanpowers: plan is disabled" and stop.
 
+CLI: run `leanpowers` as `node "<this plugin>/bin/leanpowers.mjs"`; the plugin folder is two levels above this SKILL.md.
+
 # Plan
 
 Turn the approved spec into a plan that subagents execute task by task. An implementer sees only its own task and the Global Constraints (cut out by `leanpowers brief`), never the spec or other tasks — so every task must stand on its own.

@@ -62,3 +62,17 @@ test('the full skill and agent set exists and passes skill-lint', () => {
   assert.deepEqual(ls('agents').filter((f) => f.endsWith('.md')).map((f) => f.slice(0, -3)).sort(), [...AGENTS].sort());
   assert.deepEqual(lintSkills(root, DEFAULTS).messages, []);
 });
+
+test('subagents without a generated brief get the resolved CLI', () => {
+  const orchestrator = read('agents/orchestrator.md');
+  assert.match(orchestrator, /run every `leanpowers` command as `\{\{cli\}\}`/);
+  assert.match(read('skills/staff/SKILL.md'), /`\{\{cli\}\}` the command from the `CLI:` line/);
+  const design = read('skills/design/SKILL.md');
+  assert.match(design, /`## When done`: run the `check` command as the `CLI:` line names it/);
+  assert.match(read('skills/run/details/loops.md'), /inside an orchestrator, run `leanpowers brief`, `check` and `metrics` as `\{\{cli\}\}`/);
+});
+
+test('staff and run point at the shipped platform map', () => {
+  const sentence = 'How to dispatch, model tiers and nesting on this platform: read `platform.md` in the plugin folder.';
+  for (const rel of ['skills/staff/SKILL.md', 'skills/run/SKILL.md']) assert.ok(read(rel).includes(sentence), rel);
+});

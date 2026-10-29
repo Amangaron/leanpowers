@@ -22,7 +22,11 @@ export function build(repoRoot, outRoot = path.join(repoRoot, 'dist'), platforms
     if (!pkg) continue;
     const outDir = path.join(outRoot, pkg.dir);
     fs.rmSync(outDir, { recursive: true, force: true });
-    for (const file of pkg.build(repoRoot, outDir)) written.push(`${pkg.dir}/${file}`);
+    const files = pkg.build(repoRoot, outDir);
+    // The platform map tells the skills how to dispatch, which models the tiers mean and whether nesting works.
+    writeText(path.join(outDir, 'platform.md'), fs.readFileSync(path.join(repoRoot, 'platforms', `${platform}.md`), 'utf8'));
+    files.push('platform.md');
+    for (const file of files.sort()) written.push(`${pkg.dir}/${file}`);
   }
   return written;
 }

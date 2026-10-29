@@ -4,6 +4,8 @@ description: Use when a bug, test failure, build error or unexpected behavior ap
 ---
 If `skills.debug` is false in leanpowers.json, say "leanpowers: debug is disabled" and stop.
 
+CLI: run `leanpowers` as `node "<this plugin>/bin/leanpowers.mjs"`; the plugin folder is two levels above this SKILL.md.
+
 # Debug
 
 **Iron rule:** no fix before the root cause is known. A patch on a symptom hides the bug and creates the next one. Do this especially under time pressure, when a fix looks obvious, or after a fix already failed.

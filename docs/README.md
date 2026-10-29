@@ -10,7 +10,7 @@ is about 515 tokens, against about 1,030 for Superpowers 6.3.0 (same measuring m
 
 | Platform | Package | Status |
 | --- | --- | --- |
-| Claude Code | `dist/claude-plugin` | built, verification in progress (loads without errors; model runs pending, see `docs/research/2026-10-29-verifikation.md`) |
+| Claude Code | `dist/claude-plugin` | built, verification in progress (loads (inferred from the init event); model runs pending, see `docs/research/2026-10-29-verifikation.md`) |
 | Codex | `dist/codex-plugin` | built, unverified |
 | Gemini CLI | `dist/gemini-extension` | built from docs, unverified |
 
@@ -28,10 +28,11 @@ claude plugin marketplace add Amangaron/leanpowers
 claude plugin install leanpowers@leanpowers-marketplace
 ```
 
-A SessionStart hook prints a short start text. Commands: `/leanpowers:design`, `plan`, `staff`,
-`run`, `debug`, `finish`, `check`, `skills`, `init` (the command wiring is `(unverified)`: the plugin
-loads without errors with commands and same-named skills side by side, but no model run has
-confirmed a command yet).
+A SessionStart hook prints a short start text. The workflow skills are invoked directly as
+`/leanpowers:<name>` (`/leanpowers:design`, `plan`, `staff`, `run`, `debug`, `finish`); only the CLI
+commands `/leanpowers:check`, `skills` and `init` are command files. This is `(unverified)` until
+the verify run: the plugin loads (inferred from the init event), but no model run has confirmed a
+command or skill invocation yet.
 
 **Codex** (unverified)
 
@@ -42,6 +43,7 @@ codex plugin add leanpowers@leanpowers-marketplace
 
 Codex has no slash commands for plugins and no session hook: invoke a skill as
 `$leanpowers-<name>` and run the CLI via its path, `node <plugin-path>/bin/leanpowers.mjs <command>`.
+Every skill that uses the CLI carries a line saying so in the Codex package.
 To verify the package yourself, run `bash scripts/verify-codex.sh`.
 
 **Gemini CLI** (unverified)
@@ -54,6 +56,9 @@ gemini extensions link <clone>/dist/gemini-extension
 Only the local install is documented here. The layout for installing straight from GitHub is
 decided in plan 4. Commands live in the `leanpowers` namespace; three generated agents
 (`lp-small`, `lp-medium`, `lp-large`) stand for the model tiers.
+
+Each package ships its platform map as `platform.md` (from `platforms/<platform>.md`): how to
+dispatch subagents, which models the tiers mean and whether subagents can nest.
 
 ## Commands
 
@@ -72,7 +77,8 @@ The CLI is `bin/leanpowers.mjs`. Inside a plugin, the commands run it for you; f
 | `init` | Propose or create project files (see below). |
 
 The workflow commands `design`, `plan`, `staff`, `run`, `debug` and `finish` start the matching
-skill; `review`, `tdd`, `verify`, `worktrees` and `write-skill` are used by those skills.
+skill (on Claude Code they are the skills themselves); `review`, `tdd`, `verify`, `worktrees` and
+`write-skill` are used by those skills.
 
 ## Switch skills: `leanpowers skills`
 

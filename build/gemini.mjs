@@ -6,6 +6,7 @@ import { packageMeta } from './meta.mjs';
 
 // (unverified) whether Gemini CLI substitutes ${extensionPath} in context files and command prompts.
 const CLI = 'node "${extensionPath}/bin/leanpowers.mjs"';
+const FALLBACK = 'if `${extensionPath}` is not expanded, the extension folder is the one containing gemini-extension.json';
 
 const DESCRIPTIONS = {
   design: 'Turn an idea into an approved design before any code',
@@ -23,10 +24,11 @@ const TIERS = ['small', 'medium', 'large'];
 
 function commandPrompt(cmd) {
   if (cmd in COMMAND_SKILL) return `Invoke the leanpowers ${COMMAND_SKILL[cmd]} skill. {{args}}`;
+  const fallback = ` (${FALLBACK[0].toUpperCase()}${FALLBACK.slice(1)}.)`;
   if (cmd === 'skills') {
-    return `If the arguments are not empty, run \`${CLI} skills {{args}}\` and show the output. Otherwise run \`${CLI} skills --list\`, show the output, ask the user which skills to change, and apply them with \`${CLI} skills --set <name>=on|off,...\`. Arguments: {{args}}`;
+    return `If the arguments are not empty, run \`${CLI} skills {{args}}\` and show the output. Otherwise run \`${CLI} skills --list\`, show the output, ask the user which skills to change, and apply them with \`${CLI} skills --set <name>=on|off,...\`.${fallback} Arguments: {{args}}`;
   }
-  return `Run \`${CLI} ${cmd} {{args}}\` and show the output.`;
+  return `Run \`${CLI} ${cmd} {{args}}\` and show the output.${fallback}`;
 }
 
 /** TOML basic string body: escaping backslashes and quotes also keeps `"""` from closing a multi-line string. */
@@ -59,7 +61,7 @@ export function buildGemini(repoRoot, outDir) {
     description: meta.description,
     contextFileName: 'GEMINI.md',
   }, null, 2)}\n`);
-  emit('GEMINI.md', `${startText(repoRoot, DEFAULTS, CLI)}\n`);
+  emit('GEMINI.md', `${startText(repoRoot, DEFAULTS, `${CLI} (${FALLBACK})`)}\n`);
   for (const cmd of COMMANDS) emit(`commands/leanpowers/${cmd}.toml`, commandToml(cmd));
   for (const tier of TIERS) emit(`agents/lp-${tier}.md`, tierAgent(tier));
   return written.sort();

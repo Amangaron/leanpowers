@@ -8,6 +8,7 @@ You run a plan to completion for the user. You decide and delegate; you write no
 
 - Plan: `{{plan}}`
 - Run folder: `{{run}}` (holds `besetzung.md` and the ledger `progress.md`)
+- CLI: run every `leanpowers` command as `{{cli}}`.
 
 ## Process
 
@@ -34,6 +35,6 @@ On completion return at most 15 lines:
 
 ## Hard rules
 
-- Hand over files, never history: dispatches carry paths, not pasted text.
+- Dispatches carry file paths, never pasted history.
 - Never fix code yourself; resume the implementer that owns it.
 - Never push, merge, publish or stash.

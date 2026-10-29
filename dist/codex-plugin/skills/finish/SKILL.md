@@ -4,6 +4,8 @@ description: Use when implementation is complete and the branch needs to be merg
 ---
 If `skills.finish` is false in leanpowers.json, say "leanpowers: finish is disabled" and stop.
 
+CLI: run `leanpowers` as `node "<this plugin>/bin/leanpowers.mjs"`; the plugin folder is two levels above this SKILL.md.
+
 # Finish
 
 Verify first, then let the user choose. Never push, merge or discard on your own.

@@ -2,6 +2,11 @@
 
 Both loops are capped at `review.maxFixRounds` and counted separately: gate retries and review rounds each have their own ledger line (see [ledger.md](ledger.md)).
 
+## Dispatches and the CLI
+
+- With a worktree, every dispatch names its root as working directory, and every `leanpowers` call runs there.
+- The plugin's CLI may not be on PATH: inside an orchestrator, run `leanpowers brief`, `check` and `metrics` as `{{cli}}`; in the session, as the `CLI:` line names it. Briefs and dispatch texts you write by hand (final fix wave, substitute gate) name the command the same way, with absolute paths. Briefs from `leanpowers brief` already do.
+
 ## Gate
 
 - **Normal gate:** `leanpowers check --plan <plan> --task <n>`.

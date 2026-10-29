@@ -4,6 +4,8 @@ description: Use when creating a new skill, editing an existing one, or checking
 ---
 If `skills.write-skill` is false in leanpowers.json, say "leanpowers: write-skill is disabled" and stop.
 
+CLI: run `leanpowers` as `node "<this plugin>/bin/leanpowers.mjs"`; the plugin folder is two levels above this SKILL.md.
+
 # Write a skill
 
 A skill is a short, reusable instruction for a technique or discipline that agents do not follow reliably on their own. If it only records a one-off fix or a rule a linter can enforce, do not write a skill.
