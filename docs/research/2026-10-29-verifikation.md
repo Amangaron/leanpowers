@@ -14,9 +14,9 @@ am Paket. Es wurden keine Token verbraucht; gemessene Kosten insgesamt: 0,00 USD
 | Prüfung | Ergebnis | Detail |
 | --- | --- | --- |
 | `session-start` (Start-Text enthält `Commands: design, plan`) | UNCLEAR | Kein Modelllauf möglich (nicht angemeldet). |
-| `check-command` (`/leanpowers:check` liefert `leanpowers check:`) | UNCLEAR | Kein Modelllauf möglich (nicht angemeldet). |
+| `check-command` (`/leanpowers:check` führt die mitgelieferte Kommandozeile aus) | UNCLEAR | Kein Modelllauf möglich (nicht angemeldet). |
 | `plugin-root-var` (`${CLAUDE_PLUGIN_ROOT}` in `commands/*.md` ersetzt) | UNCLEAR | Hängt am Lauf von `check-command`. |
-| `coexist` (Command und gleichnamige Skills nebeneinander) | PASS | Das `system/init`-Event (ohne Modellaufruf) listet das Plugin `leanpowers@0.0.1` mit dem Pfad `dist/claude-plugin` sowie die Einträge `leanpowers:check` und `leanpowers:plan`; `design`, `plan`, `staff`, `run`, `debug` und `finish` gibt es sowohl als Command als auch als Skill. Das Init-Event von Claude Code 2.1.289 enthält kein Feld `plugin_errors`; das fehlerfreie Laden ist daher nur aus der Plugin-Liste und den Einträgen mit Namensraum geschlossen. Ob `/leanpowers:plan` im Modelllauf den richtigen Eintrag lädt, ist damit nicht gezeigt. |
+| `coexist` (Plugin geladen, Einträge `leanpowers:check` und `leanpowers:plan` vorhanden) | PASS | Das `system/init`-Event (ohne Modellaufruf) listet das Plugin `leanpowers@0.0.1` mit dem Pfad `dist/claude-plugin` sowie die Einträge `leanpowers:check` und `leanpowers:plan`. Damals gab es `design`, `plan`, `staff`, `run`, `debug` und `finish` sowohl als Command als auch als Skill; seither erzeugt der Build nur noch `check`, `skills` und `init` als Commands, die Workflow-Skills werden direkt als `/leanpowers:<Name>` aufgerufen. Das Init-Event von Claude Code 2.1.289 enthält kein Feld `plugin_errors`; das Laden ist daher nur aus der Plugin-Liste und den Einträgen mit Namensraum geschlossen. Ob `/leanpowers:plan` im Modelllauf den Skill lädt, ist damit nicht gezeigt. |
 
 Hinweis zur Isolation: `--bare` wird bewusst nicht benutzt. Es überspringt Hooks (der Test des
 Start-Texts wäre unmöglich) und liest nur `ANTHROPIC_API_KEY`, kein OAuth; außerdem listet der
@@ -27,6 +27,28 @@ leanpowers-spezifisch.
 Das Skript meldet Startfehler, Zeitüberschreitung und fehlendes `claude` als UNCLEAR (Exit-Code 2),
 nicht als FAIL; das gilt auch für einen Lauf ohne `result`-Ereignis. Pfade werden mit `realpath`
 verglichen.
+
+## Kriterien für `check-command` und `plugin-root-var`
+
+Die oben stehenden Läufe nutzten noch ältere, schwächere Kriterien; seither gilt:
+
+- Der zweite Lauf sendet genau `/leanpowers:check` als Prompt (jeder Zusatztext würde als
+  `$ARGUMENTS` an die Kommandozeile gehen) und setzt `LEANPOWERS_CLI=leanpowers`. Dadurch enthält
+  der Start-Text keinen Pfad; der Pfad zur Kommandozeile kann nur aus dem expandierten
+  `commands/check.md` stammen.
+- `check-command` ist PASS nur, wenn ein Bash-`tool_use` mit `leanpowers.mjs` im Befehl vorkommt
+  und das zugehörige `tool_result` (gleiche `tool_use_id`) die echte Ausgabezeile
+  `✔ leanpowers check: ok (…` oder `✖ leanpowers check: <n> failed` enthält; das ist dieselbe Zuordnung wie im
+  Codex-Skript. Gibt das Modell die Zeile nur selbst aus oder steht sie im Ergebnis eines anderen
+  Aufrufs, ist das FAIL. UNCLEAR nennt immer seinen Grund: nicht angemeldet, Lauf nicht
+  abgeschlossen, oder ein Bash-Aufruf ohne `tool_result`-Ereignis.
+- `plugin-root-var` ist PASS nur, wenn ein Nutzer-Ereignis (der expandierte Slash-Befehl, kein
+  `tool_result`) den absoluten Pfad `dist/claude-plugin/bin/leanpowers.mjs` enthält und die Quelle
+  `commands/check.md` `${CLAUDE_PLUGIN_ROOT}` enthält. Steht die Variable unersetzt im expandierten
+  Text, ist das FAIL. Ein Bash-Befehl mit dem Plugin-Pfad allein beweist die Ersetzung nicht; ohne
+  expandierten Text im Stream ist das Ergebnis UNCLEAR.
+- Die Auswertung liegt in den exportierten Funktionen `checkCommandEvidence` und
+  `pluginRootEvidence` und wird ohne Modelllauf in `tests/verify-claude.test.mjs` geprüft.
 
 ## Was offen bleibt
 
