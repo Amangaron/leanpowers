@@ -23,3 +23,11 @@ test('config prints merged JSON', () => {
 test('brief without --task is a usage error', () => {
   assert.equal(run('brief', '--plan', 'x.md').status, 2);
 });
+
+test('check with only --plan or only --task is a usage error', () => {
+  for (const args of [['--plan', 'x.md'], ['--task', '1']]) {
+    const r = run('check', ...args);
+    assert.equal(r.status, 2);
+    assert.match(r.stderr, /usage: leanpowers <check\|brief\|metrics\|config>/);
+  }
+});

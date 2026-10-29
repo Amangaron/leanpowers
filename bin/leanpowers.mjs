@@ -36,6 +36,7 @@ const root = process.cwd();
 switch (command) {
   case 'check': {
     const opts = parseArgs(rest);
+    if ((opts.plan === undefined) !== (opts.task === undefined)) usage();
     const result = runCheck({ root, ...opts });
     console.log(result.text);
     process.exit(result.ok ? 0 : 1);
