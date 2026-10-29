@@ -41,14 +41,6 @@ function taskChecks(root, config, plan, task) {
   ];
 }
 
-const MORE_MARKER = /^… \d+ more$/;
-
-/** Cap at 20 lines; messages the gates already capped (ending in a "… N more" marker) stay untouched. */
-function cap(messages) {
-  const last = messages.at(-1);
-  return last !== undefined && MORE_MARKER.test(last) && messages.length <= 21 ? messages : compress(messages, 20);
-}
-
 /**
  * Run all configured checks and format them token-lean.
  * @param {{ root: string, plan?: string, task?: number, all?: boolean, userConfigPath?: string }} opts
@@ -59,6 +51,7 @@ export function runCheck({ root, plan, task, all = false, userConfigPath }) {
   const results = runGates(config, root);
   if (plan && task) results.push(...taskChecks(root, config, plan, task));
   if (all) results.push(lintDocs(root, config), lintSkills(root, config));
-  const compressed = results.map((r) => ({ ...r, messages: cap(r.messages) }));
+  // Gate results are already compressed by runGates.
+  const compressed = results.map((r) => (r.name.startsWith('gates:') ? r : { ...r, messages: compress(r.messages, 20) }));
   return formatResults(compressed, errors);
 }

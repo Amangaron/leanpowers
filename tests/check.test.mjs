@@ -85,3 +85,13 @@ test('failing check output is capped at 20 lines plus a rest marker', () => {
   assert.equal(lines.filter((l) => l.startsWith('  error ')).length, 20);
   assert.ok(lines.includes('  … 20 more'));
 });
+
+test('non-gate results are capped at 20 lines plus a rest marker', () => {
+  const root = project({ commands: { test: 'node ok.mjs' } });
+  const { config } = loadConfig(root, { userConfigPath: NO_USER });
+  writeBrief(root, 'docs/plans/demo.md', 1, config);
+  for (let i = 0; i < 25; i++) fs.writeFileSync(path.join(root, `src/f${String(i).padStart(2, '0')}.ts`), 'x');
+  const text = runCheck({ root, plan: 'docs/plans/demo.md', task: 1, userConfigPath: NO_USER }).text;
+  assert.equal(text.split('\n').filter((l) => l.startsWith('  not in brief: ')).length, 20);
+  assert.match(text, /✖ scope[\s\S]*  … 5 more/);
+});
