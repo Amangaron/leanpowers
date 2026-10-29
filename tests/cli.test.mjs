@@ -94,3 +94,38 @@ test('metrics prints a summary line', () => {
   assert.equal(r.status, 0, r.stderr);
   assert.match(r.stdout, /^metrics: /);
 });
+
+test('init prints a proposal and the write hint without touching disk', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-cli-init-'));
+  fs.mkdirSync(path.join(root, 'src'));
+  fs.writeFileSync(path.join(root, 'src/a.ts'), '');
+  const r = spawn(root, 'init');
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /"path": "src\/\*\*"/);
+  assert.match(r.stdout, /run "leanpowers init --write" to save it/);
+  assert.equal(fs.existsSync(path.join(root, 'leanpowers.json')), false);
+});
+
+test('init --write creates leanpowers.json once and never overwrites', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-cli-init-'));
+  assert.equal(spawn(root, 'init', '--write').status, 0);
+  const saved = JSON.parse(fs.readFileSync(path.join(root, 'leanpowers.json'), 'utf8'));
+  assert.equal(saved.$schema, './node_modules/leanpowers/schema/leanpowers.schema.json');
+  fs.writeFileSync(path.join(root, 'leanpowers.json'), '{"keep":true}');
+  const again = spawn(root, 'init', '--write');
+  assert.equal(again.status, 1);
+  assert.match(again.stderr, /leanpowers\.json exists — not overwritten/);
+  assert.equal(fs.readFileSync(path.join(root, 'leanpowers.json'), 'utf8'), '{"keep":true}');
+});
+
+test('init --template lists created files and reports unknown templates', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-cli-init-'));
+  const r = spawn(root, 'init', '--template', 'project-default');
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /created docs\/specs\/\.gitkeep/);
+  assert.equal(fs.existsSync(path.join(root, 'tests/.gitkeep')), true);
+  const bad = spawn(root, 'init', '--template', 'nope');
+  assert.equal(bad.status, 1);
+  assert.match(bad.stderr, /unknown template: nope/);
+  assert.equal(spawn(root, 'init', '--write', '--template', 'project-default').status, 2);
+});

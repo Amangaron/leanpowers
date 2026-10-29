@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runCheck } from '../checks/check.mjs';
@@ -7,6 +8,7 @@ import { toPosix } from '../checks/lib/glob.mjs';
 import { writeBrief, runDirFor } from '../checks/brief.mjs';
 import { writeMetrics } from '../checks/metrics.mjs';
 import { startText } from '../checks/start.mjs';
+import { proposeConfig, applyTemplate } from '../checks/init.mjs';
 import { listSkills, setSkills, nativeHint, formatList, parseSet, interactiveChecklist, loadSkillConfig, NATIVE_PLATFORMS } from '../checks/skills-cmd.mjs';
 
 const USAGE = 'usage: leanpowers <check|brief|metrics|config|start|skills|init> [--all] [--plan <file>] [--task <n>] [--format plain|claude]';
@@ -16,7 +18,7 @@ function usage() {
   process.exit(2);
 }
 
-function parseArgs(argv, { skills = false } = {}) {
+function parseArgs(argv, { skills = false, init = false } = {}) {
   const opts = { all: false };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
@@ -38,6 +40,10 @@ function parseArgs(argv, { skills = false } = {}) {
     } else if (skills && arg === '--native') {
       opts.native = argv[++i];
       if (!NATIVE_PLATFORMS.includes(opts.native)) usage();
+    } else if (init && arg === '--write') opts.write = true;
+    else if (init && arg === '--template') {
+      opts.template = argv[++i];
+      if (!opts.template) usage();
     } else usage();
   }
   return opts;
@@ -140,6 +146,38 @@ switch (command) {
       else if (!Object.keys(changes).length) console.log('no changes');
       else save(changes);
     }
+    break;
+  }
+  case 'init': {
+    const opts = parseArgs(rest, { init: true });
+    if (opts.write && opts.template !== undefined) usage();
+    const pluginRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+    if (opts.template !== undefined) {
+      let created;
+      try {
+        created = applyTemplate(pluginRoot, opts.template, root);
+      } catch (err) {
+        if (!err.message.startsWith('unknown template: ')) throw err;
+        console.error(err.message);
+        process.exit(1);
+      }
+      console.log(created.length ? created.map((f) => `created ${f}`).join('\n') : 'nothing to create: all template files exist');
+      break;
+    }
+    const text = `${JSON.stringify(proposeConfig(root), null, 2)}\n`;
+    if (!opts.write) {
+      console.log(text.trimEnd());
+      console.log('run "leanpowers init --write" to save it');
+      break;
+    }
+    try {
+      fs.writeFileSync(path.join(root, 'leanpowers.json'), text, { flag: 'wx' });
+    } catch (err) {
+      if (err.code !== 'EEXIST') throw err;
+      console.error('leanpowers.json exists — not overwritten');
+      process.exit(1);
+    }
+    console.log('created leanpowers.json');
     break;
   }
   default:
