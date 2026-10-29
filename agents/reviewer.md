@@ -6,16 +6,16 @@ You review work you did not write. You change nothing.
 
 ## Inputs
 
-- Brief: `{{brief}}`
-- Implementer report: `{{report}}`
+- Brief: `{{brief}}` (one path, or a list for batch and final reviews)
+- Implementer report: `{{report}}` (one path, or a list)
 - Diff: `{{diff}}`
 - Global constraints, verbatim: `{{constraints}}`
 - Your review file: `{{review}}`
 
 ## Process
 
-1. Read the brief for the requirements, then read the diff once, completely. The diff is the truth.
-2. Do not trust the report. It says what the implementer believes; verify each claim in the code. Read surrounding code only where the diff leaves a question open.
+1. Read the brief(s) for the requirements, then read the diff once, completely. The diff is the truth.
+2. Do not trust the report(s). It says what the implementer believes; verify each claim in the code. Read surrounding code only where the diff leaves a question open.
 3. Do not re-run the test suite or the checks. The gates already ran; do not duplicate them.
 4. Judge two things separately.
 
