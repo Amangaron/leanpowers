@@ -162,7 +162,7 @@ Alle Fähigkeiten von Superpowers 6.3.0 bleiben erhalten. Sie werden zusammengef
 ### 7.4 Zusammenfasser (Schnittstelle)
 
 - Die Konfig enthält `summarizer: "none"` (Standard) oder einen Befehl, der lange Ausgaben auf stdin liest und eine Kurzfassung ausgibt, z. B. später ein lokales Modell über Ollama.
-- `check` ruft den Zusammenfasser nur auf, wenn die gekürzte Ausgabe weiterhin mehr als 60 Zeilen hat.
+- `check` ruft den Zusammenfasser nur auf, wenn die relevante Rohausgabe eines Gates mehr als 60 Zeilen hat. Seine Antwort wird anschließend wie jede andere Ausgabe auf höchstens 20 Zeilen gekürzt. Schlägt der Zusammenfasser fehl, wird normal gekürzt.
 
 ## 8. Prüf-Skripte (`checks/`, ohne KI)
 
@@ -175,7 +175,7 @@ Alle Fähigkeiten von Superpowers 6.3.0 bleiben erhalten. Sie werden zusammengef
 | `gates` | Tests, Typecheck, Lint | Befehle aus `leanpowers.json` → `commands` |
 | `scope` | Geänderte Dateien (git diff seit Aufgabenstart) liegen in der erlaubten Liste des Briefs | Brief |
 | `structure` | Strukturregeln, keine unerlaubten neuen Ordner | `structure` in der Konfig |
-| `doc-lint` | Spec/Plan: Pflichtabschnitte, keine Platzhalter (TBD, TODO, `???`), jede Plan-Aufgabe hat `risk` und Dateiliste | Dateien in `paths.specs` / `paths.plans` |
+| `doc-lint` | Spec/Plan: Pflichtabschnitte, keine Platzhalter-Wörter (`TBD`, `TODO`, `???`; Inline-Code und Code-Blöcke werden ignoriert), jede Plan-Aufgabe hat `risk` und Dateiliste | Dateien in `paths.specs` / `paths.plans` |
 | `skill-lint` | Wortobergrenzen, Kopfdaten, Verweise, Starttext ≤ 150 Token | `skills/`, `extraSkillDirs` |
 | `config` | `leanpowers.json` gegen das JSON-Schema | Schema |
 | `brief` | erzeugt Task-Briefs (Abschnitt 7.3) | Plan |
