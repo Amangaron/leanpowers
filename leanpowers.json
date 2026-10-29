@@ -1,0 +1,12 @@
+{
+  "$schema": "./schema/leanpowers.schema.json",
+  "commands": { "test": "npm test" },
+  "structure": {
+    "newFolders": "ask",
+    "rules": [
+      { "path": "checks/**", "allow": ["*.mjs"] },
+      { "path": "tests/**", "allow": ["*.mjs"] },
+      { "path": "schema/**", "allow": ["*.json"] }
+    ]
+  }
+}
