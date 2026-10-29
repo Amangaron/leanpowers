@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildClaude } from './claude.mjs';
 import { buildCodex } from './codex.mjs';
+import { buildGemini } from './gemini.mjs';
 import { packageMeta } from './meta.mjs';
 import { writeText } from './runtime.mjs';
 
@@ -10,6 +11,7 @@ import { writeText } from './runtime.mjs';
 const PACKAGES = {
   claude: { dir: 'claude-plugin', build: buildClaude },
   codex: { dir: 'codex-plugin', build: buildCodex },
+  gemini: { dir: 'gemini-extension', build: buildGemini },
 };
 
 /** Build the platform packages into outRoot. Returns written files (posix, relative to outRoot). */

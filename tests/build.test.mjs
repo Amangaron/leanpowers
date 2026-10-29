@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build } from '../build/build.mjs';
+import { estimateTokens } from '../checks/skill-lint.mjs';
 
 const repo = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const out = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-build-'));
@@ -61,4 +62,15 @@ test('built text files use LF line endings', () => {
   for (const rel of ['claude-plugin/skills/run/SKILL.md', 'codex-plugin/skills/run/SKILL.md', 'codex-plugin/prompts/reviewer.md']) {
     assert.ok(!read(rel).includes('\r'), rel);
   }
+});
+
+test('gemini extension has manifest, small context file, toml commands and tier agents', () => {
+  const ext = JSON.parse(read('gemini-extension/gemini-extension.json'));
+  assert.equal(ext.contextFileName, 'GEMINI.md');
+  assert.ok(estimateTokens(read('gemini-extension/GEMINI.md')) <= 150);
+  assert.match(read('gemini-extension/commands/leanpowers/plan.toml'), /prompt\s*=/);
+  for (const t of ['small', 'medium', 'large']) {
+    assert.match(read(`gemini-extension/agents/lp-${t}.md`), new RegExp(`name: lp-${t}`));
+  }
+  assert.ok(!exists('gemini-extension/agents/implementer.md'));
 });

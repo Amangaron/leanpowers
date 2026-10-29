@@ -1,0 +1,4 @@
+description = "Run the deterministic leanpowers checks"
+prompt = """
+Run `node \"${extensionPath}/bin/leanpowers.mjs\" check {{args}}` and show the output.
+"""
