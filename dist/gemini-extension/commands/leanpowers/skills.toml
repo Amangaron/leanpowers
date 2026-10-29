@@ -1,4 +1,4 @@
 description = "List leanpowers skills and switch them on or off"
 prompt = """
-Run `node \"${extensionPath}/bin/leanpowers.mjs\" skills --list` and show the output. Then ask the user which skills to change and apply them with `node \"${extensionPath}/bin/leanpowers.mjs\" skills --set <name>=on|off,...`.
+If the arguments are not empty, run `node \"${extensionPath}/bin/leanpowers.mjs\" skills {{args}}` and show the output. Otherwise run `node \"${extensionPath}/bin/leanpowers.mjs\" skills --list`, show the output, ask the user which skills to change, and apply them with `node \"${extensionPath}/bin/leanpowers.mjs\" skills --set <name>=on|off,...`. Arguments: {{args}}
 """

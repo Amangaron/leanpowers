@@ -24,7 +24,7 @@ const TIERS = ['small', 'medium', 'large'];
 function commandPrompt(cmd) {
   if (cmd in COMMAND_SKILL) return `Invoke the leanpowers ${COMMAND_SKILL[cmd]} skill. {{args}}`;
   if (cmd === 'skills') {
-    return `Run \`${CLI} skills --list\` and show the output. Then ask the user which skills to change and apply them with \`${CLI} skills --set <name>=on|off,...\`.`;
+    return `If the arguments are not empty, run \`${CLI} skills {{args}}\` and show the output. Otherwise run \`${CLI} skills --list\`, show the output, ask the user which skills to change, and apply them with \`${CLI} skills --set <name>=on|off,...\`. Arguments: {{args}}`;
   }
   return `Run \`${CLI} ${cmd} {{args}}\` and show the output.`;
 }

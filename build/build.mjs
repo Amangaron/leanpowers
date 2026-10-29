@@ -27,15 +27,15 @@ export function build(repoRoot, outRoot = path.join(repoRoot, 'dist'), platforms
   return written;
 }
 
-/** Write the repo-root marketplace files that point at the built packages. */
-export function writeMarketplaces(repoRoot) {
+/** Write the marketplace files that point at the built packages (into outRoot, default: the repo root). */
+export function writeMarketplaces(repoRoot, outRoot = repoRoot) {
   const meta = packageMeta(repoRoot);
   const files = {
     '.claude-plugin/marketplace.json': 'claude',
     '.agents/plugins/marketplace.json': 'codex',
   };
   for (const [rel, platform] of Object.entries(files)) {
-    writeText(path.join(repoRoot, rel), `${JSON.stringify({
+    writeText(path.join(outRoot, rel), `${JSON.stringify({
       name: 'leanpowers-marketplace',
       owner: { name: meta.author },
       plugins: [{

@@ -4,7 +4,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { build } from '../build/build.mjs';
+import { build, writeMarketplaces } from '../build/build.mjs';
+import { copyRuntime } from '../build/runtime.mjs';
 import { estimateTokens } from '../checks/skill-lint.mjs';
 
 const repo = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -73,4 +74,68 @@ test('gemini extension has manifest, small context file, toml commands and tier 
     assert.match(read(`gemini-extension/agents/lp-${t}.md`), new RegExp(`name: lp-${t}`));
   }
   assert.ok(!exists('gemini-extension/agents/implementer.md'));
+});
+
+test('committed dist matches a fresh build', () => {
+  const list = (dir, base = dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
+    e.isDirectory() ? list(path.join(dir, e.name), base) : [path.relative(base, path.join(dir, e.name)).split(path.sep).join('/')]);
+  const fresh = list(out).sort();
+  assert.deepEqual(list(path.join(repo, 'dist')).sort(), fresh, 'dist/ is stale — run npm run build');
+  for (const rel of fresh) {
+    assert.equal(fs.readFileSync(path.join(repo, 'dist', rel), 'utf8'), read(rel), `dist/ is stale — run npm run build (${rel})`);
+  }
+});
+
+test('committed marketplace files match the generated ones', () => {
+  const fresh = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-market-'));
+  const files = writeMarketplaces(repo, fresh);
+  assert.equal(files.length, 2);
+  for (const rel of files) {
+    assert.equal(fs.readFileSync(path.join(repo, rel), 'utf8'), fs.readFileSync(path.join(fresh, rel), 'utf8'),
+      `${rel} is stale — run npm run build`);
+  }
+});
+
+test('copyRuntime normalizes text, keeps NUL files and file modes', () => {
+  const src = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-rt-src-'));
+  const dest = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'lp-rt-out-')), 'pkg');
+  fs.mkdirSync(path.join(src, 'skills/x'), { recursive: true });
+  fs.mkdirSync(path.join(src, 'bin'));
+  fs.mkdirSync(path.join(src, 'templates'));
+  for (const f of ['package.json', 'LICENSE', 'NOTICE']) fs.writeFileSync(path.join(src, f), `${f}\n`);
+  fs.writeFileSync(path.join(src, 'skills/x/SKILL.md'), 'line one\r\nline two\r\n');
+  const binary = Buffer.from([0x41, 0x0d, 0x0a, 0x00, 0x42, 0x0d, 0x0a]);
+  fs.writeFileSync(path.join(src, 'templates/blob.bin'), binary);
+  fs.writeFileSync(path.join(src, 'bin/tool.mjs'), '#!/usr/bin/env node\n');
+  fs.chmodSync(path.join(src, 'bin/tool.mjs'), 0o755);
+  copyRuntime(src, dest);
+  assert.equal(fs.readFileSync(path.join(dest, 'skills/x/SKILL.md'), 'utf8'), 'line one\nline two\n');
+  assert.ok(fs.readFileSync(path.join(dest, 'templates/blob.bin')).equals(binary));
+  if (process.platform !== 'win32') {
+    assert.equal(fs.statSync(path.join(dest, 'bin/tool.mjs')).mode & 0o777, 0o755);
+  }
+});
+
+test('gemini commands are valid TOML with the exact prompt, and tier agents stay short', () => {
+  const dir = path.join(out, 'gemini-extension/commands/leanpowers');
+  assert.equal(fs.readdirSync(dir).filter((f) => f.endsWith('.toml')).length, 9);
+  const m = /^description = "(.*)"\nprompt = """\n([\s\S]*)\n"""\n$/.exec(read('gemini-extension/commands/leanpowers/check.toml'));
+  assert.ok(m, 'check.toml has the expected layout');
+  const unescape = (s) => s.replace(/\\(["\\])/g, '$1');
+  assert.equal(unescape(m[2]), 'Run `node "${extensionPath}/bin/leanpowers.mjs" check {{args}}` and show the output.');
+  assert.ok(m[2].includes('\\"${extensionPath}/bin/leanpowers.mjs\\"'));
+  for (const tier of ['small', 'medium', 'large']) {
+    const description = /^description: (.*)$/m.exec(read(`gemini-extension/agents/lp-${tier}.md`))[1];
+    assert.ok(description.split(/\s+/).length <= 15, `lp-${tier} description has more than 15 words`);
+  }
+});
+
+test('the skills command passes arguments through, else lists and asks', () => {
+  const claude = read('claude-plugin/commands/skills.md');
+  assert.match(claude, /skills \$ARGUMENTS`/);
+  assert.match(claude, /skills --list`/);
+  assert.match(claude, /skills --set <name>=on\|off/);
+  const gemini = read('gemini-extension/commands/leanpowers/skills.toml');
+  assert.match(gemini, /skills \{\{args\}\}`/);
+  assert.match(gemini, /skills --list`/);
 });
