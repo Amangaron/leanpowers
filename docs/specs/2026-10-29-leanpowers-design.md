@@ -166,7 +166,7 @@ Alle Fähigkeiten von Superpowers 6.3.0 bleiben erhalten. Sie werden zusammengef
 
 ## 8. Prüf-Skripte (`checks/`, ohne KI)
 
-- **Aufruf:** über einen Einstiegspunkt `leanpowers check [--task N | --all]`, auf allen Plattformen gleich.
+- **Aufruf:** über einen Einstiegspunkt `leanpowers check [--all] [--plan <file> --task <n>]`, auf allen Plattformen gleich.
 - **Ausgabe im Erfolgsfall:** genau eine Zeile.
 - **Ausgabe bei Fehlern:** nur die ersten 20 entdoppelten Fehlermeldungen pro Prüfung.
 
