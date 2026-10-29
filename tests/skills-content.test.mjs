@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseFrontmatter, countWords } from '../checks/skill-lint.mjs';
+import { lintSkills } from '../checks/skill-lint.mjs';
+import { DEFAULTS } from '../checks/lib/defaults.mjs';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const TOOL_NAMES = ['TodoWrite', 'AskUserQuestion', 'spawn_agent', 'invoke_agent', 'write_todos', 'activate_skill', 'Task tool', 'Agent tool', 'Skill tool'];
@@ -50,4 +52,13 @@ test('platform maps exist, stay small and have the fixed sections', () => {
       assert.ok(text.includes(`\n${h}\n`), `${p}: missing ${h}`);
     }
   }
+});
+
+const SKILLS = ['start', 'design', 'plan', 'staff', 'run', 'review', 'tdd', 'debug', 'verify', 'worktrees', 'finish', 'write-skill'];
+const AGENTS = ['implementer', 'reviewer', 're-reviewer', 'staffer', 'orchestrator'];
+
+test('the full skill and agent set exists and passes skill-lint', () => {
+  assert.deepEqual(skillNames().sort(), [...SKILLS].sort());
+  assert.deepEqual(ls('agents').filter((f) => f.endsWith('.md')).map((f) => f.slice(0, -3)).sort(), [...AGENTS].sort());
+  assert.deepEqual(lintSkills(root, DEFAULTS).messages, []);
 });
