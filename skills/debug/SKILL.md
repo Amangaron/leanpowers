@@ -26,7 +26,7 @@ If `skills.debug` is false in leanpowers.json, say "leanpowers: debug is disable
 
 1. State one hypothesis in writing: "the cause is X because Y".
 2. Test it with the smallest possible change or probe, one variable at a time.
-3. Confirmed: go to step 4. Refuted: form a new hypothesis from what you learned. Do not stack another change on top of the failed one; revert it.
+3. Confirmed: go to step 4. Refuted: form a new hypothesis from what you learned. Do not stack another change on top of the failed one; revert only your own probe change, never the user's uncommitted work.
 4. If you do not understand something, say so and research it, rather than pretending.
 
 ## 4. Fix

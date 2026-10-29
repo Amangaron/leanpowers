@@ -10,13 +10,13 @@ A git worktree gives the work its own directory and branch while sharing the rep
 
 ## 1. Choose the location
 
-1. If `.worktrees/` or `worktrees/` already exists in the project root, use it (`.worktrees/` wins if both exist).
-2. Otherwise create `.worktrees/`.
-3. If the user's instructions (CLAUDE.md, AGENTS.md, GEMINI.md, a direct request) name another location, follow that instead.
+1. If the user's instructions (CLAUDE.md, AGENTS.md, GEMINI.md, a direct request) name a location, use it.
+2. Else if `.worktrees/` or `worktrees/` already exists in the project root, use it (`.worktrees/` wins if both exist).
+3. Otherwise create `.worktrees/`.
 
 ## 2. Make sure it is ignored
 
-Run `git check-ignore -q <folder>`. If it is not ignored, add the folder to `.gitignore` and commit that change before creating the worktree. A worktree folder that git would track pollutes every later commit.
+Run `git check-ignore -q <folder>`. If it is not ignored, add the folder to `.gitignore` and, if the user's instructions allow commits, commit that change before creating the worktree; otherwise tell the user the ignore entry is uncommitted. A worktree folder that git would track pollutes every later commit.
 
 ## 3. Create it
 

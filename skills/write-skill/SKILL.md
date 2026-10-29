@@ -29,7 +29,7 @@ A skill is a short, reusable instruction for a technique or discipline that agen
 
 1. Run `leanpowers check --all`; fix every skill-lint finding (frontmatter, word limits, forbidden names and paths).
 2. Test behavior: give a subagent a realistic pressure scenario once without the skill and once with it, and compare. Method and scenario design: [details/testing-skills.md](details/testing-skills.md).
-3. Commit only when both pass.
+3. Do not commit before both pass.
 
 ## Do not
 
