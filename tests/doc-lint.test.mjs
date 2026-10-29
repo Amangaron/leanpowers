@@ -23,6 +23,10 @@ test('good plan passes', () => {
   assert.deepEqual(lintPlan(GOOD_PLAN), []);
 });
 
+test('CRLF plan passes', () => {
+  assert.deepEqual(lintPlan(GOOD_PLAN.replaceAll('\n', '\r\n')), []);
+});
+
 test('plan header and task fields are required', () => {
   const errs = lintPlan('# P\n\n### Task 1: T\n\nno fields\n');
   assert.deepEqual(errs, [

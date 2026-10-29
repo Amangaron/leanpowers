@@ -1,6 +1,10 @@
 const FENCE = /^```/;
 const TASK_HEADING = /^### Task (\d+):\s*(.+)$/;
 
+function normalizeNewlines(text) {
+  return text.replace(/\r\n?/g, '\n');
+}
+
 /** Per-line flags: true for fence delimiter lines and lines inside a fenced block. */
 function fenceFlags(lines) {
   const flags = [];
@@ -18,7 +22,7 @@ function fenceFlags(lines) {
 
 /** Remove fenced code blocks and inline code spans; the line count stays the same. */
 export function stripCode(text) {
-  const lines = text.split('\n');
+  const lines = normalizeNewlines(text).split('\n');
   const flags = fenceFlags(lines);
   return lines.map((line, i) => (flags[i] ? '' : line.replace(/`[^`\n]*`/g, ''))).join('\n');
 }
@@ -31,6 +35,13 @@ function headerValue(lines, flags, label) {
     if (m) return m[1].replaceAll('`', '').trim();
   }
   return '';
+}
+
+/** Join body lines, dropping trailing blank lines and `---` separator lines. */
+function trimBody(rawLines) {
+  const lines = [...rawLines];
+  while (lines.length > 0 && (lines.at(-1).trim() === '' || lines.at(-1).trimEnd() === '---')) lines.pop();
+  return lines.join('\n');
 }
 
 function parseTask(n, title, rawLines, flags) {
@@ -47,13 +58,13 @@ function parseTask(n, title, rawLines, flags) {
     risk: riskMatch ? riskMatch[1] : null,
     parallel: /^\*\*Parallel:\*\*\s*true\b/m.test(outside),
     files,
-    body: rawLines.join('\n').trimEnd(),
+    body: trimBody(rawLines),
   };
 }
 
 /** Parse a Markdown plan (format contract: see docs) into header fields and tasks. */
 export function parsePlan(text) {
-  const lines = text.split('\n');
+  const lines = normalizeNewlines(text).split('\n');
   const flags = fenceFlags(lines);
 
   const headings = [];
@@ -75,7 +86,13 @@ export function parsePlan(text) {
   }
 
   const tasks = headings.map((h, k) => {
-    const end = k + 1 < headings.length ? headings[k + 1].index : lines.length;
+    let end = k + 1 < headings.length ? headings[k + 1].index : lines.length;
+    for (let i = h.index + 1; i < end; i++) {
+      if (!flags[i] && lines[i].startsWith('## ')) {
+        end = i;
+        break;
+      }
+    }
     return parseTask(h.n, h.title, lines.slice(h.index, end), flags.slice(h.index, end));
   });
 
