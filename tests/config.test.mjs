@@ -81,3 +81,25 @@ test('broken JSON is reported and ignored', () => {
   assert.match(errors[0], /^leanpowers\.json: invalid JSON/);
   assert.deepEqual(config, DEFAULTS);
 });
+
+test('validate does not see inherited properties', () => {
+  assert.ok(validate({ constructor: 1 }, schema).includes('constructor: unknown property'));
+  assert.ok(validate({ skills: { toString: 'x' } }, schema).includes('skills.toString: expected boolean'));
+});
+
+test('a __proto__ key in a config file does not pollute the config', () => {
+  const root = tmp();
+  fs.writeFileSync(path.join(root, 'leanpowers.json'), '{"__proto__":{"polluted":1}}');
+  const { config } = loadConfig(root, NO_USER);
+  assert.equal(config.polluted, undefined);
+  assert.equal(Object.getPrototypeOf(config), Object.prototype);
+  assert.deepEqual(deepMerge({}, JSON.parse('{"__proto__":{"polluted":1}}')).polluted, undefined);
+});
+
+test('root-level type errors use (root) as path', () => {
+  assert.deepEqual(validate([], schema), ['(root): expected object']);
+  const root = tmp();
+  fs.writeFileSync(path.join(root, 'leanpowers.json'), '[]');
+  const { errors } = loadConfig(root, NO_USER);
+  assert.deepEqual(errors, ['leanpowers.json: (root): expected object']);
+});

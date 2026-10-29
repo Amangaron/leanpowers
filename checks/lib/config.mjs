@@ -24,21 +24,22 @@ const join = (at, key) => (at ? `${at}.${key}` : key);
  * required, enum, items, minimum. Returns messages of the form "<path>: <problem>".
  */
 export function validate(value, schema, at = '') {
-  if (schema.type && !typeMatches(value, schema.type)) return [`${at}: expected ${schema.type}`];
+  const label = at || '(root)';
+  if (schema.type && !typeMatches(value, schema.type)) return [`${label}: expected ${schema.type}`];
   const errors = [];
   if (schema.enum && !schema.enum.includes(value)) {
-    errors.push(`${at}: must be one of ${schema.enum.join(', ')}`);
+    errors.push(`${label}: must be one of ${schema.enum.join(', ')}`);
   }
   if (schema.minimum !== undefined && typeof value === 'number' && value < schema.minimum) {
-    errors.push(`${at}: must be >= ${schema.minimum}`);
+    errors.push(`${label}: must be >= ${schema.minimum}`);
   }
   if (isPlainObject(value)) {
     const props = schema.properties ?? {};
     for (const key of schema.required ?? []) {
-      if (!(key in value)) errors.push(`${join(at, key)}: required`);
+      if (!Object.hasOwn(value, key)) errors.push(`${join(at, key)}: required`);
     }
     for (const [key, child] of Object.entries(value)) {
-      if (key in props) errors.push(...validate(child, props[key], join(at, key)));
+      if (Object.hasOwn(props, key)) errors.push(...validate(child, props[key], join(at, key)));
       else if (schema.additionalProperties === false) errors.push(`${join(at, key)}: unknown property`);
       else if (isPlainObject(schema.additionalProperties)) {
         errors.push(...validate(child, schema.additionalProperties, join(at, key)));
@@ -55,7 +56,8 @@ export function validate(value, schema, at = '') {
 export function deepMerge(base, override) {
   const out = { ...base };
   for (const [key, val] of Object.entries(override)) {
-    out[key] = isPlainObject(val) && isPlainObject(out[key]) ? deepMerge(out[key], val) : structuredClone(val);
+    if (key === '__proto__') continue;
+    out[key] = isPlainObject(val) && Object.hasOwn(out, key) && isPlainObject(out[key]) ? deepMerge(out[key], val) : structuredClone(val);
   }
   return out;
 }
