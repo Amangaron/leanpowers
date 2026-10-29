@@ -54,7 +54,7 @@ Die oben stehenden Läufe nutzten noch ältere, schwächere Kriterien; seither g
 
 - Claude Code: `session-start`, `check-command` und `plugin-root-var` müssen mit angemeldetem
   `claude` (`/login`) laufen: `node scripts/verify-claude.mjs` (erwartete Kosten unter 0,10 USD).
-  Bis dahin bleiben die `(unverified)`-Markierungen in `platforms/claude.md` bestehen.
+  Bis dahin bleiben die `(unverified)`-Markierungen in `platforms/claude-code.md` bestehen.
 - Codex: ungeprüft, bis der Nutzer `bash scripts/verify-codex.sh` selbst ausführt (das Skript
   ändert die Codex-Konfiguration und wird nie von einem Agenten gestartet). Es meldet PASS nur, wenn ein
   einzelnes JSONL-Ereignis sowohl einen Befehl `node … leanpowers.mjs` als auch die echte
