@@ -30,7 +30,7 @@ test('brief contains only what the implementer needs', () => {
 
 test('brief names the plan path in the check command', () => {
   const b = buildBrief(parsePlan(PLAN), 1, config, 'r', 'docs/plans/demo.md');
-  assert.match(b, /Run `leanpowers check --plan docs\/plans\/demo\.md --task 1`\./);
+  assert.match(b, /Run `(node ".*\/bin\/leanpowers\.mjs"|[^`]+) check --plan docs\/plans\/demo\.md --task 1`\./);
   const d = buildBrief(parsePlan(PLAN), 1, config, 'r');
   assert.match(d, /--plan the plan --task 1/);
 });
@@ -90,4 +90,9 @@ test('writeBrief keeps an existing base sha when re-run', () => {
   git('add', '.'); git('commit', '-qm', 'next');
   writeBrief(root, 'docs/plans/p.md', 1, config);
   assert.equal(fs.readFileSync(path.join(path.dirname(briefPath), 'task-1-base.txt'), 'utf8').trim(), first);
+});
+
+test('brief names a resolvable CLI command', () => {
+  const b = buildBrief(parsePlan(PLAN), 1, config, '.leanpowers/runs/demo', 'docs/plans/demo.md');
+  assert.match(b, /Run `(node ".*\/bin\/leanpowers\.mjs"|[^`]+) check --plan docs\/plans\/demo\.md --task 1`/);
 });
