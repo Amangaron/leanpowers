@@ -7,6 +7,7 @@ import { toPosix } from '../checks/lib/glob.mjs';
 import { writeBrief, runDirFor } from '../checks/brief.mjs';
 import { writeMetrics } from '../checks/metrics.mjs';
 import { startText } from '../checks/start.mjs';
+import { listSkills, setSkills, nativeHint, formatList, parseSet, interactiveChecklist, NATIVE_PLATFORMS } from '../checks/skills-cmd.mjs';
 
 const USAGE = 'usage: leanpowers <check|brief|metrics|config|start|skills|init> [--all] [--plan <file>] [--task <n>] [--format plain|claude]';
 
@@ -15,7 +16,7 @@ function usage() {
   process.exit(2);
 }
 
-function parseArgs(argv) {
+function parseArgs(argv, { skills = false } = {}) {
   const opts = { all: false };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
@@ -30,6 +31,13 @@ function parseArgs(argv) {
     } else if (arg === '--format') {
       opts.format = argv[++i];
       if (!['plain', 'claude'].includes(opts.format)) usage();
+    } else if (skills && arg === '--list') opts.list = true;
+    else if (skills && arg === '--set') {
+      opts.set = argv[++i];
+      if (!opts.set) usage();
+    } else if (skills && arg === '--native') {
+      opts.native = argv[++i];
+      if (!NATIVE_PLATFORMS.includes(opts.native)) usage();
     } else usage();
   }
   return opts;
@@ -83,6 +91,34 @@ switch (command) {
     console.log(format === 'claude'
       ? JSON.stringify({ hookSpecificOutput: { hookEventName: 'SessionStart', additionalContext: text } })
       : text);
+    break;
+  }
+  case 'skills': {
+    const opts = parseArgs(rest, { skills: true });
+    if ([opts.list, opts.set, opts.native].filter((v) => v !== undefined).length > 1) usage();
+    const pluginRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+    const list = () => listSkills(pluginRoot, root, loadConfig(root).config);
+    if (opts.set !== undefined) {
+      try {
+        const file = setSkills(root, parseSet(opts.set));
+        console.log(`updated ${toPosix(path.relative(root, file))}`);
+      } catch (err) {
+        console.error(err.message);
+        process.exit(err.message.startsWith('invalid --set') ? 2 : 1);
+      }
+    } else if (opts.native !== undefined) {
+      console.log(nativeHint(opts.native, list().filter((s) => !s.enabled).map((s) => s.name), pluginRoot));
+    } else if (opts.list || !process.stdin.isTTY || !process.stdout.isTTY) {
+      console.log(formatList(list()));
+    } else {
+      const before = list();
+      const after = await interactiveChecklist(before.map(({ name, enabled }) => ({ name, enabled })));
+      const changes = {};
+      for (const [i, item] of (after ?? []).entries()) if (item.enabled !== before[i].enabled) changes[item.name] = item.enabled;
+      if (!after) console.log('cancelled');
+      else if (!Object.keys(changes).length) console.log('no changes');
+      else console.log(`updated ${toPosix(path.relative(root, setSkills(root, changes)))}`);
+    }
     break;
   }
   default:
