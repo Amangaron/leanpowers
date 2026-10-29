@@ -293,3 +293,17 @@ Alle Fähigkeiten von Superpowers 6.3.0 bleiben erhalten. Sie werden zusammengef
 - **O1 (erledigt 2026-10-29):** GitHub-Konto ist `Amangaron`; Repository `github.com/Amangaron/leanpowers`.
 - **O2:** Technischer Mechanismus, um einen Skill auf der jeweiligen Plattform auszublenden, für Claude Code, Codex und Gemini CLI. Ist das nicht möglich, gilt die Rückfallebene aus Abschnitt 9.
 - **O3:** Subagenten-Fähigkeiten von Codex und Gemini CLI zum Planungszeitpunkt: ob sie verfügbar sind, wie die Modellwahl pro Subagent funktioniert und wie sich der Starttext für Subagenten unterdrücken lässt. Die Zuordnung in `platforms/*.md` richtet sich danach.
+
+## 15. Anforderungen aus Plan 2 (für Plan 3 und 4)
+
+- **A1 (Plan 3):** Subagenten müssen den Befehl `leanpowers` aufrufen können. Briefs enthalten wörtlich `leanpowers check …`. Deshalb legt die Installation `leanpowers` in den PATH, oder `leanpowers brief` schreibt den aufgelösten Aufruf in den Brief. Ein Umschreiben beim Build erreicht Briefs nicht, die erst zur Laufzeit entstehen.
+- **A2 (Plan 3):** Die fünf Vorlagen aus `agents/` werden nicht als dauerhaft geladene Plattform-Agenten registriert, sondern als Prompt-Text übergeben. Ausnahme Gemini: dort gibt es die Agent-Dateien `lp-<tier>` mit einer kurzen Beschreibung. Andernfalls kämen etwa 177 Token zum immer geladenen Text hinzu.
+- **A3 (Plan 3):** Alle in `platforms/*.md` als `(unverified)` markierten Angaben werden durch echte Läufe bestätigt oder korrigiert.
+- **A4 (Plan 4):** Die Szenario-Tests decken vier Fälle ab:
+  - Lauf gestartet auf `main` (Branch-Schutz)
+  - Worktrees eingeschaltet
+  - mittlere Aufgabe (ein Subagent)
+  - Stopp bei roter Prüfung mit der Antwort „trotzdem weiter“
+- **Gemessen nach Plan 2:**
+  - Dauerhaft geladen sind etwa 515 Token: der Starttext und alle Skill-Beschreibungen.
+  - Superpowers 6.3.0 kommt nach derselben Messmethode auf etwa 1.030 Token, leanpowers spart also rund 50 %.
