@@ -307,3 +307,20 @@ Alle Fähigkeiten von Superpowers 6.3.0 bleiben erhalten. Sie werden zusammengef
 - **Gemessen nach Plan 2:**
   - Dauerhaft geladen sind etwa 515 Token: der Starttext und alle Skill-Beschreibungen.
   - Superpowers 6.3.0 kommt nach derselben Messmethode auf etwa 1.030 Token, leanpowers spart also rund 50 %.
+
+## 16. Entscheidung 2026-10-29: keine kostenpflichtigen Testläufe
+
+- **Was wegfällt:**
+  - Szenario-Tests aus Abschnitt 11 und Anforderung A4.
+  - Token-Messung gegen Superpowers.
+  - Echte Prüfläufe mit Claude Code, Codex und Gemini.
+- **Warum:** leanpowers wird hauptsächlich mit Claude genutzt. Wer das Plugin einsetzen will, prüft selbst, ob es für ihn gut funktioniert.
+- **Was bleibt:**
+  - Die Prüfskripte `scripts/verify-claude.mjs` und `scripts/verify-codex.sh` liegen weiter im Repository, damit Nutzer selbst prüfen können.
+  - Die Ersparnis von etwa 50 % beim dauerhaft geladenen Text ist **berechnet** (Wörter × 4/3), nicht gemessen. Die Anleitungen sagen das so.
+- **Abnahme v0.1 (ersetzt die Abnahme in Abschnitt 11):**
+  - Alle deterministischen Tests sind grün, auch in CI auf macOS, Windows und Linux.
+  - Das Claude-Paket lädt in Claude Code: Das ist bestätigt.
+  - Codex und Gemini sind als „gebaut, ungeprüft“ gekennzeichnet.
+- **Pilot an LIDO Code Studio:** Ob es ihn gibt, entscheidet der Nutzer. Er ist normaler Einsatz, kein Test, und keine Bedingung für v0.1.
+- **Veröffentlichung:** Das Hochladen auf GitHub (Push, Repository anlegen) geschieht nur nach ausdrücklicher Zustimmung des Nutzers.
