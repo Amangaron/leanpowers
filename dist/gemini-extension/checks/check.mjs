@@ -57,7 +57,7 @@ function taskChecks(root, config, plan, task) {
  */
 export function runCheck({ root, plan, task, all = false, userConfigPath }) {
   const { config, errors } = loadConfig(root, userConfigPath ? { userConfigPath } : undefined);
-  const results = runGates(config, root);
+  const results = runGates(config, root, { configFound: fs.existsSync(path.join(root, 'leanpowers.json')) });
   if (plan !== undefined && task !== undefined) results.push(...taskChecks(root, config, plan, task));
   else if (plan !== undefined || task !== undefined) {
     results.push({ name: 'scope', ok: false, messages: ['check needs both --plan and --task'] });

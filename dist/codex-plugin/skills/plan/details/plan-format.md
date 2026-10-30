@@ -27,6 +27,10 @@
 - These paths are the task's allowed files; the scope check rejects changes to any other file.
 - A task body ends at the next task heading or the next `## ` line. Trailing blank lines and `---` lines are dropped.
 
+## Golden files
+
+A test against a stored expected file (golden file) needs four steps: RED "module missing", then GREEN, then its own step "generate the expected file and review it", then PASS again.
+
 ## What doc-lint rejects
 
 A missing `**Goal:**`, `**Spec:**` or `## Global Constraints`; no task; a task without `**Risk:**` or without files; `TBD`, `TODO` or `???` outside code.
