@@ -47,7 +47,7 @@ test('usage lists every command with its flags', () => {
     'config',
     'start [--format plain|claude]',
     'skills [--list | --set <name>=on|off,... | --native claude|codex|gemini]',
-    'init [--write | --template <name>]',
+    'init [--write | --template <name> | --agents-md]',
   ]) assert.ok(lines.includes(line), line);
 });
 
@@ -157,4 +157,20 @@ test('usage text lists the --reset-base switch', () => {
   const r = run();
   assert.equal(r.status, 2);
   assert.match(r.stderr, /--reset-base/);
+});
+
+test('init --agents-md writes the start-text block without the subagent line', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-cli-init-'));
+  const r = spawn(root, 'init', '--agents-md');
+  assert.equal(r.status, 0);
+  assert.equal(r.stdout.trim(), 'AGENTS.md: created');
+  const text = fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8');
+  assert.match(text, /<!-- leanpowers:start -->/);
+  assert.doesNotMatch(text, /Subagents ignore this text\./);
+  assert.doesNotMatch(text, /^CLI: /m);
+  assert.equal(fs.existsSync(path.join(root, 'leanpowers.json')), false);
+  const write = spawn(root, 'init', '--write');
+  assert.equal(write.status, 0);
+  assert.match(write.stdout, /^AGENTS\.md: unchanged$/m);
+  assert.equal(spawn(root, 'init', '--agents-md', '--write').status, 2);
 });

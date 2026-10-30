@@ -7,7 +7,8 @@ import { loadConfig } from '../checks/lib/config.mjs';
 import { toPosix } from '../checks/lib/glob.mjs';
 import { writeBrief, runDirFor } from '../checks/brief.mjs';
 import { writeMetrics } from '../checks/metrics.mjs';
-import { startText } from '../checks/start.mjs';
+import { startText, agentsMdText } from '../checks/start.mjs';
+import { updateAgentsMd } from '../checks/agents-md.mjs';
 import { proposeConfig, applyTemplate } from '../checks/init.mjs';
 import { listSkills, setSkills, nativeHint, formatList, parseSet, interactiveChecklist, loadSkillConfig, NATIVE_PLATFORMS } from '../checks/skills-cmd.mjs';
 
@@ -19,7 +20,7 @@ const USAGE = [
   '  config',
   '  start [--format plain|claude]',
   '  skills [--list | --set <name>=on|off,... | --native claude|codex|gemini]',
-  '  init [--write | --template <name>]',
+  '  init [--write | --template <name> | --agents-md]',
 ].join('\n');
 
 function usage() {
@@ -51,6 +52,7 @@ function parseArgs(argv, { skills = false, init = false, brief = false } = {}) {
       opts.native = argv[++i];
       if (!NATIVE_PLATFORMS.includes(opts.native)) usage();
     } else if (init && arg === '--write') opts.write = true;
+    else if (init && arg === '--agents-md') opts.agentsMd = true;
     else if (init && arg === '--template') {
       opts.template = argv[++i];
       if (!opts.template) usage();
@@ -160,8 +162,21 @@ switch (command) {
   }
   case 'init': {
     const opts = parseArgs(rest, { init: true });
-    if (opts.write && opts.template !== undefined) usage();
+    if ([opts.write, opts.template, opts.agentsMd].filter((v) => v !== undefined).length > 1) usage();
     const pluginRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+    const agentsMd = () => {
+      try {
+        console.log(`AGENTS.md: ${updateAgentsMd(root, agentsMdText(pluginRoot, loadConfig(root).config))}`);
+      } catch (err) {
+        if (!err.message.startsWith('AGENTS.md: ')) throw err;
+        console.error(err.message);
+        process.exit(1);
+      }
+    };
+    if (opts.agentsMd) {
+      agentsMd();
+      break;
+    }
     if (opts.template !== undefined) {
       let created;
       const skipped = [];
@@ -174,6 +189,7 @@ switch (command) {
       }
       const lines = [...created.map((f) => `created ${f}`), ...skipped.map((f) => `skipped ${f}`)];
       console.log(lines.length ? lines.join('\n') : 'nothing to create: all template files exist');
+      agentsMd();
       break;
     }
     const text = `${JSON.stringify(proposeConfig(root), null, 2)}\n`;
@@ -190,6 +206,7 @@ switch (command) {
       process.exit(1);
     }
     console.log('created leanpowers.json');
+    agentsMd();
     break;
   }
   default:
