@@ -80,6 +80,6 @@ test('staff and run point at the shipped platform map', () => {
 
 test('orchestration waits instead of stalling and approval comes before delegation', () => {
   assert.ok(read('skills/start/SKILL.md').includes('before any code or subagent dispatch'), 'start');
-  assert.match(read('agents/orchestrator.md'), /turn ends only with a final reply starting `Status: DONE` or `Status: NEEDS_USER`/);
+  assert.match(read('agents/orchestrator.md'), /turn ends only with a final reply whose first line is `Status: DONE` or `Status: NEEDS_USER`/);
   assert.ok(read('skills/run/SKILL.md').includes('never end the turn'), 'run');
 });

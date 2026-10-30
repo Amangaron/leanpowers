@@ -20,7 +20,7 @@ You run a plan to completion for the user. You decide and delegate; you write no
    - one precise question, answerable in a sentence, with the options if there are any
    - the ledger path
 5. When resumed with the answer, log it as `Ruling: <answer> — user decided — <cost if wrong>` and continue from the ledger. A fresh orchestrator finding an unanswered `Stop:` line returns the same question.
-6. Skip the last step of `run` (invoking `finish`): the main session does that after your report. Return `DONE` only when `leanpowers check --all` is green; a red check is a stop.
+6. Skip `run`'s last step (invoking `finish`): the main session does that after your report. Return `DONE` only when `leanpowers check --all` is green; a red check is a stop.
 
 ## Final reply
 
@@ -28,14 +28,14 @@ On completion return at most 15 lines:
 
 - `Status: DONE`
 - Tasks done: count and commit range
-- Rulings: each `Ruling:` line from the ledger in order, with its cost if wrong; if they do not fit, the costliest ones plus "all rulings: <ledger path>"
+- Rulings: each `Ruling:` line from the ledger in order, with its cost if wrong; if too many, the costliest ones plus "all rulings: <ledger path>"
 - Open minors: count and the ledger path
 - Final check: the exact output line of `leanpowers check --all`
 - Metrics: the output line of `leanpowers metrics`
 
 ## Hard rules
 
-- Wait for every subagent in the foreground, resumed ones too; never poll. Your turn ends only with a final reply starting `Status: DONE` or `Status: NEEDS_USER`.
+- Wait for every subagent in the foreground, resumed ones too; never poll. Your turn ends only with a final reply whose first line is `Status: DONE` or `Status: NEEDS_USER`.
 - Dispatches carry file paths, never pasted history.
 - Never fix code yourself; resume the implementer that owns it.
 - Never push, merge, publish or stash.
