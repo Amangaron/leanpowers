@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync, execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { build, writeMarketplaces } from '../build/build.mjs';
+import { build, writeMarketplaces, PLATFORM_MAP } from '../build/build.mjs';
 import { copyRuntime } from '../build/runtime.mjs';
 import { estimateTokens } from '../checks/skill-lint.mjs';
 
@@ -175,7 +175,7 @@ test('codex skills that use the CLI say how to run it, right after the switch li
 
 test('every package ships its platform map as platform.md', () => {
   for (const [p, dir] of [['claude', 'claude-plugin'], ['codex', 'codex-plugin'], ['gemini', 'gemini-extension']]) {
-    assert.equal(read(`${dir}/platform.md`), fs.readFileSync(path.join(repo, `platforms/${p}.md`), 'utf8').replace(/\r\n/g, '\n'), p);
+    assert.equal(read(`${dir}/platform.md`), fs.readFileSync(path.join(repo, `platforms/${PLATFORM_MAP[p]}.md`), 'utf8').replace(/\r\n/g, '\n'), p);
   }
 });
 
@@ -193,7 +193,7 @@ test('a relocated claude package runs its own CLI from the hook and in briefs', 
   assert.equal(context.trimEnd().split('\n').at(-1), `CLI: run leanpowers as node "${bin}".`);
 
   const git = (...a) => execFileSync('git', a, { cwd: project, stdio: 'pipe' });
-  git('init', '-q'); git('config', 'user.email', 't@t'); git('config', 'user.name', 't');
+  git('init', '-q'); git('config', 'user.email', 't@t'); git('config', 'user.name', 't'); git('config', 'commit.gpgsign', 'false'); git('config', 'core.autocrlf', 'false');
   fs.mkdirSync(path.join(project, 'docs/plans'), { recursive: true });
   fs.writeFileSync(path.join(project, 'docs/plans/demo.md'),
     '# Demo\n\n**Goal:** g\n\n## Global Constraints\n\n- c\n\n### Task 1: A\n\n**Risk:** low\n\n**Files:**\n- Create: `src/a.ts`\n');
@@ -204,4 +204,10 @@ test('a relocated claude package runs its own CLI from the hook and in briefs', 
   const brief = fs.readFileSync(path.join(project, b.stdout.trim()), 'utf8');
   const whenDone = brief.slice(brief.indexOf('## When done'));
   assert.ok(whenDone.includes(`Run \`node "${bin}" check --plan docs/plans/demo.md --task 1\``), whenDone);
+});
+
+test('platform maps never use a name an assistant loads as its memory file', () => {
+  const names = fs.readdirSync(path.join(repo, 'platforms')).map((f) => f.toLowerCase());
+  for (const banned of ['claude.md', 'gemini.md', 'agents.md']) assert.ok(!names.includes(banned), banned);
+  assert.deepEqual(PLATFORM_MAP, { claude: 'claude-code', codex: 'codex-cli', gemini: 'gemini-cli' });
 });

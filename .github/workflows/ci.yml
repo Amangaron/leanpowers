@@ -1,0 +1,27 @@
+name: ci
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [20, 22]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: git config --global user.email "ci@example.invalid"
+      - run: git config --global user.name "ci"
+      - run: git config --global commit.gpgsign false
+      - run: npm test
+      - run: node bin/leanpowers.mjs check --all
+      - run: npm run build
+      - run: git diff --exit-code -- dist .claude-plugin .agents
+      - run: node -e "const o=require('node:child_process').execSync('git status --porcelain -- dist .claude-plugin .agents').toString();if(o.trim()){console.error('Untracked or changed build output:\n'+o);process.exit(1)}"

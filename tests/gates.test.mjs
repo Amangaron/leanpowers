@@ -34,20 +34,20 @@ test('failing command keeps only relevant, deduplicated lines', () => {
     console.log('not ok 1 - adds numbers');
     console.error('AssertionError: expected 3');
     console.error('AssertionError: expected 3');
-    process.exit(1);`);
+    process.exitCode = 1;`);
   const [r] = runGates(cfg({ test: bad }), root);
   assert.equal(r.ok, false);
   assert.deepEqual(r.messages, ['not ok 1 - adds numbers', 'AssertionError: expected 3']);
 });
 
 test('failure without matching lines falls back to the last lines', () => {
-  const bad = script('quiet.mjs', 'console.log("something odd"); process.exit(2);');
+  const bad = script('quiet.mjs', 'console.log("something odd"); process.exitCode = 2;');
   const [r] = runGates(cfg({ test: bad }), root);
   assert.deepEqual(r.messages, ['something odd']);
 });
 
 test('summarizer is used only for long relevant output', () => {
-  const long = script('long.mjs', 'for (let i = 0; i < 80; i++) console.log("error " + i); process.exit(1);');
+  const long = script('long.mjs', 'for (let i = 0; i < 80; i++) console.log("error " + i); process.exitCode = 1;');
   const sum = script('sum.mjs', 'process.stdin.resume(); process.stdin.on("end", () => console.log("SUMMARY: 80 errors"));');
   const [withSum] = runGates(cfg({ test: long }, { summarizer: sum }), root);
   assert.deepEqual(withSum.messages, ['SUMMARY: 80 errors']);
@@ -56,7 +56,7 @@ test('summarizer is used only for long relevant output', () => {
 });
 
 test('failing summarizer falls back to compression with a note', () => {
-  const long = script('long2.mjs', 'for (let i = 0; i < 80; i++) console.log("error " + i); process.exit(1);');
+  const long = script('long2.mjs', 'for (let i = 0; i < 80; i++) console.log("error " + i); process.exitCode = 1;');
   const broken = script('broken.mjs', 'process.exit(3);');
   const [r] = runGates(cfg({ test: long }, { summarizer: broken }), root);
   assert.equal(r.messages[0], 'summarizer failed, showing compressed output');

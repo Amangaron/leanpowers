@@ -47,7 +47,7 @@ leanpowers/
   skills/<skill>/details/*.md  Vertiefung, wird nur bei Bedarf gelesen
   agents/*.md                  Auftrags-Vorlagen für Subagenten (implementer, reviewer, staffer), je max. 400 Wörter
   checks/                      KI-unabhängige Prüf-Skripte (Node >= 20, keine Abhängigkeiten)
-  platforms/{claude,codex,gemini}.md   Zuordnung „Handlung → Werkzeug“ je Assistent
+  platforms/{claude-code,codex-cli,gemini-cli}.md   Zuordnung „Handlung → Werkzeug“ je Assistent
   build/                       Build-Skript: erzeugt dist/ aus skills/, agents/, platforms/, checks/
   dist/claude-plugin/          erzeugt: .claude-plugin/plugin.json, Hooks, Befehle, Skills
   dist/codex-plugin/           erzeugt: .codex-plugin/plugin.json, Skills, AGENTS.md-Baustein
@@ -63,7 +63,7 @@ leanpowers/
 
 **Grundprinzip:** Skills nennen keine Werkzeuge, sondern Handlungen, z. B. „dispatch a subagent“, „run check“ oder „ask the user“. Was das auf welcher Plattform bedeutet, steht in `platforms/*.md`. Das Build-Skript fügt beides zusammen.
 
-**Neue Plattform:** Wer eine Plattform ergänzen will, schreibt `platforms/<name>.md` und eine Build-Funktion. An den Skills ändert sich nichts.
+**Neue Plattform:** Wer eine Plattform ergänzen will, schreibt `platforms/<name>-<cli>.md` und eine Build-Funktion. An den Skills ändert sich nichts.
 
 ## 5. Skills
 
@@ -304,9 +304,9 @@ Alle Fähigkeiten von Superpowers 6.3.0 bleiben erhalten. Sie werden zusammengef
   - Worktrees eingeschaltet
   - mittlere Aufgabe (ein Subagent)
   - Stopp bei roter Prüfung mit der Antwort „trotzdem weiter“
-- **Gemessen nach Plan 2:**
+- **Berechnet nach Plan 2 (Wörter × 4/3, nicht in echten Sitzungen gemessen):**
   - Dauerhaft geladen sind etwa 515 Token: der Starttext und alle Skill-Beschreibungen.
-  - Superpowers 6.3.0 kommt nach derselben Messmethode auf etwa 1.030 Token, leanpowers spart also rund 50 %.
+  - Superpowers 6.3.0 kommt nach derselben Berechnung auf etwa 1.030 Token, leanpowers spart also rechnerisch rund 50 %.
 
 ## 16. Entscheidung 2026-10-29: keine kostenpflichtigen Testläufe
 
@@ -320,7 +320,7 @@ Alle Fähigkeiten von Superpowers 6.3.0 bleiben erhalten. Sie werden zusammengef
   - Die Ersparnis von etwa 50 % beim dauerhaft geladenen Text ist **berechnet** (Wörter × 4/3), nicht gemessen. Die Anleitungen sagen das so.
 - **Abnahme v0.1 (ersetzt die Abnahme in Abschnitt 11):**
   - Alle deterministischen Tests sind grün, auch in CI auf macOS, Windows und Linux.
-  - Das Claude-Paket lädt in Claude Code: Das ist bestätigt.
+  - Das Claude-Paket lädt in Claude Code, geschlossen aus dem Init-Ereignis eines Laufs ohne Modellaufruf (Plugin gelistet, Befehle und Skills vorhanden).
   - Codex und Gemini sind als „gebaut, ungeprüft“ gekennzeichnet.
 - **Pilot an LIDO Code Studio:** Ob es ihn gibt, entscheidet der Nutzer. Er ist normaler Einsatz, kein Test, und keine Bedingung für v0.1.
 - **Veröffentlichung:** Das Hochladen auf GitHub (Push, Repository anlegen) geschieht nur nach ausdrücklicher Zustimmung des Nutzers.

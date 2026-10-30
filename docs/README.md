@@ -4,18 +4,46 @@ German version: [README.de.md](README.de.md)
 
 leanpowers is a lean workflow plugin: it turns an idea into a design, a plan and a task-by-task
 subagent run, with deterministic checks instead of model calls where possible. Always-loaded text
-is about 515 tokens, against about 1,030 for Superpowers 6.3.0 (same measuring method).
+is about 515 tokens, against about 1,030 for Superpowers 6.3.0 (counted with the same method;
+calculated, not measured).
 
 ## Platform status
 
 | Platform | Package | Status |
 | --- | --- | --- |
-| Claude Code | `dist/claude-plugin` | built, verification in progress (loads (inferred from the init event); model runs pending, see `docs/research/2026-10-29-verifikation.md`) |
+| Claude Code | `dist/claude-plugin` | built, verification in progress (loads, inferred from the init event; model runs pending, see `docs/research/2026-10-29-verifikation.md`) |
 | Codex | `dist/codex-plugin` | built, unverified |
 | Gemini CLI | `dist/gemini-extension` | built from docs, unverified |
 
 Nothing is marked verified yet. Statements that still need a real run are tagged `(unverified)`
 in `platforms/*.md`.
+
+## Status / Verify it yourself
+
+Version 0.1.0. The authors made no paid test runs (a deliberate decision, see the design spec,
+section 16); this is what is and is not confirmed.
+
+Confirmed:
+
+- The deterministic tests pass locally (macOS).
+- The Claude Code package loads (inferred from the init event).
+
+Not confirmed:
+
+- How models behave with the skills.
+- The token saving in practice. About 50 % less always-loaded text is calculated, not measured.
+- CI on macOS, Windows and Linux with Node 20 and 22: configured, not run yet.
+- The Codex and Gemini CLI packages.
+- On Windows, the Claude Code SessionStart hook (the tests do not exercise it).
+
+Verify it yourself:
+
+- Claude Code: after `/login`, run `node scripts/verify-claude.mjs`. It makes a few small model
+  calls with your own Claude login (so it uses your quota) and creates a temporary git repository.
+- Codex: run `bash scripts/verify-codex.sh`. It asks before it changes your Codex
+  configuration (adds a local marketplace and the plugin) and prints how to remove it again.
+
+See [CHANGELOG.md](../CHANGELOG.md) and [RELEASE.md](RELEASE.md).
 
 ## Install
 
@@ -44,20 +72,33 @@ codex plugin add leanpowers@leanpowers-marketplace
 Codex has no slash commands for plugins and no session hook: invoke a skill as
 `$leanpowers-<name>` and run the CLI via its path, `node <plugin-path>/bin/leanpowers.mjs <command>`.
 Every skill that uses the CLI carries a line saying so in the Codex package.
-To verify the package yourself, run `bash scripts/verify-codex.sh`.
+To verify the package yourself, run `bash scripts/verify-codex.sh`. It asks before it changes your
+Codex configuration (adds a local marketplace and the plugin) and prints how to remove it again.
 
 **Gemini CLI** (unverified)
+
+```
+gemini extensions install https://github.com/Amangaron/leanpowers --ref gemini-extension
+```
+
+Available after the first release push of the `gemini-extension` branch.
+
+The `gemini-extension` branch contains only the built extension at its root (the repository root
+holds source skills Gemini would otherwise load). It is regenerated per release with
+`node scripts/gemini-branch.mjs`, which builds it locally from the committed `dist/gemini-extension`
+and prints the `git push origin gemini-extension` command for you to run; it never pushes.
+
+Local install from a clone:
 
 ```
 git clone https://github.com/Amangaron/leanpowers
 gemini extensions link <clone>/dist/gemini-extension
 ```
 
-Only the local install is documented here. The layout for installing straight from GitHub is
-decided in plan 4. Commands live in the `leanpowers` namespace; three generated agents
+Commands live in the `leanpowers` namespace; three generated agents
 (`lp-small`, `lp-medium`, `lp-large`) stand for the model tiers.
 
-Each package ships its platform map as `platform.md` (from `platforms/<platform>.md`): how to
+Each package ships its platform map as `platform.md` (from `platforms/<platform>-<cli>.md`, for example `platforms/claude-code.md`): how to
 dispatch subagents, which models the tiers mean and whether subagents can nest.
 
 ## Commands

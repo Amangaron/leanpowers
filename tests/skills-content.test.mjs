@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { parseFrontmatter, countWords } from '../checks/skill-lint.mjs';
 import { lintSkills } from '../checks/skill-lint.mjs';
 import { DEFAULTS } from '../checks/lib/defaults.mjs';
+import { PLATFORM_MAP } from '../build/build.mjs';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const TOOL_NAMES = ['TodoWrite', 'AskUserQuestion', 'spawn_agent', 'invoke_agent', 'write_todos', 'activate_skill', 'Task tool', 'Agent tool', 'Skill tool'];
@@ -46,7 +47,7 @@ test('descriptions start with "Use when"', () => {
 
 test('platform maps exist, stay small and have the fixed sections', () => {
   for (const p of ['claude', 'codex', 'gemini']) {
-    const text = read(`platforms/${p}.md`);
+    const text = read(`platforms/${PLATFORM_MAP[p]}.md`);
     assert.ok(countWords(text) <= 500, `${p}: ${countWords(text)} words`);
     for (const h of ['## Actions', '## Model tiers', '## Orchestration', '## CLI']) {
       assert.ok(text.includes(`\n${h}\n`), `${p}: missing ${h}`);

@@ -14,7 +14,7 @@ const PLAN = `# Demo\n\n**Goal:** g\n\n**Spec:** \`docs/specs/s.md\`\n\n## Globa
 function project(config) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-check-'));
   const git = (...a) => execFileSync('git', a, { cwd: root, stdio: 'pipe' });
-  git('init', '-q'); git('config', 'user.email', 't@t'); git('config', 'user.name', 't');
+  git('init', '-q'); git('config', 'user.email', 't@t'); git('config', 'user.name', 't'); git('config', 'commit.gpgsign', 'false'); git('config', 'core.autocrlf', 'false');
   fs.mkdirSync(path.join(root, 'docs/plans'), { recursive: true });
   fs.mkdirSync(path.join(root, 'src'));
   fs.writeFileSync(path.join(root, 'src/.keep'), '');
@@ -80,7 +80,7 @@ test('deleted files count for scope but not for structure', () => {
 
 test('failing check output is capped at 20 lines plus a rest marker', () => {
   const root = project({ commands: { test: 'node ok.mjs' } });
-  fs.writeFileSync(path.join(root, 'ok.mjs'), 'for (let i = 0; i < 40; i++) console.log("error " + i); process.exit(1)');
+  fs.writeFileSync(path.join(root, 'ok.mjs'), 'for (let i = 0; i < 40; i++) console.log("error " + i); process.exitCode = 1');
   const lines = runCheck({ root, userConfigPath: NO_USER }).text.split('\n');
   assert.equal(lines.filter((l) => l.startsWith('  error ')).length, 20);
   assert.ok(lines.includes('  … 20 more'));
@@ -109,7 +109,7 @@ test('task check with only a plan or only a task fails instead of passing', () =
 test('paths are root-relative when the project sits in a monorepo subdirectory', () => {
   const mono = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-mono-'));
   const git = (...a) => execFileSync('git', a, { cwd: mono, stdio: 'pipe' });
-  git('init', '-q'); git('config', 'user.email', 't@t'); git('config', 'user.name', 't');
+  git('init', '-q'); git('config', 'user.email', 't@t'); git('config', 'user.name', 't'); git('config', 'commit.gpgsign', 'false'); git('config', 'core.autocrlf', 'false');
   const root = path.join(mono, 'pkg');
   fs.mkdirSync(path.join(root, 'docs/plans'), { recursive: true });
   fs.mkdirSync(path.join(root, 'src'));

@@ -1,6 +1,6 @@
 {
   "name": "leanpowers",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Lean, cross-assistant workflow plugin: design, plan, subagent execution, deterministic checks.",
   "type": "module",
   "license": "MIT",
@@ -8,6 +8,6 @@
   "engines": { "node": ">=20" },
   "scripts": {
     "build": "node build/build.mjs",
-    "test": "node --test tests/"
+    "test": "node --test"
   }
 }

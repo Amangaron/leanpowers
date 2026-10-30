@@ -8,6 +8,9 @@ import { fileURLToPath } from 'node:url';
 import { listSkills, setSkills, toggle, nativeHint, tokenizeKeys } from '../checks/skills-cmd.mjs';
 import { DEFAULTS } from '../checks/lib/defaults.mjs';
 
+// Keep the machine's real user config out of every in-process load and every spawn.
+process.env.XDG_CONFIG_HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-xdg-'));
+
 const repo = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'lp-skills-'));
 

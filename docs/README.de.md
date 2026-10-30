@@ -5,18 +5,46 @@ Englische Version: [README.md](README.md)
 leanpowers ist ein schlankes Workflow-Plugin: Es führt von der Idee über Entwurf und Plan zu einem
 Lauf, der Aufgabe für Aufgabe von Subagenten ausgeführt wird. Wo möglich, prüfen Skripte statt
 Modellaufrufen. Der immer geladene Text umfasst etwa 515 Token, bei Superpowers 6.3.0 sind es
-etwa 1.030 Token (gleiche Messmethode).
+etwa 1.030 Token (mit derselben Methode gezählt; berechnet, nicht gemessen).
 
 ## Stand der Plattformen
 
 | Plattform | Paket | Stand |
 | --- | --- | --- |
-| Claude Code | `dist/claude-plugin` | gebaut, Verifikation läuft (lädt (aus dem Init-Ereignis geschlossen); Modelläufe stehen aus, siehe `docs/research/2026-10-29-verifikation.md`) |
+| Claude Code | `dist/claude-plugin` | gebaut, Verifikation läuft (lädt – aus dem Init-Ereignis geschlossen; Modelläufe stehen aus, siehe `docs/research/2026-10-29-verifikation.md`) |
 | Codex | `dist/codex-plugin` | gebaut, ungeprüft |
 | Gemini CLI | `dist/gemini-extension` | aus der Dokumentation gebaut, ungeprüft |
 
 Bisher ist nichts als geprüft markiert. Angaben, die noch einen echten Lauf brauchen, stehen in
 `platforms/*.md` mit dem Zusatz `(unverified)`.
+
+## Stand / Selbst prüfen
+
+Version 0.1.0. Die Autoren haben keine kostenpflichtigen Testläufe gemacht (bewusste
+Entscheidung, siehe Entwurf, Abschnitt 16). So ist der Stand:
+
+Bestätigt:
+
+- Die deterministischen Tests laufen lokal durch (macOS).
+- Das Claude-Code-Paket lädt (aus dem Init-Ereignis geschlossen).
+
+Nicht bestätigt:
+
+- Wie sich Modelle mit den Skills verhalten.
+- Die Token-Ersparnis in der Praxis. Rund 50 % weniger immer geladener Text sind berechnet, nicht gemessen.
+- CI auf macOS, Windows und Linux mit Node 20 und 22: eingerichtet, noch nicht gelaufen.
+- Die Pakete für Codex und Gemini CLI.
+- Unter Windows der SessionStart-Hook von Claude Code (die Tests prüfen ihn nicht).
+
+Selbst prüfen:
+
+- Claude Code: nach `/login` `node scripts/verify-claude.mjs` ausführen. Das Skript macht einige
+  kleine Modellaufrufe mit Ihrem eigenen Claude-Login (verbraucht also Ihr Kontingent) und legt ein
+  temporäres Git-Repository an.
+- Codex: `bash scripts/verify-codex.sh` ausführen. Sie werden gefragt, bevor Ihre Codex-Konfiguration geändert wird (lokaler Marktplatz und Plugin
+  werden hinzugefügt); das Skript gibt auch aus, wie Sie beides wieder entfernen.
+
+Siehe [CHANGELOG.md](../CHANGELOG.md) und [RELEASE.md](RELEASE.md) (englisch).
 
 ## Installation
 
@@ -46,20 +74,35 @@ codex plugin add leanpowers@leanpowers-marketplace
 Codex hat für Plugins keine Slash-Befehle und keinen Session-Hook: Skills rufen Sie mit
 `$leanpowers-<name>` auf, die Kommandozeile über ihren Pfad, `node <Plugin-Pfad>/bin/leanpowers.mjs <Befehl>`.
 Im Codex-Paket nennt jeder Skill, der die Kommandozeile benutzt, diesen Aufruf selbst.
-Zum Prüfen des Pakets starten Sie selbst `bash scripts/verify-codex.sh`.
+Zum Prüfen des Pakets starten Sie selbst `bash scripts/verify-codex.sh`. Das Skript fragt nach,
+bevor es Ihre Codex-Konfiguration ändert (lokaler Marktplatz und Plugin), und gibt aus, wie Sie
+beides wieder entfernen.
 
 **Gemini CLI** (ungeprüft)
+
+```
+gemini extensions install https://github.com/Amangaron/leanpowers --ref gemini-extension
+```
+
+Verfügbar nach dem ersten Release-Push des Zweigs `gemini-extension`.
+
+Der Zweig `gemini-extension` enthält nur die gebaute Erweiterung im Wurzelverzeichnis (die
+Wurzel des Repositorys enthält Quell-Skills, die Gemini sonst laden würde). Er wird bei jedem
+Release mit `node scripts/gemini-branch.mjs` neu erzeugt; das Skript baut ihn lokal aus dem
+eingecheckten `dist/gemini-extension` und gibt den Befehl `git push origin gemini-extension` zum
+Selbstausführen aus; es pusht nie.
+
+Lokale Installation aus einem Klon:
 
 ```
 git clone https://github.com/Amangaron/leanpowers
 gemini extensions link <clone>/dist/gemini-extension
 ```
 
-Hier ist nur die lokale Installation beschrieben. Der Aufbau für die Installation direkt von
-GitHub wird in Plan 4 festgelegt. Die Befehle liegen im Namensraum `leanpowers`; drei erzeugte
+Die Befehle liegen im Namensraum `leanpowers`; drei erzeugte
 Agenten (`lp-small`, `lp-medium`, `lp-large`) stehen für die Modellstufen.
 
-Jedes Paket enthält seine Plattform-Zuordnung als `platform.md` (aus `platforms/<Plattform>.md`):
+Jedes Paket enthält seine Plattform-Zuordnung als `platform.md` (aus `platforms/<Plattform>-<cli>.md`, zum Beispiel `platforms/claude-code.md`):
 wie Subagenten gestartet werden, welche Modelle die Stufen meinen und ob Subagenten verschachtelt
 werden können.
 

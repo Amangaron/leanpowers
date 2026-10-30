@@ -43,7 +43,7 @@ test('unknown task number throws', () => {
 test('writeBrief writes brief and base sha into a self-ignoring run dir', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-brief-'));
   const git = (...a) => execFileSync('git', a, { cwd: root, stdio: 'pipe' });
-  git('init', '-q'); git('config', 'user.email', 't@t'); git('config', 'user.name', 't');
+  git('init', '-q'); git('config', 'user.email', 't@t'); git('config', 'user.name', 't'); git('config', 'commit.gpgsign', 'false'); git('config', 'core.autocrlf', 'false');
   fs.mkdirSync(path.join(root, 'docs/plans'), { recursive: true });
   fs.writeFileSync(path.join(root, 'docs/plans/2026-01-01-demo.md'), PLAN);
   git('add', '.'); git('commit', '-qm', 'init');
@@ -62,7 +62,7 @@ test('writeBrief writes brief and base sha into a self-ignoring run dir', () => 
 test('writeBrief accepts an absolute plan path and names it root-relative', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-brief-'));
   const git = (...a) => execFileSync('git', a, { cwd: root, stdio: 'pipe' });
-  git('init', '-q'); git('config', 'user.email', 't@t'); git('config', 'user.name', 't');
+  git('init', '-q'); git('config', 'user.email', 't@t'); git('config', 'user.name', 't'); git('config', 'commit.gpgsign', 'false'); git('config', 'core.autocrlf', 'false');
   fs.mkdirSync(path.join(root, 'docs/plans'), { recursive: true });
   const abs = path.join(root, 'docs/plans/2026-01-01-demo.md');
   fs.writeFileSync(abs, PLAN);
@@ -81,7 +81,7 @@ test('writeBrief on a missing plan throws a plan-not-found error', () => {
 test('writeBrief keeps an existing base sha when re-run', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-brief-'));
   const git = (...a) => execFileSync('git', a, { cwd: root, stdio: 'pipe' }).toString().trim();
-  git('init', '-q'); git('config', 'user.email', 't@t'); git('config', 'user.name', 't');
+  git('init', '-q'); git('config', 'user.email', 't@t'); git('config', 'user.name', 't'); git('config', 'commit.gpgsign', 'false'); git('config', 'core.autocrlf', 'false');
   fs.mkdirSync(path.join(root, 'docs/plans'), { recursive: true });
   fs.writeFileSync(path.join(root, 'docs/plans/p.md'), PLAN);
   git('add', '.'); git('commit', '-qm', 'init');

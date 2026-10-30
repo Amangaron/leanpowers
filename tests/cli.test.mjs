@@ -22,7 +22,7 @@ const PLAN = `# Demo\n\n**Goal:** g\n\n**Spec:** \`docs/specs/s.md\`\n\n## Globa
 function project() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-cli-'));
   const git = (...a) => execFileSync('git', a, { cwd: root, stdio: 'pipe' });
-  git('init', '-q'); git('config', 'user.email', 't@t'); git('config', 'user.name', 't');
+  git('init', '-q'); git('config', 'user.email', 't@t'); git('config', 'user.name', 't'); git('config', 'commit.gpgsign', 'false'); git('config', 'core.autocrlf', 'false');
   fs.mkdirSync(path.join(root, 'docs/plans'), { recursive: true });
   fs.writeFileSync(path.join(root, 'docs/plans/demo.md'), PLAN);
   fs.writeFileSync(path.join(root, 'ok.mjs'), 'process.exit(0)');
