@@ -25,14 +25,13 @@ section 16); this is what is and is not confirmed.
 
 Confirmed:
 
-- The deterministic tests pass locally (macOS).
+- The deterministic tests pass in CI on macOS, Windows and Linux with Node 20 and 22.
 - The Claude Code package loads (inferred from the init event).
 
 Not confirmed:
 
 - How models behave with the skills.
 - The token saving in practice. About 50 % less always-loaded text is calculated, not measured.
-- CI on macOS, Windows and Linux with Node 20 and 22: configured, not run yet.
 - The Codex and Gemini CLI packages.
 - On Windows, the Claude Code SessionStart hook (the tests do not exercise it).
 

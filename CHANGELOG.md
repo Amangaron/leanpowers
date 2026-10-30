@@ -18,7 +18,7 @@ All notable changes to leanpowers are documented here. The format follows
 - CLI commands `start` (session start text), `skills` (list and switch skills) and `init`
   (propose or create project files).
 - Verification scripts for users: `scripts/verify-claude.mjs` and `scripts/verify-codex.sh`.
-- CI on macOS, Windows and Linux with Node 20 and 22 (configured; not run yet).
+- CI on macOS, Windows and Linux with Node 20 and 22 (all green on the release commit).
 
 ### Notes
 

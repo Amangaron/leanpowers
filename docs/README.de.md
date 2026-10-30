@@ -25,14 +25,13 @@ Entscheidung, siehe Entwurf, Abschnitt 16). So ist der Stand:
 
 Bestätigt:
 
-- Die deterministischen Tests laufen lokal durch (macOS).
+- Die deterministischen Tests laufen in der CI auf macOS, Windows und Linux mit Node 20 und 22 durch.
 - Das Claude-Code-Paket lädt (aus dem Init-Ereignis geschlossen).
 
 Nicht bestätigt:
 
 - Wie sich Modelle mit den Skills verhalten.
 - Die Token-Ersparnis in der Praxis. Rund 50 % weniger immer geladener Text sind berechnet, nicht gemessen.
-- CI auf macOS, Windows und Linux mit Node 20 und 22: eingerichtet, noch nicht gelaufen.
 - Die Pakete für Codex und Gemini CLI.
 - Unter Windows der SessionStart-Hook von Claude Code (die Tests prüfen ihn nicht).
 
