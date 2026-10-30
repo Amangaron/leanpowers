@@ -5,8 +5,8 @@ without the maintainer's decision.
 
 ## Prepare
 
-1. Make sure all release work is merged into `master` and `master` is checked out. The tag and
-   the `gemini-extension` branch are cut from `master`.
+1. Make sure all release work is merged into `main` and `main` is checked out. The tag and
+   the `gemini-extension` branch are cut from `main`.
 2. `npm test` must pass, and `node bin/leanpowers.mjs check --all` must print
    `✔ leanpowers check: ok (gates:test, doc-lint, skill-lint)`.
 3. Set the new version in `package.json`, then run `npm run build`. The manifests and marketplace
@@ -28,12 +28,12 @@ These steps publish to GitHub. Do them only when the maintainer has decided to r
    .gitignore, so the first push is not rejected.
 8. The remote `origin` must exist. If it does not: `git remote add origin
    https://github.com/Amangaron/leanpowers.git`.
-9. Push `master`: `git push origin master`.
+9. Push `main`: `git push origin main`.
 10. Wait until the CI run on GitHub is green in all six cells: macOS, Windows and Linux, each with
-    Node 20 and 22. If a cell fails, fix it on `master`, push again and wait for green.
+    Node 20 and 22. If a cell fails, fix it on `main`, push again and wait for green.
 11. Update the CI status lines in `README.md`, `docs/README.md`, `docs/README.de.md`
     ("configured, not run yet" / "eingerichtet, noch nicht gelaufen") and `CHANGELOG.md`
-    ("configured; not run yet"), commit, and push `master` again.
+    ("configured; not run yet"), commit, and push `main` again.
 12. Wait until CI is green on that commit too.
 13. Tag that commit and push the tag: `git tag v<version>`, then `git push origin v<version>`.
 14. Build and push the Gemini branch from it: `node scripts/gemini-branch.mjs` (local only, prints
