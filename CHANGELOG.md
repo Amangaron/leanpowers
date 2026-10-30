@@ -4,6 +4,14 @@ All notable changes to leanpowers are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- Docs: the maintainer confirmed by hand on macOS (2026-10-30) that the marketplace install works for
+  Claude Code and Codex. Whether Codex uses the skills in a session and the Gemini CLI package remain
+  unverified. Details in `docs/research/2026-10-29-verifikation.md`.
+
 ## [0.1.1] - 2026-10-30
 
 ### Added

@@ -20,22 +20,21 @@ checks (scope, structure, gates, doc and skill lint) are plain scripts, not mode
 
 ## Install
 
-Claude Code (built, verification in progress):
+Claude Code (marketplace install confirmed on macOS):
 
 ```
 claude plugin marketplace add Amangaron/leanpowers
 claude plugin install leanpowers@leanpowers-marketplace
 ```
 
-Codex (built, unverified):
+Codex (marketplace install confirmed on macOS; use in a session unverified):
 
 ```
 codex plugin marketplace add Amangaron/leanpowers
 codex plugin add leanpowers@leanpowers-marketplace
 ```
 
-Gemini CLI (built from docs, unverified; the install line is available after the first push of the
-`gemini-extension` branch):
+Gemini CLI (built from docs, unverified):
 
 ```
 gemini extensions install https://github.com/Amangaron/leanpowers --ref gemini-extension
@@ -54,12 +53,16 @@ Confirmed:
 
 - The deterministic tests pass in CI on macOS, Windows and Linux with Node 20 and 22.
 - The Claude Code package loads (inferred from the init event).
+- Installing via the marketplace works on macOS for Claude Code (0.1.0, then updated to 0.1.1; in a
+  session the skills and commands were listed and the SessionStart hook added its start text) and
+  for Codex (the installed files match `dist/codex-plugin`).
 
 Not confirmed:
 
 - How models behave with the skills.
 - The token saving in practice. About 50 % less always-loaded text is calculated, not measured.
-- The Codex and Gemini CLI packages.
+- Whether Codex loads and uses the skills in a session.
+- The Gemini CLI package.
 - On Windows, the Claude Code SessionStart hook (the tests do not exercise it).
 
 Verify it yourself:

@@ -11,12 +11,12 @@ calculated, not measured).
 
 | Platform | Package | Status |
 | --- | --- | --- |
-| Claude Code | `dist/claude-plugin` | built, verification in progress (loads, inferred from the init event; model runs pending, see `docs/research/2026-10-29-verifikation.md`) |
-| Codex | `dist/codex-plugin` | built, unverified |
+| Claude Code | `dist/claude-plugin` | built, marketplace install confirmed on macOS (skills, commands and start text seen in a session; invoking a command or skill not confirmed, see `docs/research/2026-10-29-verifikation.md`) |
+| Codex | `dist/codex-plugin` | built, marketplace install confirmed on macOS (installed files match `dist/codex-plugin`); use in a session unverified |
 | Gemini CLI | `dist/gemini-extension` | built from docs, unverified |
 
-Nothing is marked verified yet. Statements that still need a real run are tagged `(unverified)`
-in `platforms/*.md`.
+Apart from these installs, nothing is marked verified yet. Statements that still need a real run
+are tagged `(unverified)` in `platforms/*.md`.
 
 ## Status / Verify it yourself
 
@@ -27,12 +27,16 @@ Confirmed:
 
 - The deterministic tests pass in CI on macOS, Windows and Linux with Node 20 and 22.
 - The Claude Code package loads (inferred from the init event).
+- Installing via the marketplace works on macOS for Claude Code (0.1.0, then updated to 0.1.1; in a
+  session the skills and commands were listed and the SessionStart hook added its start text) and
+  for Codex (the installed files match `dist/codex-plugin`).
 
 Not confirmed:
 
 - How models behave with the skills.
 - The token saving in practice. About 50 % less always-loaded text is calculated, not measured.
-- The Codex and Gemini CLI packages.
+- Whether Codex loads and uses the skills in a session.
+- The Gemini CLI package.
 - On Windows, the Claude Code SessionStart hook (the tests do not exercise it).
 
 Verify it yourself:
@@ -61,7 +65,7 @@ commands `/leanpowers:check`, `skills` and `init` are command files. This is `(u
 the verify run: the plugin loads (inferred from the init event), but no model run has confirmed a
 command or skill invocation yet.
 
-**Codex** (unverified)
+**Codex** (install confirmed on macOS; use in a session unverified)
 
 ```
 codex plugin marketplace add Amangaron/leanpowers
@@ -79,8 +83,6 @@ Codex configuration (adds a local marketplace and the plugin) and prints how to 
 ```
 gemini extensions install https://github.com/Amangaron/leanpowers --ref gemini-extension
 ```
-
-Available after the first release push of the `gemini-extension` branch.
 
 The `gemini-extension` branch contains only the built extension at its root (the repository root
 holds source skills Gemini would otherwise load). It is regenerated per release with

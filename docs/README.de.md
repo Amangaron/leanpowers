@@ -11,12 +11,12 @@ etwa 1.030 Token (mit derselben Methode gezählt; berechnet, nicht gemessen).
 
 | Plattform | Paket | Stand |
 | --- | --- | --- |
-| Claude Code | `dist/claude-plugin` | gebaut, Verifikation läuft (lädt – aus dem Init-Ereignis geschlossen; Modelläufe stehen aus, siehe `docs/research/2026-10-29-verifikation.md`) |
-| Codex | `dist/codex-plugin` | gebaut, ungeprüft |
+| Claude Code | `dist/claude-plugin` | gebaut, Installation über den Marktplatz unter macOS bestätigt (Skills, Befehle und Starttext in einer Sitzung gesehen; Aufruf eines Befehls oder Skills nicht bestätigt, siehe `docs/research/2026-10-29-verifikation.md`) |
+| Codex | `dist/codex-plugin` | gebaut, Installation über den Marktplatz unter macOS bestätigt (installierte Dateien gleich `dist/codex-plugin`); Nutzung in einer Sitzung ungeprüft |
 | Gemini CLI | `dist/gemini-extension` | aus der Dokumentation gebaut, ungeprüft |
 
-Bisher ist nichts als geprüft markiert. Angaben, die noch einen echten Lauf brauchen, stehen in
-`platforms/*.md` mit dem Zusatz `(unverified)`.
+Abgesehen von diesen Installationen ist bisher nichts als geprüft markiert. Angaben, die noch
+einen echten Lauf brauchen, stehen in `platforms/*.md` mit dem Zusatz `(unverified)`.
 
 ## Stand / Selbst prüfen
 
@@ -27,12 +27,17 @@ Bestätigt:
 
 - Die deterministischen Tests laufen in der CI auf macOS, Windows und Linux mit Node 20 und 22 durch.
 - Das Claude-Code-Paket lädt (aus dem Init-Ereignis geschlossen).
+- Die Installation über den Marktplatz funktioniert unter macOS für Claude Code (0.1.0, danach
+  auf 0.1.1 aktualisiert; in einer Sitzung waren Skills und Befehle gelistet, und der
+  SessionStart-Hook fügte seinen Starttext ein) und für Codex (die installierten Dateien
+  entsprechen `dist/codex-plugin`).
 
 Nicht bestätigt:
 
 - Wie sich Modelle mit den Skills verhalten.
 - Die Token-Ersparnis in der Praxis. Rund 50 % weniger immer geladener Text sind berechnet, nicht gemessen.
-- Die Pakete für Codex und Gemini CLI.
+- Ob Codex die Skills in einer Sitzung lädt und benutzt.
+- Das Paket für Gemini CLI.
 - Unter Windows der SessionStart-Hook von Claude Code (die Tests prüfen ihn nicht).
 
 Selbst prüfen:
@@ -63,7 +68,7 @@ Kommandozeilen-Befehle `/leanpowers:check`, `skills` und `init` sind Befehlsdate
 `(unverified)` bis zum Prüflauf: das Plugin lädt (aus dem Init-Ereignis geschlossen), aber noch
 kein Modelllauf hat einen Befehl oder Skill-Aufruf bestätigt.
 
-**Codex** (ungeprüft)
+**Codex** (Installation unter macOS bestätigt; Nutzung in einer Sitzung ungeprüft)
 
 ```
 codex plugin marketplace add Amangaron/leanpowers
@@ -82,8 +87,6 @@ beides wieder entfernen.
 ```
 gemini extensions install https://github.com/Amangaron/leanpowers --ref gemini-extension
 ```
-
-Verfügbar nach dem ersten Release-Push des Zweigs `gemini-extension`.
 
 Der Zweig `gemini-extension` enthält nur die gebaute Erweiterung im Wurzelverzeichnis (die
 Wurzel des Repositorys enthält Quell-Skills, die Gemini sonst laden würde). Er wird bei jedem
