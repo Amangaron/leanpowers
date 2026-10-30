@@ -138,3 +138,20 @@ test('writeBrief writes constraints.md next to the brief', () => {
   const brief = writeBrief(root, 'docs/plans/demo.md', 1, DEFAULTS);
   assert.equal(fs.readFileSync(path.join(path.dirname(brief), 'constraints.md'), 'utf8'), '- Node >= 20\n');
 });
+
+test('base is kept unless reset is requested', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-brief-'));
+  const git = (...a) => execFileSync('git', ['-c', 'user.email=t@t', '-c', 'user.name=t', ...a], { cwd: root, encoding: 'utf8' });
+  git('init', '-q');
+  git('commit', '-q', '--allow-empty', '-m', 'one');
+  fs.mkdirSync(path.join(root, 'docs/plans'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'docs/plans/demo.md'), PLAN);
+  const brief = writeBrief(root, 'docs/plans/demo.md', 1, DEFAULTS);
+  const baseFile = path.join(path.dirname(brief), 'task-1-base.txt');
+  const first = fs.readFileSync(baseFile, 'utf8');
+  git('commit', '-q', '--allow-empty', '-m', 'two');
+  writeBrief(root, 'docs/plans/demo.md', 1, DEFAULTS);
+  assert.equal(fs.readFileSync(baseFile, 'utf8'), first);
+  writeBrief(root, 'docs/plans/demo.md', 1, DEFAULTS, { resetBase: true });
+  assert.equal(fs.readFileSync(baseFile, 'utf8').trim(), git('rev-parse', 'HEAD').trim());
+});

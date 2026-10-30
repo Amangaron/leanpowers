@@ -42,7 +42,7 @@ test('usage lists every command with its flags', () => {
   const lines = run('nope').stderr.split('\n').map((l) => l.trim());
   for (const line of [
     'check [--all] [--plan <file> --task <n>]',
-    'brief --plan <file> --task <n>',
+    'brief --plan <file> --task <n> [--reset-base]',
     'metrics --plan <file>',
     'config',
     'start [--format plain|claude]',
@@ -151,4 +151,10 @@ test('init --template reports skipped entries without a stack trace', () => {
   assert.match(r.stdout, /skipped docs \(blocked by existing file\)/);
   assert.match(r.stdout, /created src\/\.gitkeep/);
   assert.equal(r.stderr, '');
+});
+
+test('usage text lists the --reset-base switch', () => {
+  const r = run();
+  assert.equal(r.status, 2);
+  assert.match(r.stderr, /--reset-base/);
 });

@@ -14,7 +14,7 @@ import { listSkills, setSkills, nativeHint, formatList, parseSet, interactiveChe
 const USAGE = [
   'usage: leanpowers <check|brief|metrics|config|start|skills|init> [options]',
   '  check [--all] [--plan <file> --task <n>]',
-  '  brief --plan <file> --task <n>',
+  '  brief --plan <file> --task <n> [--reset-base]',
   '  metrics --plan <file>',
   '  config',
   '  start [--format plain|claude]',
@@ -27,11 +27,12 @@ function usage() {
   process.exit(2);
 }
 
-function parseArgs(argv, { skills = false, init = false } = {}) {
+function parseArgs(argv, { skills = false, init = false, brief = false } = {}) {
   const opts = { all: false };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === '--all') opts.all = true;
+    else if (brief && arg === '--reset-base') opts.resetBase = true;
     else if (arg === '--plan') {
       opts.plan = argv[++i];
       if (!opts.plan) usage();
@@ -71,11 +72,11 @@ switch (command) {
     break;
   }
   case 'brief': {
-    const { plan, task } = parseArgs(rest);
+    const { plan, task, resetBase } = parseArgs(rest, { brief: true });
     if (!plan || task === undefined) usage();
     const { config } = loadConfig(root);
     try {
-      console.log(toPosix(path.relative(root, writeBrief(root, plan, task, config))));
+      console.log(toPosix(path.relative(root, writeBrief(root, plan, task, config, { resetBase }))));
     } catch (err) {
       if (!String(err.message).startsWith('plan not found: ')) throw err;
       console.error(err.message);
