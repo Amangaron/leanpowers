@@ -20,7 +20,7 @@ are tagged `(unverified)` in `platforms/*.md`.
 
 ## Status / Verify it yourself
 
-Version 0.1.1. The authors made no paid test runs (a deliberate decision, see the design spec,
+Version 0.1.2. The authors made no paid test runs (a deliberate decision, see the design spec,
 section 16); this is what is and is not confirmed.
 
 Confirmed:

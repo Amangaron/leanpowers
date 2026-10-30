@@ -12,6 +12,27 @@ All notable changes to leanpowers are documented here. The format follows
   Claude Code and Codex. Whether Codex uses the skills in a session and the Gemini CLI package remain
   unverified. Details in `docs/research/2026-10-29-verifikation.md`.
 
+## [0.1.2] - 2026-10-30
+
+### Added
+
+- `brief --reset-base`: re-anchor a task's base commit after plan corrections.
+- `init --agents-md`: `init` writes a leanpowers start-text block into `AGENTS.md` for Codex.
+- Plan format: golden-file steps.
+- Ledger lines for final minors, rulings and `## Notes`.
+- `extraSkillDirs` resolve `plugin:<name>` to the skills of other plugins on Claude Code, Codex and Gemini.
+
+### Changed
+
+- Test files now approve new folders, and the brief lists the approved new folders.
+- Briefs name the spec and the sources; reviewers get `constraints.md`.
+- The orchestrator waits instead of stalling; the plan branch counts as a user instruction; approval comes before delegation.
+- After a plugin update, start a new session.
+
+### Fixed
+
+- A missing `leanpowers.json` is now named in the error message.
+
 ## [0.1.1] - 2026-10-30
 
 ### Added
