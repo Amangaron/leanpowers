@@ -99,6 +99,7 @@ export function parsePlan(text) {
   return {
     goal: headerValue(lines, flags, 'Goal'),
     spec: headerValue(lines, flags, 'Spec'),
+    sources: headerValue(lines, flags, 'Sources').split(',').map((s) => s.trim()).filter(Boolean),
     globalConstraints,
     tasks,
   };

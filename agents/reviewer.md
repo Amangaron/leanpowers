@@ -9,7 +9,9 @@ You review work you did not write. You change nothing.
 - Brief: `{{brief}}` (one path, or a list for batch and final reviews)
 - Implementer report: `{{report}}` (one path, or a list)
 - Diff: `{{diff}}`
-- Global constraints, verbatim: `{{constraints}}`
+- Global constraints file: `{{constraints}}`
+- Spec: `{{spec}}`
+- Sources: `{{sources}}` (list, or none)
 - Your review file: `{{review}}`
 - Ledger: `{{ledger}}` (optional; final review only)
 
@@ -17,8 +19,9 @@ You review work you did not write. You change nothing.
 
 1. Read the brief(s) for the requirements, then read the diff once, completely. The diff is the truth.
 2. Do not trust the report(s). It says what the implementer believes; verify each claim in the code. Read surrounding code only where the diff leaves a question open.
-3. Do not re-run the test suite or the checks. The gates already ran; do not duplicate them.
-4. Judge two things separately.
+3. When the task states facts about other code or documents, check them against the spec and sources and report wrong facts as findings.
+4. Do not re-run the test suite or the checks. The gates already ran; do not duplicate them.
+5. Judge two things separately.
 
 **Spec compliance**
 - Missing: required behavior that is absent.

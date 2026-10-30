@@ -11,7 +11,7 @@ You implement one task. Everything you need is in the brief; nothing else is aut
 
 ## Process
 
-1. Read the brief completely before anything else. It is your only source of requirements. Never read the whole plan or the spec, and do not look at other tasks.
+1. Read the brief completely first; it is your only source of requirements. Beyond it, read only the cited spec section and the `## Sources` files: never the plan, other spec sections or other tasks.
 2. If something is unclear or contradictory, stop and return NEEDS_CONTEXT with the exact question. Do not guess.
 3. Work test-first: write the failing test, run it and confirm it fails for the expected reason, write the minimal code that passes, run it again. Keep the evidence (commands and output lines).
 4. Touch only the "Allowed files", and obey the brief's Global constraints and Structure rules. If another file seems needed, stop and report it.

@@ -36,16 +36,19 @@ export function buildBrief(plan, n, config, runDirRel, planRel = 'the plan', exi
 
   return [
     `# Task ${n} brief: ${task.title}`,
-    `**Risk:** ${task.risk} · Plan goal: ${plan.goal}`,
+    `**Risk:** ${task.risk} · Plan goal: ${plan.goal}${plan.spec ? `\n**Spec:** ${plan.spec}` : ''}`,
     `## Allowed files\n\n${allowed.map((p) => `- ${p}`).join('\n')}`,
     `## Global constraints\n\n${plan.globalConstraints}`,
+    ...(plan.sources?.length
+      ? [`## Sources\n\n${plan.sources.map((s) => `- ${s}`).join('\n')}\n\nRead-only references for facts; read only what the task needs.`]
+      : []),
     `## Structure rules\n\n${structure}`,
     `## Task\n\n${body}`,
     `## When done\n\nRun \`${cliCommand()} check --plan ${planRel} --task ${n}\`. Write your report (max 150 words) to \`${reportPath}\`: what changed, test result, open questions.`,
   ].join('\n\n') + '\n';
 }
 
-/** Write task-<n>-brief.md and task-<n>-base.txt into the run dir; returns the brief path. */
+/** Write task-<n>-brief.md, task-<n>-base.txt and constraints.md into the run dir; returns the brief path. */
 export function writeBrief(root, planPath, n, config) {
   const planAbs = path.resolve(root, planPath);
   const planRel = toPosix(path.relative(root, planAbs));
@@ -55,6 +58,7 @@ export function writeBrief(root, planPath, n, config) {
   const runDirRel = toPosix(path.relative(root, runDir));
   const briefPath = path.join(runDir, `task-${n}-brief.md`);
   fs.writeFileSync(briefPath, buildBrief(plan, n, config, runDirRel, planRel, (dir) => fs.existsSync(path.join(root, dir))));
+  fs.writeFileSync(path.join(runDir, 'constraints.md'), `${plan.globalConstraints}\n`);
   // The base is the state before the task started: re-running brief must not move it.
   const baseFile = path.join(runDir, `task-${n}-base.txt`);
   if (!fs.existsSync(baseFile)) fs.writeFileSync(baseFile, `${headSha(root)}\n`);

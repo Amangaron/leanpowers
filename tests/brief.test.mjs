@@ -120,3 +120,21 @@ test('brief lists approved new folders that do not exist yet', () => {
   const both = buildBrief(plan, 1, config, 'r', 'p.md', () => false);
   assert.match(both, /Approved new folders: src\/components, tests\n/);
 });
+
+test('brief names the spec and lists sources', () => {
+  const withSources = PLAN.replace('## Global Constraints', '**Sources:** `x/README.md`, `y/schema.json`\n\n## Global Constraints');
+  const b = buildBrief(parsePlan(withSources), 1, config, 'r');
+  assert.match(b, /\n\*\*Spec:\*\* docs\/specs\/s\.md\n/);
+  assert.match(b, /## Sources\n\n- x\/README\.md\n- y\/schema\.json\n\nRead-only references for facts; read only what the task needs\./);
+  assert.doesNotMatch(buildBrief(parsePlan(PLAN), 1, config, 'r'), /## Sources/);
+});
+
+test('writeBrief writes constraints.md next to the brief', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-brief-'));
+  execFileSync('git', ['init', '-q'], { cwd: root });
+  execFileSync('git', ['-c', 'user.email=t@t', '-c', 'user.name=t', 'commit', '-q', '--allow-empty', '-m', 'init'], { cwd: root });
+  fs.mkdirSync(path.join(root, 'docs/plans'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'docs/plans/demo.md'), PLAN);
+  const brief = writeBrief(root, 'docs/plans/demo.md', 1, DEFAULTS);
+  assert.equal(fs.readFileSync(path.join(path.dirname(brief), 'constraints.md'), 'utf8'), '- Node >= 20\n');
+});

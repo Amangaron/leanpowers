@@ -106,3 +106,9 @@ test('risk inside a fenced block is ignored', () => {
   const mixed = '### Task 1: T\n\n**Risk:** low\n\n```\n**Risk:** high\n```\n';
   assert.equal(parsePlan(mixed).tasks[0].risk, 'low');
 });
+
+test('Sources header is parsed into a list', () => {
+  const text = '# P\n\n**Goal:** g\n\n**Spec:** `s.md`\n\n**Sources:** `a/README.md`, b/schema.json ,\n\n## Global Constraints\n\n- c\n';
+  assert.deepEqual(parsePlan(text).sources, ['a/README.md', 'b/schema.json']);
+  assert.deepEqual(parsePlan('# P\n\n**Goal:** g\n').sources, []);
+});
