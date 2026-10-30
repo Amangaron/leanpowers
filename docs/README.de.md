@@ -20,7 +20,7 @@ Bisher ist nichts als geprüft markiert. Angaben, die noch einen echten Lauf bra
 
 ## Stand / Selbst prüfen
 
-Version 0.1.0. Die Autoren haben keine kostenpflichtigen Testläufe gemacht (bewusste
+Version 0.1.1. Die Autoren haben keine kostenpflichtigen Testläufe gemacht (bewusste
 Entscheidung, siehe Entwurf, Abschnitt 16). So ist der Stand:
 
 Bestätigt:
