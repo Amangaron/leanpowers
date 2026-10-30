@@ -153,7 +153,7 @@ with its path and field, and the defaults are used. The schema is `schema/leanpo
 | --- | --- | --- |
 | `$schema` | Path or URL of the schema, for editor support. | none |
 | `skills` | Switches by skill name or `skill.option`, value true or false. | `worktrees` and `design.visualCompanion` off |
-| `extraSkillDirs` | Extra folders with your own skills. | `[]` |
+| `extraSkillDirs` | Extra folders with your own skills. An entry `plugin:<name>` uses the skills of an installed plugin (Claude Code, Codex or Gemini); a plugin that is not found only gives a warning. | `[]` |
 | `paths.specs` / `plans` / `reports` / `runs` | Where specs, plans, reports and run folders go. | `docs/specs`, `docs/plans`, `docs/reports`, `.leanpowers/runs` |
 | `commands.test` / `typecheck` / `lint` | Shell commands for the gates; empty means skipped. | empty |
 | `structure.newFolders` | New folders: `ask`, `allow` or `deny`. | `ask` |

@@ -62,8 +62,13 @@ export function runCheck({ root, plan, task, all = false, userConfigPath }) {
   else if (plan !== undefined || task !== undefined) {
     results.push({ name: 'scope', ok: false, messages: ['check needs both --plan and --task'] });
   }
-  if (all) results.push(lintDocs(root, config), lintSkills(root, config));
+  const warnings = [...errors];
+  if (all) {
+    const skills = lintSkills(root, config);
+    results.push(lintDocs(root, config), skills);
+    warnings.push(...(skills.warnings ?? []));
+  }
   // Gate results are already compressed by runGates.
   const compressed = results.map((r) => (r.name.startsWith('gates:') ? r : { ...r, messages: compress(r.messages, 20) }));
-  return formatResults(compressed, errors);
+  return formatResults(compressed, warnings);
 }

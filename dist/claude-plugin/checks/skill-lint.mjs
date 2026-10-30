@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { toPosix } from './lib/glob.mjs';
 import { stripCode } from './lib/plan.mjs';
+import { resolveSkillDirs } from './lib/plugins.mjs';
 
 const MAX_SKILL_WORDS = 600;
 const MAX_AGENT_WORDS = 400;
@@ -76,13 +77,19 @@ function subdirs(dir) {
   return fs.readdirSync(dir).filter(isDir);
 }
 
-/** Check word/token limits, frontmatter and relative links of skills, agents and the start text. */
-export function lintSkills(root, config) {
+/**
+ * Check word/token limits, frontmatter and relative links of skills, agents and the start text.
+ * `plugin:<name>` entries that are not found come back as `warnings`; they never fail the check.
+ */
+export function lintSkills(root, config, { home } = {}) {
   const entries = []; // { rel, file, name, maxWords }
-  for (const dir of ['skills', ...(config.extraSkillDirs ?? [])]) {
-    for (const name of subdirs(path.join(root, dir))) {
-      const file = path.join(root, dir, name, 'SKILL.md');
-      if (fs.existsSync(file)) entries.push({ rel: toPosix(path.join(dir, name, 'SKILL.md')), file, name, maxWords: MAX_SKILL_WORDS });
+  const { dirs, warnings } = resolveSkillDirs(root, config.extraSkillDirs, { home });
+  // Plugin skills live outside the project, so their messages start with `plugin:<name>/`.
+  const label = ({ dir, source }) => (source.startsWith('plugin:') ? source : path.relative(root, dir));
+  for (const d of [{ dir: path.join(root, 'skills'), source: 'builtin' }, ...dirs]) {
+    for (const name of subdirs(d.dir)) {
+      const file = path.join(d.dir, name, 'SKILL.md');
+      if (fs.existsSync(file)) entries.push({ rel: toPosix(path.join(label(d), name, 'SKILL.md')), file, name, maxWords: MAX_SKILL_WORDS });
     }
   }
   const agentsDir = path.join(root, 'agents');
@@ -107,5 +114,5 @@ export function lintSkills(root, config) {
     }
     for (const m of found) messages.push(`${rel}: ${m}`);
   }
-  return { name: 'skill-lint', ok: messages.length === 0, messages };
+  return { name: 'skill-lint', ok: messages.length === 0, messages, ...(warnings.length ? { warnings } : {}) };
 }

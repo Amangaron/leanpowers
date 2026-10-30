@@ -162,7 +162,7 @@ gelten die Standardwerte. Das Schema liegt in `schema/leanpowers.schema.json`.
 | --- | --- | --- |
 | `$schema` | Pfad oder URL des Schemas, für Editor-Unterstützung. | keiner |
 | `skills` | Schalter nach Skill-Name oder `skill.option`, Wert true oder false. | `worktrees` und `design.visualCompanion` aus |
-| `extraSkillDirs` | Zusätzliche Ordner mit eigenen Skills. | `[]` |
+| `extraSkillDirs` | Zusätzliche Ordner mit eigenen Skills. Ein Eintrag `plugin:<name>` nutzt die Skills eines installierten Plugins (Claude Code, Codex oder Gemini); ein nicht gefundenes Plugin ergibt nur eine Warnung. | `[]` |
 | `paths.specs` / `plans` / `reports` / `runs` | Ablage für Specs, Pläne, Berichte und Lauf-Ordner. | `docs/specs`, `docs/plans`, `docs/reports`, `.leanpowers/runs` |
 | `commands.test` / `typecheck` / `lint` | Shell-Befehle für die Gates; leer heißt übersprungen. | leer |
 | `structure.newFolders` | Neue Ordner: `ask`, `allow` oder `deny`. | `ask` |

@@ -116,3 +116,24 @@ test('codex hint uses the real SKILL.md path of an extra skill', () => {
   const hint = nativeHint('codex', [foo]);
   assert.ok(hint.includes(`path = "${path.join(root, 'ex/foo/SKILL.md').split(path.sep).join('/')}"`), hint);
 });
+
+test('listSkills lists skills of a plugin:<name> entry with its source', () => {
+  const home = tmp();
+  fs.mkdirSync(path.join(home, '.gemini/extensions/lido/skills/lido-flow'), { recursive: true });
+  fs.writeFileSync(path.join(home, '.gemini/extensions/lido/skills/lido-flow/SKILL.md'), '---\nname: lido-flow\ndescription: Flow skill.\n---\nBody\n');
+  const list = listSkills(repo, tmp(), { ...DEFAULTS, extraSkillDirs: ['plugin:lido'] }, { home });
+  const flow = list.find((s) => s.name === 'lido-flow');
+  assert.equal(flow?.source, 'plugin:lido');
+  assert.equal(flow.description, 'Flow skill.');
+});
+
+test('skills --list warns about a plugin that is not installed', () => {
+  const root = tmp();
+  fs.writeFileSync(path.join(root, 'leanpowers.json'), JSON.stringify({ extraSkillDirs: ['plugin:fehlt'] }));
+  const r = spawnSync(process.execPath, [bin, 'skills', '--list'], {
+    cwd: root, encoding: 'utf8', env: { ...process.env, HOME: tmp(), USERPROFILE: tmp(), XDG_CONFIG_HOME: tmp() },
+  });
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stderr, /^warning: extraSkillDirs: plugin fehlt not found$/m);
+  assert.match(r.stdout, /^\[x\] design — /m);
+});
