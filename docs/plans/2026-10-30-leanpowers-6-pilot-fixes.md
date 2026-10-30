@@ -346,6 +346,7 @@ and append to `tests/cli.test.mjs` a test that `init --agents-md` in a temp fold
 - Create: `checks/lib/plugins.mjs`
 - Modify: `checks/skills-cmd.mjs`
 - Modify: `checks/skill-lint.mjs`
+- Modify: `checks/check.mjs`
 - Modify: `docs/README.md`
 - Modify: `docs/README.de.md`
 - Test: `tests/plugins.test.mjs`
@@ -355,7 +356,7 @@ and append to `tests/cli.test.mjs` a test that `init --agents-md` in a temp fold
 **Interfaces:**
 - Produces: `export function resolvePluginSkillDir(name: string, { home = os.homedir() } = {}): string | null` – order and rules from spec section 6 D2 (Claude `installed_plugins.json` → Codex cache highest version → Gemini extensions); returns `<plugin>/skills` only if that folder exists; unreadable or invalid JSON counts as not found.
 - Produces: `export function resolveSkillDirs(root: string, extraSkillDirs: string[], { home } = {}): { dirs: { dir: string, source: string }[], warnings: string[] }` – plain entries resolve against `root` (source `extra`); `plugin:<name>` entries via `resolvePluginSkillDir` (source `plugin:<name>`); not found → warning `extraSkillDirs: plugin <name> not found`.
-- Produces: `listSkills` and `lintSkills` use `resolveSkillDirs`; warnings are printed by the `skills` command and appended as messages that do not fail `skill-lint` (they are listed after a green result line; follow how the CLI already prints config warnings).
+- Produces: `listSkills` and `lintSkills` use `resolveSkillDirs`; warnings are printed by the `skills` command and appended as messages that do not fail `skill-lint` (they are listed after a green result line; follow how the CLI already prints config warnings: `lintSkills` returns them as `warnings` without changing `ok`, and `runCheck` in `checks/check.mjs` passes them to `formatResults` with the config warnings).
 - Produces: README rows for `extraSkillDirs` mention `plugin:<name>` (English and German).
 
 - [ ] **Step 1: Write the failing tests** – create `tests/plugins.test.mjs`:
