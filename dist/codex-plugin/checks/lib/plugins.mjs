@@ -36,7 +36,7 @@ function claudeInstallPaths(name, home) {
   try {
     const data = JSON.parse(fs.readFileSync(path.join(home, '.claude/plugins/installed_plugins.json'), 'utf8'));
     return Object.entries(data?.plugins ?? {})
-      .filter(([key]) => key.slice(0, key.lastIndexOf('@')) === name)
+      .filter(([key]) => key.includes('@') && key.slice(0, key.lastIndexOf('@')) === name)
       .map(([, entries]) => (Array.isArray(entries) ? entries[0]?.installPath : undefined))
       .filter((p) => typeof p === 'string');
   } catch {

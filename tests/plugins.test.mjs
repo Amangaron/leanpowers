@@ -75,3 +75,17 @@ test('check --all lists a missing plugin as a warning after the green line', () 
   assert.equal(r.status, 0, r.stdout + r.stderr);
   assert.equal(r.stdout.trim(), '✔ leanpowers check: ok (gates:test, doc-lint, skill-lint)\n⚠ extraSkillDirs: plugin fehlt not found');
 });
+
+test('Claude Code: key must contain @ and match the name exactly', () => {
+  const h = home();
+  const wrong = mk(h, '.claude/plugins/cache/m/lidox/0.1.0');
+  mk(wrong, 'skills');
+  const right = mk(h, '.claude/plugins/cache/m/lido/0.1.0');
+  mk(right, 'skills');
+  const file = path.join(h, '.claude/plugins/installed_plugins.json');
+  mk(h, '.claude/plugins');
+  fs.writeFileSync(file, JSON.stringify({ version: 2, plugins: { lidox: [{ installPath: wrong }], 'lido@m': [{ installPath: right }] } }));
+  assert.equal(resolvePluginSkillDir('lido', { home: h }), path.join(right, 'skills'));
+  fs.writeFileSync(file, JSON.stringify({ version: 2, plugins: { lidox: [{ installPath: wrong }] } }));
+  assert.equal(resolvePluginSkillDir('lido', { home: h }), null);
+});
