@@ -50,14 +50,50 @@ Die oben stehenden Läufe nutzten noch ältere, schwächere Kriterien; seither g
 - Die Auswertung liegt in den exportierten Funktionen `checkCommandEvidence` und
   `pluginRootEvidence` und wird ohne Modelllauf in `tests/verify-claude.test.mjs` geprüft.
 
+## Installationstest durch den Maintainer (2026-10-30)
+
+Von Hand unter macOS ausgeführt, ohne Prüfskript. Geprüft wurde die Installation über den
+Marktplatz, nicht das Verhalten der Modelle.
+
+Claude Code:
+
+- `claude plugin marketplace add Amangaron/leanpowers` und
+  `claude plugin install leanpowers@leanpowers-marketplace` liefen durch (Scope `user`, Version 0.1.0).
+- `claude plugin update leanpowers@leanpowers-marketplace` hob das Plugin von 0.1.0 auf 0.1.1
+  (Meldung `Restart to apply changes`).
+- In einer laufenden Sitzung, die das installierte Plugin 0.1.0 geladen hatte, waren die Skills und
+  Befehle des Plugins gelistet, und der SessionStart-Hook fügte seinen Starttext ein.
+
+Codex:
+
+- Version `codex-cli 0.165.0-alpha.1.2`, mitgeliefert in ChatGPT.app
+  (`/Applications/ChatGPT.app/Contents/Resources/codex-cli/bin/codex`). Ein eigenständiges `codex`
+  gab es im `PATH` nicht; dafür war ein Alias nötig.
+- `codex plugin marketplace add Amangaron/leanpowers` meldete
+  ``Added marketplace `leanpowers-marketplace` from https://github.com/Amangaron/leanpowers.git``.
+- `codex plugin add leanpowers@leanpowers-marketplace` installierte nach
+  `~/.codex/plugins/cache/leanpowers-marketplace/leanpowers/0.1.1`.
+- Der installierte Ordner wurde mit `diff -rq` gegen `dist/codex-plugin` des Repositorys
+  verglichen: identisch. 12 Skills sind vorhanden, `plugin.json` nennt Version 0.1.1.
+- Nicht geprüft: ob Codex die Skills in einer Sitzung lädt und benutzt (dafür wäre ein Modelllauf
+  nötig).
+
+Gemini CLI:
+
+- `@google/gemini-cli` 0.66.0 wurde über npm installiert; für die nativen Module war
+  `--allow-scripts=@github/keytar,node-pty` nötig.
+- Anmeldung und `gemini extensions install … --ref gemini-extension` stehen noch aus; das Paket
+  bleibt ungeprüft.
+
 ## Was offen bleibt
 
 - Claude Code: `session-start`, `check-command` und `plugin-root-var` müssen mit angemeldetem
   `claude` (`/login`) laufen: `node scripts/verify-claude.mjs` (erwartete Kosten unter 0,10 USD).
   Bis dahin bleiben die `(unverified)`-Markierungen in `platforms/claude-code.md` bestehen.
-- Codex: ungeprüft, bis der Nutzer `bash scripts/verify-codex.sh` selbst ausführt (das Skript
-  ändert die Codex-Konfiguration und wird nie von einem Agenten gestartet). Es meldet PASS nur, wenn ein
-  einzelnes JSONL-Ereignis sowohl einen Befehl `node … leanpowers.mjs` als auch die echte
+- Codex: Die Installation über den Marktplatz ist bestätigt (siehe oben). Ob Codex die Skills in
+  einer Sitzung lädt und benutzt, bleibt ungeprüft, bis der Nutzer `bash scripts/verify-codex.sh`
+  selbst ausführt (das Skript ändert die Codex-Konfiguration und wird nie von einem Agenten
+  gestartet). Es meldet PASS nur, wenn ein einzelnes JSONL-Ereignis sowohl einen Befehl `node … leanpowers.mjs` als auch die echte
   Ausgabezeile `✔|✖ leanpowers check:` enthält (Skill-Text mit der Beispielzeile genügt nicht);
   mit `CODEX_MODEL=<kleines Modell>` lässt sich ein günstiges Modell wählen; die Entfernungs-
   hinweise erscheinen auch bei Fehlern.
