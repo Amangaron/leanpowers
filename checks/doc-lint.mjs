@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { stripCode, parsePlan } from './lib/plan.mjs';
-import { toPosix } from './lib/glob.mjs';
+import { toPosix, matchesAny } from './lib/glob.mjs';
 
 const PLACEHOLDERS = [
   { word: 'TBD', re: /\bTBD\b/ },
@@ -43,7 +43,7 @@ export function lintPlan(text) {
   return [...errors, ...placeholderMessages(text)];
 }
 
-function lintFolder(root, folder, lint, messages) {
+function lintFolder(root, folder, lint, messages, ignore) {
   const dir = path.join(root, folder);
   let names;
   try {
@@ -53,6 +53,7 @@ function lintFolder(root, folder, lint, messages) {
   }
   for (const name of names.sort()) {
     const rel = toPosix(path.join(folder, name));
+    if (matchesAny(rel, ignore)) continue;
     for (const m of lint(fs.readFileSync(path.join(dir, name), 'utf8'))) messages.push(`${rel}: ${m}`);
   }
 }
@@ -60,7 +61,8 @@ function lintFolder(root, folder, lint, messages) {
 /** Lint all specs and plans in the configured folders. */
 export function lintDocs(root, config) {
   const messages = [];
-  lintFolder(root, config.paths.specs, lintSpec, messages);
-  lintFolder(root, config.paths.plans, lintPlan, messages);
+  const ignore = config.docLint?.ignore ?? [];
+  lintFolder(root, config.paths.specs, lintSpec, messages, ignore);
+  lintFolder(root, config.paths.plans, lintPlan, messages, ignore);
   return { name: 'doc-lint', ok: messages.length === 0, messages };
 }

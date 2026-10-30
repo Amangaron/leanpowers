@@ -109,3 +109,11 @@ test('orchestration defaults to auto and is validated', () => {
   assert.ok(validate({ orchestration: 'sometimes' }, schema).includes('orchestration: must be one of auto, switch, recommend'));
   assert.deepEqual(validate({ orchestration: 'switch' }, schema), []);
 });
+
+test('docLint.ignore defaults to an empty list and is validated', () => {
+  assert.deepEqual(DEFAULTS.docLint, { ignore: [] });
+  assert.deepEqual(validate({ docLint: { ignore: ['docs/plans/old.md'] } }, schema), []);
+  assert.ok(validate({ docLint: { ignore: 'docs/plans/old.md' } }, schema).includes('docLint.ignore: expected array'));
+  assert.ok(validate({ docLint: { ignore: [1] } }, schema).includes('docLint.ignore[0]: expected string'));
+  assert.ok(validate({ docLint: { other: true } }, schema).includes('docLint.other: unknown property'));
+});

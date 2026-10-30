@@ -20,7 +20,7 @@ Bisher ist nichts als geprüft markiert. Angaben, die noch einen echten Lauf bra
 
 ## Stand / Selbst prüfen
 
-Version 0.1.0. Die Autoren haben keine kostenpflichtigen Testläufe gemacht (bewusste
+Version 0.1.1. Die Autoren haben keine kostenpflichtigen Testläufe gemacht (bewusste
 Entscheidung, siehe Entwurf, Abschnitt 16). So ist der Stand:
 
 Bestätigt:
@@ -164,6 +164,7 @@ gelten die Standardwerte. Das Schema liegt in `schema/leanpowers.schema.json`.
 | `structure.rules` | Liste aus `{ "path": Glob, "allow": [Globs] }`: welche Dateien wohin gehören. | `[]` |
 | `review.batch` | Wie viele risikoarme Aufgaben gemeinsam geprüft werden. | `3` |
 | `review.maxFixRounds` | Nachbesserungsrunden, bevor ein Review eskaliert. | `2` |
+| `docLint.ignore` | Spec- und Plan-Dateien, die doc-lint überspringt, als Muster relativ zum Projekt-Root (für Dokumente aus der Zeit vor leanpowers). | `[]` |
 | `models.small` / `medium` / `large` | Modell je Stufe; `auto` nimmt die Tabelle der Plattform. | `auto` |
 | `summarizer` | Shell-Befehl, der lange Fehlerausgaben der Gates kürzt; `none` schaltet ihn ab. | `none` |
 | `orchestration` | `auto`, `switch` oder `recommend`. | `auto` |

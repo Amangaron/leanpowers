@@ -57,6 +57,13 @@
         "maxFixRounds": { "type": "integer", "minimum": 0 }
       }
     },
+    "docLint": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ignore": { "type": "array", "items": { "type": "string" } }
+      }
+    },
     "models": {
       "type": "object",
       "additionalProperties": false,

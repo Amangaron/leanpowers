@@ -4,6 +4,13 @@ All notable changes to leanpowers are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.1] - 2026-10-30
+
+### Added
+
+- `docLint.ignore` in `leanpowers.json`: spec and plan files that `doc-lint` skips, as globs relative to the
+  project root. Helps projects that adopt leanpowers with documents written before it.
+
 ## [0.1.0] - 2026-10-29
 
 ### Added

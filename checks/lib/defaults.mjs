@@ -13,6 +13,7 @@ export const DEFAULTS = deepFreeze({
   commands: { test: '', typecheck: '', lint: '' },
   structure: { newFolders: 'ask', rules: [] },
   review: { batch: 3, maxFixRounds: 2 },
+  docLint: { ignore: [] },
   models: { small: 'auto', medium: 'auto', large: 'auto' },
   summarizer: 'none',
   orchestration: 'auto',
