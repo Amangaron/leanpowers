@@ -77,3 +77,9 @@ test('staff and run point at the shipped platform map', () => {
   const sentence = 'How to dispatch, model tiers and nesting on this platform: read `platform.md` in the plugin folder.';
   for (const rel of ['skills/staff/SKILL.md', 'skills/run/SKILL.md']) assert.ok(read(rel).includes(sentence), rel);
 });
+
+test('orchestration waits instead of stalling and approval comes before delegation', () => {
+  assert.ok(read('skills/start/SKILL.md').includes('before any code or subagent dispatch'), 'start');
+  assert.match(read('agents/orchestrator.md'), /turn ends only with a final reply starting `Status: DONE` or `Status: NEEDS_USER`/);
+  assert.ok(read('skills/run/SKILL.md').includes('never end the turn'), 'run');
+});

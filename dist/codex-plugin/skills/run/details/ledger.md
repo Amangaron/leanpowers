@@ -7,7 +7,7 @@
 Before creating the ledger:
 
 1. If `git worktree list` already shows a worktree on this plan's branch, continue there and resume from the ledger in its run folder.
-2. If HEAD is on the repository's default branch (the remote's HEAD branch, else `main` or `master`): when `skills.worktrees` is true, invoke the `worktrees` skill; otherwise create and switch to `feat/<plan-topic>`. Log it as a ruling. User instructions that name a branch or allow work on the default branch win.
+2. If HEAD is on the repository's default branch (the remote's HEAD branch, else `main` or `master`): when `skills.worktrees` is true, invoke the `worktrees` skill; otherwise create and switch to `feat/<plan-topic>`. Log it as a ruling. User instructions that name a branch or allow work on the default branch win; a branch named in the plan's Global Constraints, the default branch included, counts like a user instruction.
 3. With a worktree, the run folder is the one inside the worktree root: copy `besetzung.md` there before writing the ledger. From then on every dispatch (implementers, reviewers, re-reviewers, the final fix wave) names the worktree root as the working directory, and every `leanpowers` call runs there.
 
 ## Header

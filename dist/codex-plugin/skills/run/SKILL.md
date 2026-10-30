@@ -12,7 +12,7 @@ Decide, dispatch, gate, log. Write no production code, fix nothing, narrate one 
 
 ## Setup
 
-1. Run folder `<paths.runs>/<plan-basename>/`, ledger `progress.md`. Read [details/ledger.md](details/ledger.md) (formats, branch guard, resume) and [details/loops.md](details/loops.md) now.
+1. Run folder `<paths.runs>/<plan-basename>/`, ledger `progress.md`. Read [details/ledger.md](details/ledger.md) and [details/loops.md](details/loops.md) now.
 2. Ledger exists → resume from it and the git log, not memory; never redo completed tasks. Otherwise apply the branch guard (ledger.md), then create the ledger.
 3. Read the plan once and the tiers in `besetzung.md` (missing → medium). A task without `**Risk:**` counts as high. Track tasks.
 
@@ -23,7 +23,7 @@ Decide, dispatch, gate, log. Write no production code, fix nothing, narrate one 
 3. **Status:** DONE → gate; DONE_WITH_CONCERNS → settle correctness or scope concerns first; NEEDS_CONTEXT → answer, resume; BLOCKED → change context, tier, split or plan (ruling), never retry unchanged.
 4. **Gate:** run `leanpowers check --plan <plan> --task <n>` yourself. Red → resume the same implementer with the output; cap, escalation and stop per loops.md. Never rule a red gate green.
 5. **Review:** risk `high` → now; risk `low` → batched, reviewed once `review.batch` are gated, before the next high task, and at the end. Write the diff from the first base commit to HEAD; dispatch a subagent at the reviewer tier (batch: the highest among its tasks) with template `prompts/reviewer.md`: `{{brief}}`, `{{report}}` (lists for a batch), `{{diff}}`, `{{constraints}}` = the run folder's `constraints.md` path, `{{spec}}` = the plan's spec path, `{{sources}}` = the plan's sources, `{{review}}`. Never tell a reviewer what not to flag.
-6. **Fixes:** Minor → ledger only; a finding against the plan text → ruling first. Critical or Important → review fix rounds per loops.md, then rule on each open finding. With later tasks committed, a fix uses the substitute gate and its dispatch says so.
+6. **Fixes:** Minor → ledger only; a finding against the plan text → ruling first. Critical or Important → review fix rounds per loops.md, then rule on each open finding.
 7. **Complete:** log and mark it done. Start nothing new while a reviewed Critical or Important finding is open and unruled.
 
 ## Parallel
@@ -34,7 +34,7 @@ Tasks marked parallel run together only with disjoint allowed files; otherwise o
 
 Decide conflicts, ambiguities, plan defects and review caps yourself (spec outranks plan). Log `Ruling: <what> — <why> — <cost if wrong>`. Stop and ask the user only for: irreversible, destructive or security-sensitive actions, side effects outside the repo (push, publish, merge), a plan so broken every path is a guess, or a gate still red after escalation. Log `Stop: <question>` first; an orchestrator subagent then returns `NEEDS_USER`.
 
-Dispatches carry file paths, never pasted history, diffs or reports; worktree and CLI rules: loops.md.
+Dispatch subagents in the foreground and wait for each result, resumed ones too; never poll, never end the turn while one works. Dispatches carry file paths, never pasted history, diffs or reports; worktree and CLI rules: loops.md.
 
 **Without subagents:** same loop in this session, playing each role from its template with only its inputs; same briefs, gates, ledger.
 

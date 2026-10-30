@@ -6,7 +6,7 @@ If `skills.design` is false in leanpowers.json, say "leanpowers: design is disab
 
 # Design
 
-**Gate:** write no code, scaffold nothing and invoke no implementation skill until the user has approved what you intend. This holds for every size; only the artifact shrinks with the task, never the approval.
+**Gate:** write no code, dispatch no subagent, scaffold nothing and invoke no implementation skill until the user has approved what you intend. This holds for every size and whatever delegation rules say: they decide who builds, not whether to approve. Only an explicit "implement directly" for this task skips it.
 
 ## 1. Classify
 
