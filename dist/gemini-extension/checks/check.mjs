@@ -12,6 +12,15 @@ import { lintDocs } from './doc-lint.mjs';
 import { lintSkills } from './skill-lint.mjs';
 import { runDirFor } from './brief.mjs';
 
+/** Folders a task may create: parents of its Create and Test files, sorted, without the root. */
+export function approvedFoldersFor(files) {
+  const dirs = files
+    .filter((f) => f.kind === 'Create' || f.kind === 'Test')
+    .map((f) => path.posix.dirname(toPosix(f.path)))
+    .filter((d) => d !== '.');
+  return [...new Set(dirs)].sort();
+}
+
 /** Scope and structure checks for one task, measured against the base recorded in its brief. */
 function taskChecks(root, config, plan, task) {
   const planAbs = path.resolve(root, plan);
@@ -28,10 +37,7 @@ function taskChecks(root, config, plan, task) {
 
   const changed = changedFiles(root, base);
   const allowed = taskDef.files.map((f) => f.path);
-  const approvedFolders = taskDef.files
-    .filter((f) => f.kind === 'Create')
-    .map((f) => path.posix.dirname(toPosix(f.path)))
-    .filter((d) => d !== '.');
+  const approvedFolders = approvedFoldersFor(taskDef.files);
   return [
     checkScope(changed, allowed, [`${toPosix(config.paths.runs)}/**`]),
     checkStructure({

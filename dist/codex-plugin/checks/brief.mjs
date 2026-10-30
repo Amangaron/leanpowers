@@ -4,6 +4,7 @@ import { parsePlan } from './lib/plan.mjs';
 import { headSha } from './lib/git.mjs';
 import { matchesAny, toPosix } from './lib/glob.mjs';
 import { cliCommand } from './start.mjs';
+import { approvedFoldersFor } from './check.mjs';
 
 /** Run directory for a plan: <root>/<paths.runs>/<plan basename without .md>, self-ignoring. */
 export function runDirFor(root, config, planPath) {
@@ -16,14 +17,19 @@ export function runDirFor(root, config, planPath) {
 }
 
 /** Build the small brief an implementer receives instead of the whole plan. */
-export function buildBrief(plan, n, config, runDirRel, planRel = 'the plan') {
+export function buildBrief(plan, n, config, runDirRel, planRel = 'the plan', exists = () => false) {
   const task = plan.tasks.find((t) => t.n === n);
   if (!task) throw new Error(`Task ${n} not found`);
 
   const allowed = task.files.map((f) => f.path);
   const rules = (config.structure?.rules ?? []).filter((r) => allowed.some((f) => matchesAny(f, [r.path])));
   const ruleLines = rules.map((r) => `- ${r.path} → allow ${r.allow.join(', ')}`);
-  const structure = [...ruleLines, `New folders: ${config.structure?.newFolders ?? 'ask'}`].join('\n');
+  const fresh = approvedFoldersFor(task.files).filter((d) => !exists(d));
+  const structure = [
+    ...ruleLines,
+    `New folders: ${config.structure?.newFolders ?? 'ask'}`,
+    ...(fresh.length ? [`Approved new folders: ${fresh.join(', ')}`] : []),
+  ].join('\n');
 
   const body = task.body.split('\n').slice(1).join('\n').trim();
   const reportPath = `${toPosix(runDirRel)}/task-${n}-report.md`;
@@ -48,7 +54,7 @@ export function writeBrief(root, planPath, n, config) {
   const runDir = runDirFor(root, config, planAbs);
   const runDirRel = toPosix(path.relative(root, runDir));
   const briefPath = path.join(runDir, `task-${n}-brief.md`);
-  fs.writeFileSync(briefPath, buildBrief(plan, n, config, runDirRel, planRel));
+  fs.writeFileSync(briefPath, buildBrief(plan, n, config, runDirRel, planRel, (dir) => fs.existsSync(path.join(root, dir))));
   // The base is the state before the task started: re-running brief must not move it.
   const baseFile = path.join(runDir, `task-${n}-base.txt`);
   if (!fs.existsSync(baseFile)) fs.writeFileSync(baseFile, `${headSha(root)}\n`);

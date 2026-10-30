@@ -110,3 +110,13 @@ test('brief uses LEANPOWERS_CLI when set', () => {
     else process.env.LEANPOWERS_CLI = old;
   }
 });
+
+test('brief lists approved new folders that do not exist yet', () => {
+  const plan = parsePlan(PLAN);
+  const none = buildBrief(plan, 1, config, 'r', 'p.md', () => true);
+  assert.doesNotMatch(none, /Approved new folders/);
+  const fresh = buildBrief(plan, 1, config, 'r', 'p.md', (d) => d === 'src/components');
+  assert.match(fresh, /New folders: ask\nApproved new folders: tests\n/);
+  const both = buildBrief(plan, 1, config, 'r', 'p.md', () => false);
+  assert.match(both, /Approved new folders: src\/components, tests\n/);
+});
