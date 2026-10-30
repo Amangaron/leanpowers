@@ -20,15 +20,15 @@ Decide, dispatch, gate, log. Write no production code, fix nothing, narrate one 
 
 1. **Brief:** run `leanpowers brief --plan <plan> --task <n>`; it prints the brief path and records its base.
 2. **Implement:** dispatch a subagent at the task's implementer tier with template `prompts/implementer.md`, filling `{{brief}}` and `{{report}}`. Add only earlier interfaces, rulings and deferred minors touching its files. Keep its identity. How to dispatch, model tiers and nesting on this platform: read `platform.md` in the plugin folder.
-3. **Status:** DONE → gate; DONE_WITH_CONCERNS → settle correctness or scope concerns first; NEEDS_CONTEXT → answer, resume; BLOCKED → change context, tier, split or plan (ruling), never retry unchanged.
+3. **Status:** DONE → gate; DONE_WITH_CONCERNS → settle correctness/scope concerns first; NEEDS_CONTEXT → answer, resume; BLOCKED → change context, tier, split or plan (ruling), never retry unchanged.
 4. **Gate:** run `leanpowers check --plan <plan> --task <n>` yourself. Red → resume the same implementer with the output; cap, escalation and stop per loops.md. Never rule a red gate green.
-5. **Review:** risk `high` → now; risk `low` → batched, reviewed once `review.batch` are gated, before the next high task, and at the end. Write the diff from the first base commit to HEAD; dispatch a subagent at the reviewer tier (batch: the highest among its tasks) with template `prompts/reviewer.md`: `{{brief}}`, `{{report}}` (lists for a batch), `{{diff}}`, `{{constraints}}` = the run folder's `constraints.md` path, `{{spec}}` = the plan's spec path, `{{sources}}` = the plan's sources, `{{review}}`. Never tell a reviewer what not to flag.
+5. **Review:** risk `high` → now; risk `low` → batched, reviewed once `review.batch` are gated, before the next high task, at the end. Write the diff from the first base commit to HEAD; dispatch a subagent at the reviewer tier (batch: highest among its tasks) with template `prompts/reviewer.md`: `{{brief}}`, `{{report}}` (lists for a batch), `{{diff}}`, `{{constraints}}` = the run folder's `constraints.md` path, `{{spec}}` = the plan's spec path, `{{sources}}` = the plan's sources or `none`, `{{review}}`. Never tell a reviewer what not to flag.
 6. **Fixes:** Minor → ledger only; a finding against the plan text → ruling first. Critical or Important → review fix rounds per loops.md, then rule on each open finding.
 7. **Complete:** log and mark it done. Start nothing new while a reviewed Critical or Important finding is open and unruled.
 
 ## Parallel
 
-Tasks marked parallel run together only with disjoint allowed files; otherwise one implementer at a time. Dispatch text and group gate: loops.md.
+Parallel tasks run together only with disjoint allowed files, otherwise one at a time. Dispatch text and group gate: loops.md.
 
 ## Rulings, not stalls
 
@@ -43,5 +43,5 @@ Dispatch subagents in the foreground and wait for each result, resumed ones too;
 1. **Final review:** diff from the run base to HEAD; reviewer at tier large with all briefs, reports and `{{ledger}}` = the ledger path.
 2. **Fix wave** only if Critical or Important findings remain: one, per loops.md.
 3. Run `leanpowers check --all`; red → gate rules, never `finish`.
-4. Append the `Final:` lines, then run `leanpowers metrics --plan <plan>`.
-5. Show the user every `Ruling:` line in order with its cost if wrong, and the open minors. Invoke the `finish` skill.
+4. Append the `Final:` lines (`Final: minor (deferred)`, `Final: Ruling:`; ledger.md), then run `leanpowers metrics --plan <plan>`.
+5. Show the user every `Ruling:` line in order with its cost if wrong, plus open minors. Invoke the `finish` skill.

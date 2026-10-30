@@ -20,7 +20,7 @@ Run base: <sha7> · Base branch: <name> · Branch: <branch> · Worktree: <path o
 ## Tasks
 ```
 
-The first line names the plan. `Base branch` is the branch you started from: the one the guard switched away from, or, when no switch was needed, the default branch unless user instructions name another. `finish` merges into it. Every later line goes under `## Tasks`.
+The first line names the plan. `Base branch` is the branch you started from: the one the guard switched away from, or, when no switch was needed, the default branch unless user instructions name another. `finish` merges into it. Extra sections such as `## Notes` go between the header line and `## Tasks`; every later line goes under `## Tasks`, and `## Metrics` stays last.
 
 ## Run folder files
 
@@ -54,6 +54,8 @@ The first line names the plan. `Base branch` is the branch you started from: the
 | User answer to a stop question | `Ruling: <answer> — user decided — <cost if wrong>` |
 | Task complete | `Task <n>: complete (commits <base7>..<head7>, review clean)` or `…, <k> parked)` |
 | Final review | `Final: review APPROVED, no fix wave` or `Final: review CHANGES REQUESTED, fix wave <a7>..<b7>, <k> parked` |
+| Final minor deferred | `Final: minor (deferred): <one-liner>` |
+| Final ruling | `Final: Ruling: <what> — <why> — <cost if wrong>` |
 | Final check | `Final: <exact output line of leanpowers check --all>` |
 
 For a batch, write one `complete` line per task once the batch review is clean or ruled. Every line holding `Ruling:` is reported to the user at the end.

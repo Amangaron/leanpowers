@@ -44,6 +44,8 @@ The `gemini-extension` branch holds only the built extension and is regenerated 
 `node scripts/gemini-branch.mjs`. Or clone the repository and run
 `gemini extensions link <clone>/dist/gemini-extension`.
 
+After a plugin update, start a new session: running sessions keep the old skills and CLI path.
+
 ## Status / Verify it yourself
 
 Version 0.1.1. The authors made no paid test runs (a deliberate decision, see the design spec,

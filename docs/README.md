@@ -99,6 +99,8 @@ gemini extensions link <clone>/dist/gemini-extension
 Commands live in the `leanpowers` namespace; three generated agents
 (`lp-small`, `lp-medium`, `lp-large`) stand for the model tiers.
 
+After a plugin update, start a new session: running sessions keep the old skills and CLI path.
+
 Each package ships its platform map as `platform.md` (from `platforms/<platform>-<cli>.md`, for example `platforms/claude-code.md`): how to
 dispatch subagents, which models the tiers mean and whether subagents can nest.
 

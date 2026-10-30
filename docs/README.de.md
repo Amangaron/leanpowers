@@ -104,6 +104,8 @@ gemini extensions link <clone>/dist/gemini-extension
 Die Befehle liegen im Namensraum `leanpowers`; drei erzeugte
 Agenten (`lp-small`, `lp-medium`, `lp-large`) stehen für die Modellstufen.
 
+Starten Sie nach einem Plugin-Update eine neue Sitzung: laufende Sitzungen behalten die Skills und den CLI-Pfad der alten Version.
+
 Jedes Paket enthält seine Plattform-Zuordnung als `platform.md` (aus `platforms/<Plattform>-<cli>.md`, zum Beispiel `platforms/claude-code.md`):
 wie Subagenten gestartet werden, welche Modelle die Stufen meinen und ob Subagenten verschachtelt
 werden können.
