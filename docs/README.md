@@ -156,6 +156,7 @@ with its path and field, and the defaults are used. The schema is `schema/leanpo
 | `structure.rules` | List of `{ "path": glob, "allow": [globs] }` for what files may live where. | `[]` |
 | `review.batch` | Low-risk tasks reviewed together. | `3` |
 | `review.maxFixRounds` | Fix rounds before a review escalates. | `2` |
+| `docLint.ignore` | Spec and plan files that doc-lint skips, as globs relative to the project root (for documents written before leanpowers). | `[]` |
 | `models.small` / `medium` / `large` | Model per tier; `auto` uses the platform table. | `auto` |
 | `summarizer` | Shell command that shortens long failing gate output; `none` turns it off. | `none` |
 | `orchestration` | `auto`, `switch` or `recommend`. | `auto` |

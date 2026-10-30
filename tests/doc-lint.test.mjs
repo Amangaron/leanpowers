@@ -59,3 +59,26 @@ test('lintDocs is ok when folders do not exist', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-doc-'));
   assert.equal(lintDocs(root, DEFAULTS).ok, true);
 });
+
+test('lintDocs skips files matched by docLint.ignore', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-doc-'));
+  fs.mkdirSync(path.join(root, 'docs/specs'), { recursive: true });
+  fs.mkdirSync(path.join(root, 'docs/plans'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'docs/plans/old.md'), '# Old\n');
+  fs.writeFileSync(path.join(root, 'docs/plans/new.md'), GOOD_PLAN);
+  fs.writeFileSync(path.join(root, 'docs/specs/old-design.md'), '# T\n');
+  const all = { ...DEFAULTS, docLint: { ignore: ['docs/plans/old.md', 'docs/specs/old-*.md'] } };
+  assert.deepEqual(lintDocs(root, all), { name: 'doc-lint', ok: true, messages: [] });
+  const some = { ...DEFAULTS, docLint: { ignore: ['docs/plans/old.md'] } };
+  assert.deepEqual(lintDocs(root, some).messages, ['docs/specs/old-design.md: needs at least 2 sections (## ...)']);
+});
+
+test('lintDocs with an empty or missing ignore list lints every file', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-doc-'));
+  fs.mkdirSync(path.join(root, 'docs/specs'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'docs/specs/b.md'), '# T\n');
+  const expected = ['docs/specs/b.md: needs at least 2 sections (## ...)'];
+  assert.deepEqual(lintDocs(root, DEFAULTS).messages, expected);
+  const { docLint, ...withoutDocLint } = DEFAULTS;
+  assert.deepEqual(lintDocs(root, withoutDocLint).messages, expected);
+});
