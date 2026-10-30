@@ -1,0 +1,4 @@
+description = "Recommend and confirm the staffing for an approved plan"
+prompt = """
+Invoke the leanpowers staff skill. {{args}}
+"""

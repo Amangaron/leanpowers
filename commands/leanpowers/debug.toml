@@ -1,0 +1,4 @@
+description = "Find the root cause of a bug before fixing it"
+prompt = """
+Invoke the leanpowers debug skill. {{args}}
+"""

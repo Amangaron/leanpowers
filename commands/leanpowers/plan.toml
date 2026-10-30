@@ -1,0 +1,4 @@
+description = "Write an implementation plan from an approved spec"
+prompt = """
+Invoke the leanpowers plan skill. {{args}}
+"""

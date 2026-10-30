@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "leanpowers configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "skills": {
+      "type": "object",
+      "description": "Skill switches. Key = skill name or skill.option, value = enabled.",
+      "additionalProperties": { "type": "boolean" }
+    },
+    "extraSkillDirs": { "type": "array", "items": { "type": "string" } },
+    "paths": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "specs": { "type": "string" },
+        "plans": { "type": "string" },
+        "reports": { "type": "string" },
+        "runs": { "type": "string" }
+      }
+    },
+    "commands": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "test": { "type": "string" },
+        "typecheck": { "type": "string" },
+        "lint": { "type": "string" }
+      }
+    },
+    "structure": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "newFolders": { "type": "string", "enum": ["ask", "allow", "deny"] },
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "allow"],
+            "properties": {
+              "path": { "type": "string" },
+              "allow": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "batch": { "type": "integer", "minimum": 1 },
+        "maxFixRounds": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "models": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "small": { "type": "string" },
+        "medium": { "type": "string" },
+        "large": { "type": "string" }
+      }
+    },
+    "summarizer": { "type": "string" },
+    "orchestration": { "type": "string", "enum": ["auto", "switch", "recommend"] }
+  }
+}

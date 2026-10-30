@@ -1,0 +1,4 @@
+description = "Execute an approved, staffed plan task by task"
+prompt = """
+Invoke the leanpowers run skill. {{args}}
+"""

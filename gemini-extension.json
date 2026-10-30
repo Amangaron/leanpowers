@@ -1,0 +1,6 @@
+{
+  "name": "leanpowers",
+  "version": "0.1.0",
+  "description": "Lean, cross-assistant workflow plugin: design, plan, subagent execution, deterministic checks.",
+  "contextFileName": "GEMINI.md"
+}
