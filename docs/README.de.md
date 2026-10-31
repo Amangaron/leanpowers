@@ -13,7 +13,7 @@ etwa 1.030 Token (mit derselben Methode gezählt; berechnet, nicht gemessen).
 | --- | --- | --- |
 | Claude Code | `dist/claude-plugin` | gebaut, Installation über den Marktplatz unter macOS bestätigt (Skills, Befehle und Starttext in einer Sitzung gesehen; Aufruf eines Befehls oder Skills nicht bestätigt, siehe `docs/research/2026-10-29-verifikation.md`) |
 | Codex | `dist/codex-plugin` | gebaut, Installation über den Marktplatz unter macOS bestätigt (installierte Dateien gleich `dist/codex-plugin`); Nutzung in einer Sitzung ungeprüft |
-| Gemini CLI | `dist/gemini-extension` | aus der Dokumentation gebaut, ungeprüft |
+| Gemini CLI | `dist/gemini-extension` | gebaut, Installation unter macOS bestätigt (`gemini extensions list` zeigt 12 Skills); Nutzung in einer Sitzung ungeprüft |
 
 Abgesehen von diesen Installationen ist bisher nichts als geprüft markiert. Angaben, die noch
 einen echten Lauf brauchen, stehen in `platforms/*.md` mit dem Zusatz `(unverified)`.
@@ -31,13 +31,14 @@ Bestätigt:
   auf 0.1.1 aktualisiert; in einer Sitzung waren Skills und Befehle gelistet, und der
   SessionStart-Hook fügte seinen Starttext ein) und für Codex (die installierten Dateien
   entsprechen `dist/codex-plugin`).
+- Die Installation der Erweiterung für Gemini CLI funktioniert unter macOS
+  (`gemini extensions list` zeigt leanpowers 0.1.3 mit 12 Skills).
 
 Nicht bestätigt:
 
 - Wie sich Modelle mit den Skills verhalten.
 - Die Token-Ersparnis in der Praxis. Rund 50 % weniger immer geladener Text sind berechnet, nicht gemessen.
-- Ob Codex die Skills in einer Sitzung lädt und benutzt.
-- Das Paket für Gemini CLI.
+- Ob Codex und Gemini CLI die Skills in einer Sitzung laden und benutzen.
 - Unter Windows der SessionStart-Hook von Claude Code (die Tests prüfen ihn nicht).
 
 Selbst prüfen:
@@ -82,11 +83,20 @@ Zum Prüfen des Pakets starten Sie selbst `bash scripts/verify-codex.sh`. Das Sk
 bevor es Ihre Codex-Konfiguration ändert (lokaler Marktplatz und Plugin), und gibt aus, wie Sie
 beides wieder entfernen.
 
-**Gemini CLI** (ungeprüft)
+**Gemini CLI** (Installation unter macOS bestätigt; Nutzung in einer Sitzung ungeprüft)
 
 ```
 gemini extensions install https://github.com/Amangaron/leanpowers --ref gemini-extension
 ```
+
+Bei der Installation stellt Gemini drei Fragen; beantworten Sie jede mit Ja:
+
+- ob Sie dem aktuellen Ordner vertrauen (jeder Ordner, auch Ihr Home-Ordner; Ja nimmt ihn in die
+  vertrauenswürdigen Ordner von Gemini auf);
+- nach einem 404 für ein GitHub-Release namens `gemini-extension` (es ist ein Zweig, kein
+  Release), ob stattdessen über `git clone` installiert werden soll; das ist der vorgesehene Weg;
+- nach einer Warnung zu Erweiterungen von Drittanbietern, die die Skills auflistet, ob es
+  weitergehen soll.
 
 Der Zweig `gemini-extension` enthält nur die gebaute Erweiterung im Wurzelverzeichnis (die
 Wurzel des Repositorys enthält Quell-Skills, die Gemini sonst laden würde). Er wird bei jedem
