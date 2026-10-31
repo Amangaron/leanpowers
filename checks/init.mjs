@@ -54,6 +54,9 @@ function collectExtensions(root, dir, runDir, found) {
   }
 }
 
+// Sibling extensions of one language family: a folder with .tsx also needs .ts (and vice versa).
+const SIBLINGS = { '*.ts': '*.tsx', '*.tsx': '*.ts', '*.js': '*.jsx', '*.jsx': '*.js' };
+
 /** Propose commands and per-folder structure rules from what the project already contains. */
 export function scanProject(root) {
   const runDir = toPosix(loadConfig(root).config.paths.runs).replace(/^\.\//, '').replace(/\/+$/, '');
@@ -65,7 +68,11 @@ export function scanProject(root) {
   for (const name of tops) {
     const found = new Set();
     collectExtensions(root, name, runDir, found);
-    if (found.size) rules.push({ path: `${name}/**`, allow: [...found].sort() });
+    if (found.size) {
+      const allow = new Set(found);
+      for (const ext of found) if (SIBLINGS[ext]) allow.add(SIBLINGS[ext]);
+      rules.push({ path: `${name}/**`, allow: [...allow].sort() });
+    }
   }
   return { commands: detectCommands(root), structure: { newFolders: 'ask', rules } };
 }

@@ -31,7 +31,7 @@ test('scan finds npm scripts and per-folder file types', () => {
   assert.deepEqual(s.commands, { test: 'npm test', typecheck: 'npm run typecheck', lint: '' });
   assert.deepEqual(s.structure.rules, [
     { path: 'src/**', allow: ['*.ts', '*.tsx'] },
-    { path: 'tests/**', allow: ['*.ts'] },
+    { path: 'tests/**', allow: ['*.ts', '*.tsx'] },
   ]);
 });
 
@@ -64,7 +64,7 @@ test('scan skips the configured run folder, build folders and symlinks out of th
   fs.symlinkSync(path.join(outside, 'secret'), path.join(root, 'src/linked'), 'junction');
   assert.deepEqual(scanProject(root).structure.rules, [
     { path: 'docs/**', allow: ['*.md'] },
-    { path: 'src/**', allow: ['*.js'] },
+    { path: 'src/**', allow: ['*.js', '*.jsx'] },
   ]);
 });
 
@@ -119,7 +119,7 @@ test('scan skips unreadable subdirectories', { skip: process.platform === 'win32
   fs.chmodSync(path.join(root, 'locked'), 0);
   fs.chmodSync(path.join(root, 'src/private'), 0);
   try {
-    assert.deepEqual(scanProject(root).structure.rules, [{ path: 'src/**', allow: ['*.js'] }]);
+    assert.deepEqual(scanProject(root).structure.rules, [{ path: 'src/**', allow: ['*.js', '*.jsx'] }]);
   } finally {
     fs.chmodSync(path.join(root, 'locked'), 0o755);
     fs.chmodSync(path.join(root, 'src/private'), 0o755);
@@ -137,4 +137,17 @@ test('proposals and templates point $schema at the published schema URL', () => 
   for (const rel of ['templates/leanpowers.json', 'templates/project-default/leanpowers.json']) {
     assert.equal(JSON.parse(fs.readFileSync(path.join(repo, rel), 'utf8')).$schema, url, rel);
   }
+});
+
+test('scan adds sibling extensions of the same language family (ts/tsx, js/jsx)', () => {
+  const root = project({
+    'app/page.tsx': '', 'app/globals.css': '', 'app/favicon.ico': '',
+    'lib/utils.ts': '', 'scripts/x.js': '', 'tools/a.mjs': '', 'tools/b.cjs': '',
+  });
+  assert.deepEqual(scanProject(root).structure.rules, [
+    { path: 'app/**', allow: ['*.css', '*.ico', '*.ts', '*.tsx'] },
+    { path: 'lib/**', allow: ['*.ts', '*.tsx'] },
+    { path: 'scripts/**', allow: ['*.js', '*.jsx'] },
+    { path: 'tools/**', allow: ['*.cjs', '*.mjs'] },
+  ]);
 });
