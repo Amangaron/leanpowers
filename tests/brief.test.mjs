@@ -110,3 +110,48 @@ test('brief uses LEANPOWERS_CLI when set', () => {
     else process.env.LEANPOWERS_CLI = old;
   }
 });
+
+test('brief lists approved new folders that do not exist yet', () => {
+  const plan = parsePlan(PLAN);
+  const none = buildBrief(plan, 1, config, 'r', 'p.md', () => true);
+  assert.doesNotMatch(none, /Approved new folders/);
+  const fresh = buildBrief(plan, 1, config, 'r', 'p.md', (d) => d === 'src/components');
+  assert.match(fresh, /New folders: ask\nApproved new folders: tests\n/);
+  const both = buildBrief(plan, 1, config, 'r', 'p.md', () => false);
+  assert.match(both, /Approved new folders: src\/components, tests\n/);
+});
+
+test('brief names the spec and lists sources', () => {
+  const withSources = PLAN.replace('## Global Constraints', '**Sources:** `x/README.md`, `y/schema.json`\n\n## Global Constraints');
+  const b = buildBrief(parsePlan(withSources), 1, config, 'r');
+  assert.match(b, /\n\*\*Spec:\*\* docs\/specs\/s\.md\n/);
+  assert.match(b, /## Sources\n\n- x\/README\.md\n- y\/schema\.json\n\nRead-only references for facts; read only what the task needs\./);
+  assert.doesNotMatch(buildBrief(parsePlan(PLAN), 1, config, 'r'), /## Sources/);
+});
+
+test('writeBrief writes constraints.md next to the brief', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-brief-'));
+  execFileSync('git', ['init', '-q'], { cwd: root });
+  execFileSync('git', ['-c', 'user.email=t@t', '-c', 'user.name=t', 'commit', '-q', '--allow-empty', '-m', 'init'], { cwd: root });
+  fs.mkdirSync(path.join(root, 'docs/plans'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'docs/plans/demo.md'), PLAN);
+  const brief = writeBrief(root, 'docs/plans/demo.md', 1, DEFAULTS);
+  assert.equal(fs.readFileSync(path.join(path.dirname(brief), 'constraints.md'), 'utf8'), '- Node >= 20\n');
+});
+
+test('base is kept unless reset is requested', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-brief-'));
+  const git = (...a) => execFileSync('git', ['-c', 'user.email=t@t', '-c', 'user.name=t', ...a], { cwd: root, encoding: 'utf8' });
+  git('init', '-q');
+  git('commit', '-q', '--allow-empty', '-m', 'one');
+  fs.mkdirSync(path.join(root, 'docs/plans'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'docs/plans/demo.md'), PLAN);
+  const brief = writeBrief(root, 'docs/plans/demo.md', 1, DEFAULTS);
+  const baseFile = path.join(path.dirname(brief), 'task-1-base.txt');
+  const first = fs.readFileSync(baseFile, 'utf8');
+  git('commit', '-q', '--allow-empty', '-m', 'two');
+  writeBrief(root, 'docs/plans/demo.md', 1, DEFAULTS);
+  assert.equal(fs.readFileSync(baseFile, 'utf8'), first);
+  writeBrief(root, 'docs/plans/demo.md', 1, DEFAULTS, { resetBase: true });
+  assert.equal(fs.readFileSync(baseFile, 'utf8').trim(), git('rev-parse', 'HEAD').trim());
+});

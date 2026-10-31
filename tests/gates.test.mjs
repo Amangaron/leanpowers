@@ -62,3 +62,9 @@ test('failing summarizer falls back to compression with a note', () => {
   assert.equal(r.messages[0], 'summarizer failed, showing compressed output');
   assert.equal(r.messages[1], 'error 0');
 });
+
+test('missing config is named when no test command is configured', () => {
+  const cfg = { ...DEFAULTS, commands: { test: '', typecheck: '', lint: '' } };
+  assert.deepEqual(runGates(cfg, process.cwd(), { configFound: false })[0].messages, ['no test command configured (no leanpowers.json found)']);
+  assert.deepEqual(runGates(cfg, process.cwd())[0].messages, ['no test command configured']);
+});

@@ -20,7 +20,7 @@ are tagged `(unverified)` in `platforms/*.md`.
 
 ## Status / Verify it yourself
 
-Version 0.1.1. The authors made no paid test runs (a deliberate decision, see the design spec,
+Version 0.1.2. The authors made no paid test runs (a deliberate decision, see the design spec,
 section 16); this is what is and is not confirmed.
 
 Confirmed:
@@ -99,6 +99,8 @@ gemini extensions link <clone>/dist/gemini-extension
 Commands live in the `leanpowers` namespace; three generated agents
 (`lp-small`, `lp-medium`, `lp-large`) stand for the model tiers.
 
+After a plugin update, start a new session: running sessions keep the old skills and CLI path.
+
 Each package ships its platform map as `platform.md` (from `platforms/<platform>-<cli>.md`, for example `platforms/claude-code.md`): how to
 dispatch subagents, which models the tiers mean and whether subagents can nest.
 
@@ -151,7 +153,7 @@ with its path and field, and the defaults are used. The schema is `schema/leanpo
 | --- | --- | --- |
 | `$schema` | Path or URL of the schema, for editor support. | none |
 | `skills` | Switches by skill name or `skill.option`, value true or false. | `worktrees` and `design.visualCompanion` off |
-| `extraSkillDirs` | Extra folders with your own skills. | `[]` |
+| `extraSkillDirs` | Extra folders with your own skills. An entry `plugin:<name>` uses the skills of an installed plugin (Claude Code, Codex or Gemini); a plugin that is not found only gives a warning. | `[]` |
 | `paths.specs` / `plans` / `reports` / `runs` | Where specs, plans, reports and run folders go. | `docs/specs`, `docs/plans`, `docs/reports`, `.leanpowers/runs` |
 | `commands.test` / `typecheck` / `lint` | Shell commands for the gates; empty means skipped. | empty |
 | `structure.newFolders` | New folders: `ask`, `allow` or `deny`. | `ask` |

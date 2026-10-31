@@ -8,6 +8,7 @@ Translates leanpowers' neutral actions into Claude Code tools.
 | --- | --- |
 | Dispatch a subagent at a tier with a template | Start a subagent with an explicit `model` alias (`haiku`, `sonnet`, `opus`) on every call; the template text is the prompt. The call's model overrides any agent frontmatter. |
 | Resume a subagent with a message | Send a message to the existing agent by its name or id. |
+| Wait for a subagent | Dispatch in the foreground. A resumed agent's result arrives as a task notification: wait for it; never poll or end the turn before it arrives. |
 | Ask the user | Ask in chat, or use the question tool if available. |
 | Track tasks | Use the built-in task list tool. |
 | Invoke a skill | Use the skill mechanism with the skill name. |

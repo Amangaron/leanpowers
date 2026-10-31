@@ -19,6 +19,11 @@ export function startText(pluginRoot, config, cli = cliCommand()) {
   return cli === 'leanpowers' ? text : `${text}\nCLI: run leanpowers as ${cli}.`;
 }
 
+/** Start text for AGENTS.md: no subagent line and no CLI line (Codex skills carry the CLI line). */
+export function agentsMdText(pluginRoot, config) {
+  return startText(pluginRoot, config, 'leanpowers').replace(/^Subagents ignore this text\.\n+/m, '').trim();
+}
+
 /** Command a subagent can run to reach this CLI. */
 export function cliCommand() {
   if (process.env.LEANPOWERS_CLI) return process.env.LEANPOWERS_CLI;

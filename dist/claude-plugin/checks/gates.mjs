@@ -14,15 +14,16 @@ const splitLines = (text) => text.split(/\r?\n/).filter((l) => l.trim() !== '');
  * Run the configured test/typecheck/lint commands and return token-lean results.
  * @param {object} config
  * @param {string} root
+ * @param {{ configFound?: boolean }} [opts] configFound false names the missing leanpowers.json
  * @returns {CheckResult[]}
  */
-export function runGates(config, root) {
+export function runGates(config, root, { configFound = true } = {}) {
   const results = [];
   for (const gate of ['test', 'typecheck', 'lint']) {
     const cmd = config.commands[gate];
     if (!cmd) {
       if (gate === 'test') {
-        results.push({ name: 'gates:test', ok: false, messages: ['no test command configured'] });
+        results.push({ name: 'gates:test', ok: false, messages: [configFound ? 'no test command configured' : 'no test command configured (no leanpowers.json found)'] });
       }
       continue;
     }

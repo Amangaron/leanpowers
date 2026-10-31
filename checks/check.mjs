@@ -12,6 +12,15 @@ import { lintDocs } from './doc-lint.mjs';
 import { lintSkills } from './skill-lint.mjs';
 import { runDirFor } from './brief.mjs';
 
+/** Folders a task may create: parents of its Create and Test files, sorted, without the root. */
+export function approvedFoldersFor(files) {
+  const dirs = files
+    .filter((f) => f.kind === 'Create' || f.kind === 'Test')
+    .map((f) => path.posix.dirname(toPosix(f.path)))
+    .filter((d) => d !== '.');
+  return [...new Set(dirs)].sort();
+}
+
 /** Scope and structure checks for one task, measured against the base recorded in its brief. */
 function taskChecks(root, config, plan, task) {
   const planAbs = path.resolve(root, plan);
@@ -28,10 +37,7 @@ function taskChecks(root, config, plan, task) {
 
   const changed = changedFiles(root, base);
   const allowed = taskDef.files.map((f) => f.path);
-  const approvedFolders = taskDef.files
-    .filter((f) => f.kind === 'Create')
-    .map((f) => path.posix.dirname(toPosix(f.path)))
-    .filter((d) => d !== '.');
+  const approvedFolders = approvedFoldersFor(taskDef.files);
   return [
     checkScope(changed, allowed, [`${toPosix(config.paths.runs)}/**`]),
     checkStructure({
@@ -51,13 +57,18 @@ function taskChecks(root, config, plan, task) {
  */
 export function runCheck({ root, plan, task, all = false, userConfigPath }) {
   const { config, errors } = loadConfig(root, userConfigPath ? { userConfigPath } : undefined);
-  const results = runGates(config, root);
+  const results = runGates(config, root, { configFound: fs.existsSync(path.join(root, 'leanpowers.json')) });
   if (plan !== undefined && task !== undefined) results.push(...taskChecks(root, config, plan, task));
   else if (plan !== undefined || task !== undefined) {
     results.push({ name: 'scope', ok: false, messages: ['check needs both --plan and --task'] });
   }
-  if (all) results.push(lintDocs(root, config), lintSkills(root, config));
+  const warnings = [...errors];
+  if (all) {
+    const skills = lintSkills(root, config);
+    results.push(lintDocs(root, config), skills);
+    warnings.push(...(skills.warnings ?? []));
+  }
   // Gate results are already compressed by runGates.
   const compressed = results.map((r) => (r.name.startsWith('gates:') ? r : { ...r, messages: compress(r.messages, 20) }));
-  return formatResults(compressed, errors);
+  return formatResults(compressed, warnings);
 }

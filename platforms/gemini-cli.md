@@ -8,6 +8,7 @@ Translates leanpowers' neutral actions into Gemini CLI tools.
 | --- | --- |
 | Dispatch a subagent at a tier with a template | `invoke_agent` with `agent_name` `lp-small`, `lp-medium` or `lp-large` and the template text as `prompt`. There is no model parameter, so one agent file exists per tier. The build writes `lp-small`, `lp-medium` and `lp-large` with `model: inherit`; `models.*` from `leanpowers.json` is not yet written into them. |
 | Resume a subagent with a message | leanpowers does not resume on Gemini; re-dispatch with the report file path. |
+| Wait for a subagent | `invoke_agent` returns the result when the agent finishes (unverified); wait for it and never end the turn before. |
 | Ask the user | Ask in chat. |
 | Track tasks | Use the built-in todo tool. |
 | Invoke a skill | Activate the skill by name via the skill mechanism. |

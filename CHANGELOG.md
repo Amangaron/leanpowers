@@ -4,13 +4,30 @@ All notable changes to leanpowers are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.1.2] - 2026-10-30
+
+### Added
+
+- `brief --reset-base`: re-anchor a task's base commit after plan corrections.
+- `init --agents-md`: `init` writes a leanpowers start-text block into `AGENTS.md` for Codex.
+- Plan format: golden-file steps.
+- Ledger lines for final minors, rulings and `## Notes`.
+- `extraSkillDirs` resolve `plugin:<name>` to the skills of other plugins on Claude Code, Codex and Gemini.
 
 ### Changed
 
+- Test files now approve new folders, and the brief lists the approved new folders.
+- Briefs name the spec and the sources; reviewers get `constraints.md`.
+- The orchestrator waits instead of stalling; the plan branch counts as a user instruction; approval comes before delegation.
+- After a plugin update, start a new session.
 - Docs: the maintainer confirmed by hand on macOS (2026-10-30) that the marketplace install works for
-  Claude Code and Codex. Whether Codex uses the skills in a session and the Gemini CLI package remain
-  unverified. Details in `docs/research/2026-10-29-verifikation.md`.
+  Claude Code and Codex. In the LIDO Code Studio pilot (2026-10-30) a Codex session loaded and followed
+  the leanpowers `start` and `design` skills. The Gemini CLI package remains unverified. Details in
+  `docs/research/2026-10-29-verifikation.md`.
+
+### Fixed
+
+- A missing `leanpowers.json` is now named in the error message.
 
 ## [0.1.1] - 2026-10-30
 

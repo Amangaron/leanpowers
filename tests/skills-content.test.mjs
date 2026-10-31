@@ -77,3 +77,22 @@ test('staff and run point at the shipped platform map', () => {
   const sentence = 'How to dispatch, model tiers and nesting on this platform: read `platform.md` in the plugin folder.';
   for (const rel of ['skills/staff/SKILL.md', 'skills/run/SKILL.md']) assert.ok(read(rel).includes(sentence), rel);
 });
+
+test('orchestration waits instead of stalling and approval comes before delegation', () => {
+  assert.ok(read('skills/start/SKILL.md').includes('before any code or subagent dispatch'), 'start');
+  assert.match(read('agents/orchestrator.md'), /turn ends only with a final reply whose first line is `Status: DONE` or `Status: NEEDS_USER`/);
+  assert.ok(read('skills/run/SKILL.md').includes('never end the turn'), 'run');
+});
+
+test('ledger formats cover final minors, final rulings and extra sections; run points at them', () => {
+  const ledger = read('skills/run/details/ledger.md');
+  assert.ok(ledger.includes('Final: minor (deferred)'), 'final minor line');
+  assert.ok(ledger.includes('Final: Ruling:'), 'final ruling line');
+  assert.ok(ledger.includes('## Notes'), 'extra sections');
+  assert.ok(read('skills/run/SKILL.md').includes('Final: minor (deferred)'), 'run End step 4');
+});
+
+test('readmes tell users to start a new session after a plugin update', () => {
+  for (const rel of ['README.md', 'docs/README.md']) assert.match(read(rel), /start a new session/, rel);
+  assert.match(read('docs/README.de.md'), /neue Sitzung/);
+});
