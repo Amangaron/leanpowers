@@ -34,11 +34,19 @@ codex plugin marketplace add Amangaron/leanpowers
 codex plugin add leanpowers@leanpowers-marketplace
 ```
 
-Gemini CLI (built from docs, unverified):
+Gemini CLI (install confirmed on macOS; use in a session unverified):
 
 ```
 gemini extensions install https://github.com/Amangaron/leanpowers --ref gemini-extension
 ```
+
+During the install Gemini asks three questions; answer yes to each:
+
+- whether to trust the current folder (any folder, including your home folder; yes adds it to
+  Gemini's trusted folders);
+- after a 404 for a GitHub release named `gemini-extension` (it is a branch, not a release),
+  whether to install via `git clone` instead; this is the intended path;
+- after a third-party-extension warning that lists the skills, whether to continue.
 
 The `gemini-extension` branch holds only the built extension and is regenerated per release with
 `node scripts/gemini-branch.mjs`. Or clone the repository and run
@@ -58,13 +66,14 @@ Confirmed:
 - Installing via the marketplace works on macOS for Claude Code (0.1.0, then updated to 0.1.1; in a
   session the skills and commands were listed and the SessionStart hook added its start text) and
   for Codex (the installed files match `dist/codex-plugin`).
+- Installing the Gemini CLI extension works on macOS (`gemini extensions list` shows leanpowers
+  0.1.3 with 12 skills).
 
 Not confirmed:
 
 - How models behave with the skills.
 - The token saving in practice. About 50 % less always-loaded text is calculated, not measured.
-- Whether Codex loads and uses the skills in a session.
-- The Gemini CLI package.
+- Whether Codex and Gemini CLI load and use the skills in a session.
 - On Windows, the Claude Code SessionStart hook (the tests do not exercise it).
 
 Verify it yourself:

@@ -82,8 +82,33 @@ Gemini CLI:
 
 - `@google/gemini-cli` 0.66.0 wurde über npm installiert; für die nativen Module war
   `--allow-scripts=@github/keytar,node-pty` nötig.
-- Anmeldung und `gemini extensions install … --ref gemini-extension` stehen noch aus; das Paket
-  bleibt ungeprüft.
+- Anmeldung und `gemini extensions install … --ref gemini-extension` standen an diesem Tag noch
+  aus; die Installation wurde am 2026-10-31 nachgeholt (nächster Abschnitt).
+
+## Gemini-CLI-Installation durch den Maintainer (2026-10-31)
+
+Von Hand unter macOS ausgeführt, ohne Prüfskript. Geprüft wurde die Installation der Erweiterung,
+nicht das Verhalten der Modelle.
+
+- `@google/gemini-cli` 0.66.0 über npm; die nativen Module wurden mit
+  `npm install -g --allow-scripts=@github/keytar,node-pty @google/gemini-cli` gebaut. Für die
+  Installation der Erweiterung war keine Anmeldung nötig.
+- `gemini extensions install https://github.com/Amangaron/leanpowers --ref gemini-extension` lief
+  einmal im Ordner des Repositorys und einmal im Home-Ordner. Gemini fragte
+  `The current workspace at … is not trusted. Do you want to trust this workspace to install extensions?`;
+  im Home-Ordner wurde mit `y` geantwortet.
+- Danach meldete Gemini
+  `Error downloading github release for https://github.com/Amangaron/leanpowers … Failed to fetch release data for Amangaron/leanpowers at tag gemini-extension: Request failed with status code 404.`
+  (`gemini-extension` ist ein Zweig, kein Release) und fragte
+  `Would you like to attempt to install via "git clone" instead?`; Antwort `y`.
+- Es folgte die Warnung zu Erweiterungen von Drittanbietern mit der Liste der 12 Skills; Antwort
+  `y`, dann `Extension "leanpowers" installed successfully and enabled.`
+- `gemini extensions list` zeigt `leanpowers (0.1.3)`, Pfad `~/.gemini/extensions/leanpowers`,
+  Quelle `https://github.com/Amangaron/leanpowers` (Type: git), Ref `gemini-extension`,
+  Enabled (User) `true`, Kontextdatei `GEMINI.md` und 12 Agent-Skills (write-skill, worktrees,
+  verify, tdd, start, staff, run, review, plan, finish, design, debug).
+- Nicht geprüft: ob Gemini die Skills, die Befehle und die Agenten `lp-small`, `lp-medium` und
+  `lp-large` in einer Sitzung lädt und benutzt (dafür wären Anmeldung und ein Modelllauf nötig).
 
 ## Was offen bleibt
 
@@ -97,4 +122,6 @@ Gemini CLI:
   Ausgabezeile `✔|✖ leanpowers check:` enthält (Skill-Text mit der Beispielzeile genügt nicht);
   mit `CODEX_MODEL=<kleines Modell>` lässt sich ein günstiges Modell wählen; die Entfernungs-
   hinweise erscheinen auch bei Fehlern.
-- Gemini CLI: vollständig ungeprüft.
+- Gemini CLI: Die Installation der Erweiterung ist bestätigt (siehe oben). Ob Gemini die Skills,
+  Befehle und Agenten in einer Sitzung lädt und benutzt, bleibt ungeprüft (dafür wären Anmeldung
+  und ein Modelllauf nötig).

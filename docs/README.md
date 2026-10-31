@@ -13,7 +13,7 @@ calculated, not measured).
 | --- | --- | --- |
 | Claude Code | `dist/claude-plugin` | built, marketplace install confirmed on macOS (skills, commands and start text seen in a session; invoking a command or skill not confirmed, see `docs/research/2026-10-29-verifikation.md`) |
 | Codex | `dist/codex-plugin` | built, marketplace install confirmed on macOS (installed files match `dist/codex-plugin`); use in a session unverified |
-| Gemini CLI | `dist/gemini-extension` | built from docs, unverified |
+| Gemini CLI | `dist/gemini-extension` | built, install confirmed on macOS (`gemini extensions list` shows 12 skills); use in a session unverified |
 
 Apart from these installs, nothing is marked verified yet. Statements that still need a real run
 are tagged `(unverified)` in `platforms/*.md`.
@@ -30,13 +30,14 @@ Confirmed:
 - Installing via the marketplace works on macOS for Claude Code (0.1.0, then updated to 0.1.1; in a
   session the skills and commands were listed and the SessionStart hook added its start text) and
   for Codex (the installed files match `dist/codex-plugin`).
+- Installing the Gemini CLI extension works on macOS (`gemini extensions list` shows leanpowers
+  0.1.3 with 12 skills).
 
 Not confirmed:
 
 - How models behave with the skills.
 - The token saving in practice. About 50 % less always-loaded text is calculated, not measured.
-- Whether Codex loads and uses the skills in a session.
-- The Gemini CLI package.
+- Whether Codex and Gemini CLI load and use the skills in a session.
 - On Windows, the Claude Code SessionStart hook (the tests do not exercise it).
 
 Verify it yourself:
@@ -78,11 +79,19 @@ Every skill that uses the CLI carries a line saying so in the Codex package.
 To verify the package yourself, run `bash scripts/verify-codex.sh`. It asks before it changes your
 Codex configuration (adds a local marketplace and the plugin) and prints how to remove it again.
 
-**Gemini CLI** (unverified)
+**Gemini CLI** (install confirmed on macOS; use in a session unverified)
 
 ```
 gemini extensions install https://github.com/Amangaron/leanpowers --ref gemini-extension
 ```
+
+During the install Gemini asks three questions; answer yes to each:
+
+- whether to trust the current folder (any folder, including your home folder; yes adds it to
+  Gemini's trusted folders);
+- after a 404 for a GitHub release named `gemini-extension` (it is a branch, not a release),
+  whether to install via `git clone` instead; this is the intended path;
+- after a third-party-extension warning that lists the skills, whether to continue.
 
 The `gemini-extension` branch contains only the built extension at its root (the repository root
 holds source skills Gemini would otherwise load). It is regenerated per release with
