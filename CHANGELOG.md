@@ -4,6 +4,12 @@ All notable changes to leanpowers are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.3] - 2026-10-31
+
+### Fixed
+
+- `init` now also allows the sibling extension of the same language family in each proposed folder rule (`*.ts` with `*.tsx`, `*.js` with `*.jsx`), so a fresh Next.js `app/` can hold `route.ts` and `actions.ts`.
+
 ## [0.1.2] - 2026-10-30
 
 ### Added
