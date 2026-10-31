@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { parseFrontmatter } from './skill-lint.mjs';
 import { loadConfig } from './lib/config.mjs';
 import { toPosix } from './lib/glob.mjs';
+import { resolveSkillDirs } from './lib/plugins.mjs';
 
 const PLUGIN_ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const NOT_SWITCHABLE = new Set(['start']);
@@ -25,11 +26,11 @@ function skillsIn(dir, source) {
 }
 
 /** Skill folders of the plugin and of `config.extraSkillDirs`, with their on/off switch, sorted by name. */
-export function listSkills(pluginRoot, root, config) {
+export function listSkills(pluginRoot, root, config, { home } = {}) {
   const found = new Map();
-  const dirs = [[path.join(pluginRoot, 'skills'), 'builtin'],
-    ...(config.extraSkillDirs ?? []).map((d) => [path.resolve(root, d), 'extra'])];
-  for (const [dir, source] of dirs) {
+  const dirs = [{ dir: path.join(pluginRoot, 'skills'), source: 'builtin' },
+    ...resolveSkillDirs(root, config.extraSkillDirs, { home }).dirs];
+  for (const { dir, source } of dirs) {
     for (const skill of skillsIn(dir, source)) if (!found.has(skill.name)) found.set(skill.name, skill);
   }
   return [...found.values()]
@@ -39,9 +40,10 @@ export function listSkills(pluginRoot, root, config) {
 
 /**
  * loadConfig plus lenient skill discovery: when a config file was rejected, its raw
- * `extraSkillDirs` still count so extra skills stay switchable. `errors` are warnings.
+ * `extraSkillDirs` still count so extra skills stay switchable. `errors` are warnings,
+ * including `plugin:<name>` entries that were not found.
  */
-export function loadSkillConfig(root) {
+export function loadSkillConfig(root, { home } = {}) {
   const { config, errors } = loadConfig(root);
   if (errors.length) {
     try {
@@ -50,7 +52,7 @@ export function loadSkillConfig(root) {
       config.extraSkillDirs = [...new Set([...(config.extraSkillDirs ?? []), ...dirs])];
     } catch { /* unreadable file: the loadConfig error already says so */ }
   }
-  return { config, errors };
+  return { config, errors: [...errors, ...resolveSkillDirs(root, config.extraSkillDirs, { home }).warnings] };
 }
 
 function readProjectConfig(file) {
