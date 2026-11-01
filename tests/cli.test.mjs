@@ -235,3 +235,26 @@ test('report without a ledger exits 1; without --plan it prints usage', () => {
   assert.equal(u.status, 2);
   assert.match(u.stderr, /^  report --plan <file>$/m);
 });
+
+test('brief and metrics warn on stderr when the plan is outside paths.plans', () => {
+  const root = project();
+  fs.mkdirSync(path.join(root, 'plans'));
+  fs.writeFileSync(path.join(root, 'plans/x.md'), PLAN);
+  const b = spawn(root, 'brief', '--plan', 'plans/x.md', '--task', '1');
+  assert.equal(b.status, 0);
+  assert.equal(b.stderr, 'warning: plan outside paths.plans (docs/plans): plans/x.md\n');
+  const m = spawn(root, 'metrics', '--plan', 'plans/x.md');
+  assert.equal(m.status, 0);
+  assert.equal(m.stderr, 'warning: plan outside paths.plans (docs/plans): plans/x.md\n');
+  assert.equal(spawn(root, 'brief', '--plan', 'docs/plans/demo.md', '--task', '1').stderr, '');
+});
+
+test('brief --file warns on stderr when the brief is outside paths.runs', () => {
+  const root = project();
+  fs.mkdirSync(path.join(root, 'notes'));
+  fs.writeFileSync(path.join(root, 'notes/task-1-brief.md'), '# Task 1 brief: A\n');
+  const r = spawn(root, 'brief', '--file', 'notes/task-1-brief.md');
+  assert.equal(r.status, 0);
+  assert.equal(r.stdout, 'notes/task-1-brief.md\n');
+  assert.equal(r.stderr, 'warning: brief outside paths.runs (.leanpowers/runs): notes/task-1-brief.md\n');
+});

@@ -10,7 +10,8 @@ import { checkStructure } from './structure.mjs';
 import { runGates } from './gates.mjs';
 import { lintDocs } from './doc-lint.mjs';
 import { lintSkills } from './skill-lint.mjs';
-import { runDirFor, parseBriefFile } from './brief.mjs';
+import { runDirFor, parseBriefFile, briefTaskNumber } from './brief.mjs';
+import { ownFolders, outsideWarning } from './lib/paths.mjs';
 
 /** Folders a task may create: parents of its Create and Test files, sorted, without the root. */
 export function approvedFoldersFor(files) {
@@ -53,6 +54,7 @@ function scopeAndStructure(root, config, { base, allowed, approvedFolders }) {
       newFolders: config.structure.newFolders,
       existingDirs: dirsAt(root, base),
       approvedFolders,
+      ownFolders: ownFolders(config),
     }),
   ];
 }
@@ -63,14 +65,18 @@ function briefChecks(root, config, briefPath) {
   const rel = toPosix(path.relative(root, abs));
   const fail = (msg) => [{ name: 'scope', ok: false, messages: [msg] }];
   if (!fs.existsSync(abs)) return fail(`brief not found: ${rel}`);
-  const m = /^task-(\d+)-brief\.md$/.exec(path.basename(abs));
-  if (!m) return fail('check --brief needs a task-<n>-brief.md');
+  const n = briefTaskNumber(abs);
+  if (n === null) return fail('check --brief needs a task-<n>-brief.md');
   // Never create the base here: a forgotten brief --file must stay red, not turn green.
-  const baseFile = path.join(path.dirname(abs), `task-${m[1]}-base.txt`);
+  const baseFile = path.join(path.dirname(abs), `task-${n}-base.txt`);
   if (!fs.existsSync(baseFile)) return fail(`no base for ${rel}, run: leanpowers brief --file ${rel}`);
   const base = fs.readFileSync(baseFile, 'utf8').trim();
   const { allowed, approvedFolders } = parseBriefFile(fs.readFileSync(abs, 'utf8'));
-  return scopeAndStructure(root, config, { base, allowed, approvedFolders });
+  // Name the fixed approval line: a brief that records the approval in other words is not recognised.
+  const hint = (msg) => msg.replace(/^new folder needs approval: (.*)$/,
+    (line, dir) => `${line} (if the user approved it, add \`Approved new folders: ${dir}\` to the brief)`);
+  return scopeAndStructure(root, config, { base, allowed, approvedFolders })
+    .map((r) => (r.name === 'structure' ? { ...r, messages: r.messages.map(hint) } : r));
 }
 
 /** Warning text when files differ from HEAD outside the run folder; null when clean or git is unusable. */
@@ -83,7 +89,7 @@ function uncommittedWarning(root, config) {
   }
   files = files.filter((f) => !matchesAny(f, [`${toPosix(config.paths.runs)}/**`]));
   if (files.length === 0) return null;
-  return `uncommitted changes: ${files.length} files (${files.slice(0, 3).join(', ')})`;
+  return `uncommitted changes: ${files.length} ${files.length === 1 ? 'file' : 'files'} (${files.slice(0, 3).join(', ')})`;
 }
 
 /**
@@ -103,6 +109,15 @@ export function runCheck({ root, plan, task, brief, all = false, userConfigPath 
     results.push({ name: 'scope', ok: false, messages: ['check needs both --plan and --task'] });
   }
   const warnings = [...errors];
+  // Only a usable input gets the location warning; a missing or misnamed file is already a failure.
+  const exists = (file) => fs.existsSync(path.resolve(root, file));
+  let outside = null;
+  if (brief !== undefined && plan === undefined && task === undefined) {
+    if (briefTaskNumber(brief) !== null && exists(brief)) outside = outsideWarning(root, config, brief, 'brief');
+  } else if (brief === undefined && plan !== undefined && task !== undefined && exists(plan)) {
+    outside = outsideWarning(root, config, plan, 'plan');
+  }
+  if (outside) warnings.push(outside);
   if (all) {
     const skills = lintSkills(root, config);
     results.push(lintDocs(root, config), skills);

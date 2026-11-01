@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { parsePlan } from '../checks/lib/plan.mjs';
-import { buildBrief, runDirFor, writeBrief, writeBaseFor, parseBriefFile } from '../checks/brief.mjs';
+import { buildBrief, runDirFor, writeBrief, writeBaseFor, parseBriefFile, briefTaskNumber, BRIEF_NAME_ERROR } from '../checks/brief.mjs';
 import { DEFAULTS } from '../checks/lib/defaults.mjs';
 import { cliCommand } from '../checks/start.mjs';
 
@@ -199,4 +199,12 @@ test('brief tells the implementer never to store the command in a shell variable
   const b = buildBrief(parsePlan(PLAN), 1, config, 'r', 'p.md');
   const whenDone = b.slice(b.indexOf('## When done'));
   assert.ok(whenDone.includes('(never stored in a shell variable)'), whenDone);
+});
+
+test('briefTaskNumber reads the task number from a brief file name', () => {
+  assert.equal(briefTaskNumber('r/task-12-brief.md'), 12);
+  assert.equal(briefTaskNumber(path.join(os.tmpdir(), 'task-1-brief.md')), 1);
+  assert.equal(briefTaskNumber('task-final-brief.md'), null);
+  assert.equal(briefTaskNumber('notes.md'), null);
+  assert.equal(BRIEF_NAME_ERROR, 'brief --file needs a task-<n>-brief.md');
 });

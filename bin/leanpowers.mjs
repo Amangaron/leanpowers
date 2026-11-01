@@ -5,7 +5,8 @@ import { fileURLToPath } from 'node:url';
 import { runCheck } from '../checks/check.mjs';
 import { loadConfig } from '../checks/lib/config.mjs';
 import { toPosix } from '../checks/lib/glob.mjs';
-import { writeBrief, writeBaseFor, runDirFor } from '../checks/brief.mjs';
+import { writeBrief, writeBaseFor, runDirFor, BRIEF_NAME_ERROR } from '../checks/brief.mjs';
+import { outsideWarning } from '../checks/lib/paths.mjs';
 import { writeMetrics } from '../checks/metrics.mjs';
 import { writeReport } from '../checks/report.mjs';
 import { startText, agentsMdText } from '../checks/start.mjs';
@@ -24,6 +25,12 @@ const USAGE = [
   '  skills [--list | --set <name>=on|off,... | --native claude|codex|gemini]',
   '  init [--write | --template <name> | --agents-md]',
 ].join('\n');
+
+/** Print a path warning to stderr; stdout and the exit code stay unchanged. */
+function warnOutside(config, file, kind) {
+  const warning = outsideWarning(root, config, file, kind);
+  if (warning) console.error(`warning: ${warning}`);
+}
 
 function usage() {
   console.error(USAGE);
@@ -90,10 +97,11 @@ switch (command) {
         console.log(toPosix(path.relative(root, writeBaseFor(root, file, { resetBase }))));
       } catch (err) {
         const msg = String(err.message);
-        if (!msg.startsWith('brief not found: ') && msg !== 'brief --file needs a task-<n>-brief.md') throw err;
+        if (!msg.startsWith('brief not found: ') && msg !== BRIEF_NAME_ERROR) throw err;
         console.error(msg);
         process.exit(1);
       }
+      warnOutside(loadConfig(root).config, file, 'brief');
       break;
     }
     if (!plan || task === undefined) usage();
@@ -105,6 +113,7 @@ switch (command) {
       console.error(err.message);
       process.exit(1);
     }
+    warnOutside(config, plan, 'plan');
     break;
   }
   case 'metrics': {
@@ -113,6 +122,7 @@ switch (command) {
     const { config } = loadConfig(root);
     const m = writeMetrics(runDirFor(root, config, plan));
     console.log(`metrics: ${m.briefs} briefs, ${m.reports} reports, ${m.reviews} reviews`);
+    warnOutside(config, plan, 'plan');
     break;
   }
   case 'report': {

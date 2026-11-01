@@ -151,3 +151,9 @@ test('scan adds sibling extensions of the same language family (ts/tsx, js/jsx)'
     { path: 'tools/**', allow: ['*.cjs', '*.mjs'] },
   ]);
 });
+
+test('proposeConfig writes the default paths explicitly, right after $schema', () => {
+  const c = proposeConfig(fs.mkdtempSync(path.join(os.tmpdir(), 'lp-init-paths-')));
+  assert.deepEqual(Object.keys(c), ['$schema', 'paths', 'commands', 'structure']);
+  assert.deepEqual(c.paths, { specs: 'docs/specs', plans: 'docs/plans', reports: 'docs/reports', runs: '.leanpowers/runs' });
+});

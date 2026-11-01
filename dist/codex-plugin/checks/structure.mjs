@@ -8,7 +8,7 @@ function ancestorDirs(file) {
 }
 
 /** Folder rules (allowed file types per path) and the new-folder policy. */
-export function checkStructure({ changed, rules, newFolders, existingDirs, approvedFolders = [] }) {
+export function checkStructure({ changed, rules, newFolders, existingDirs, approvedFolders = [], ownFolders = [] }) {
   const messages = [];
 
   for (const file of changed) {
@@ -27,6 +27,8 @@ export function checkStructure({ changed, rules, newFolders, existingDirs, appro
       for (const dir of ancestorDirs(file)) if (!existingDirs.has(dir)) fresh.add(dir);
     }
     for (const dir of [...fresh].sort()) {
+      // Configured own folders, their parents and their children are approved by the configuration.
+      if (ownFolders.some((o) => o === dir || o.startsWith(`${dir}/`) || dir.startsWith(`${o}/`))) continue;
       if (newFolders === 'deny') {
         messages.push(`new folder not allowed: ${dir}`);
       } else {

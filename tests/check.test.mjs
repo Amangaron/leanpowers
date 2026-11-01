@@ -263,7 +263,7 @@ test('--all warns about uncommitted files outside the run folder and stays ok', 
   fs.writeFileSync(path.join(root, 'x.txt'), 'x');
   const one = runCheck({ root, all: true, userConfigPath: NO_USER });
   assert.equal(one.ok, true);
-  assert.equal(one.text, '✔ leanpowers check: ok (gates:test, doc-lint, skill-lint)\n⚠ uncommitted changes: 1 files (x.txt)');
+  assert.equal(one.text, '✔ leanpowers check: ok (gates:test, doc-lint, skill-lint)\n⚠ uncommitted changes: 1 file (x.txt)');
   assert.equal(runCheck({ root, userConfigPath: NO_USER }).text, '✔ leanpowers check: ok (gates:test)');
 });
 
@@ -282,4 +282,49 @@ test('--all outside a git repository gives no uncommitted warning', () => {
   fs.writeFileSync(path.join(root, 'leanpowers.json'), JSON.stringify({ commands: { test: 'node ok.mjs' } }));
   assert.equal(runCheck({ root, all: true, userConfigPath: NO_USER }).text,
     '✔ leanpowers check: ok (gates:test, doc-lint, skill-lint)');
+});
+
+test('own folders created under a brief count as approved', () => {
+  const root = project({ commands: { test: 'node ok.mjs' } });
+  medium(root, { allowed: ['docs/specs/s.md'] });
+  writeBaseFor(root, BRIEF);
+  fs.mkdirSync(path.join(root, 'docs/specs'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'docs/specs/s.md'), '# S\n\n## A\n\n## B\n');
+  assert.equal(runCheck({ root, brief: BRIEF, userConfigPath: NO_USER }).text,
+    '✔ leanpowers check: ok (gates:test, scope, structure)');
+});
+
+test('an unapproved new folder under a brief names the approval line', () => {
+  const root = project({ commands: { test: 'node ok.mjs' } });
+  medium(root, { allowed: ['marke/a.ts'] });
+  writeBaseFor(root, BRIEF);
+  fs.mkdirSync(path.join(root, 'marke'));
+  fs.writeFileSync(path.join(root, 'marke/a.ts'), 'a');
+  assert.match(runCheck({ root, brief: BRIEF, userConfigPath: NO_USER }).text,
+    /^  new folder needs approval: marke \(if the user approved it, add `Approved new folders: marke` to the brief\)$/m);
+  const { config } = loadConfig(root, { userConfigPath: NO_USER });
+  writeBrief(root, 'docs/plans/demo.md', 1, config);
+  fs.mkdirSync(path.join(root, 'neu'));
+  fs.writeFileSync(path.join(root, 'neu/b.ts'), 'b');
+  assert.match(runCheck({ root, plan: 'docs/plans/demo.md', task: 1, userConfigPath: NO_USER }).text,
+    /^  new folder needs approval: neu$/m);
+});
+
+test('a plan or brief outside its configured folder gives a warning', () => {
+  const root = project({ commands: { test: 'node ok.mjs' } });
+  fs.mkdirSync(path.join(root, 'plans'));
+  fs.writeFileSync(path.join(root, 'plans/other.md'), PLAN);
+  execFileSync('git', ['add', '.'], { cwd: root });
+  execFileSync('git', ['commit', '-qm', 'plan'], { cwd: root });
+  const { config } = loadConfig(root, { userConfigPath: NO_USER });
+  writeBrief(root, 'plans/other.md', 1, config);
+  fs.writeFileSync(path.join(root, 'src/a.ts'), 'a');
+  assert.equal(runCheck({ root, plan: 'plans/other.md', task: 1, userConfigPath: NO_USER }).text,
+    '✔ leanpowers check: ok (gates:test, scope, structure)\n⚠ plan outside paths.plans (docs/plans): plans/other.md');
+  assert.doesNotMatch(runCheck({ root, plan: 'docs/plans/demo.md', task: 1, userConfigPath: NO_USER }).text, /outside/);
+  fs.mkdirSync(path.join(root, 'notes'));
+  fs.writeFileSync(path.join(root, 'notes/task-1-brief.md'), '# Task 1 brief: A\n\n## Allowed files\n\n- `src/a.ts`\n');
+  writeBaseFor(root, 'notes/task-1-brief.md');
+  assert.match(runCheck({ root, brief: 'notes/task-1-brief.md', userConfigPath: NO_USER }).text,
+    /\n⚠ brief outside paths\.runs \(\.leanpowers\/runs\): notes\/task-1-brief\.md$/);
 });

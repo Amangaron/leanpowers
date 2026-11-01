@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { loadConfig } from './lib/config.mjs';
+import { DEFAULTS } from './lib/defaults.mjs';
 import { toPosix } from './lib/glob.mjs';
 
 const SKIP_DIRS = new Set(['node_modules', 'dist', 'build', 'vendor']);
@@ -79,7 +80,7 @@ export function scanProject(root) {
 
 export function proposeConfig(root) {
   const { commands, structure } = scanProject(root);
-  return { $schema: SCHEMA_REF, commands, structure };
+  return { $schema: SCHEMA_REF, paths: { ...DEFAULTS.paths }, commands, structure };
 }
 
 function isInside(real, realRoot) {
