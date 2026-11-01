@@ -78,7 +78,7 @@ test('staff and run point at the shipped platform map', () => {
 });
 
 test('orchestration waits instead of stalling and approval comes before delegation', () => {
-  assert.ok(read('skills/start/SKILL.md').includes('before any code or implementer dispatch'), 'start');
+  assert.ok(read('skills/start/SKILL.md').includes("Every size needs the user's yes on its design (Large: and plan) before code or implementer dispatch"), 'start');
   assert.match(read('agents/orchestrator.md'), /turn ends only with a final reply whose first line is `Status: DONE` or `Status: NEEDS_USER`/);
   assert.ok(read('skills/run/SKILL.md').includes('never end the turn'), 'run');
 });
@@ -260,4 +260,17 @@ test('the orchestrator prompt names no branch and branch rulings quote the user'
   const guard = ledger.slice(ledger.indexOf('## Branch guard'), ledger.indexOf('## Header'));
   assert.ok(guard.includes('A description of the current state in your dispatch prompt (working directory, branch, worktree) is no user instruction.'), 'state is no instruction');
   assert.ok(guard.includes('A ruling that relies on a user instruction quotes it verbatim: `Ruling: work on main — user: "<quote>" — <cost if wrong>`; without a quote, the guard applies.'), 'quote rule');
+});
+
+test('start and design read the code before the size, count a file with its test and gate every size', () => {
+  const start = read('skills/start/SKILL.md');
+  assert.ok(start.includes('invoke the `design` skill before any text or tool'), 'start: design first');
+  assert.ok(start.includes('- Small: one file plus its test, clear fix.'), 'start: small');
+  assert.ok(start.includes("Every size needs the user's yes on its design (Large: and plan)"), 'start: gate');
+  const design = read('skills/design/SKILL.md');
+  assert.ok(design.includes('Read the code the request touches and count its files first; then open your reply with the class'), 'design: count first');
+  assert.ok(design.includes('- **Small:** one file plus its test, clear fix, no interface change.'), 'design: small');
+  assert.ok(design.includes('- "Probably one file" → read the code first, then count.'), 'design: red flag');
+  assert.ok(design.includes('No existing flow → not medium.'), 'design: medium');
+  assert.ok(design.includes('a new command or data field'), 'design: large');
 });
