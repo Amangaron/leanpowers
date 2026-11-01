@@ -14,7 +14,7 @@ const PLAN = `# Demo\n\n**Goal:** g\n\n**Spec:** \`docs/specs/s.md\`\n\n## Globa
 function project(config) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-check-'));
   const git = (...a) => execFileSync('git', a, { cwd: root, stdio: 'pipe' });
-  git('init', '-q'); git('config', 'user.email', 't@t'); git('config', 'user.name', 't'); git('config', 'commit.gpgsign', 'false'); git('config', 'core.autocrlf', 'false');
+  git('init', '-q', '-b', 'main'); git('config', 'user.email', 't@t'); git('config', 'user.name', 't'); git('config', 'commit.gpgsign', 'false'); git('config', 'core.autocrlf', 'false');
   fs.mkdirSync(path.join(root, 'docs/plans'), { recursive: true });
   fs.mkdirSync(path.join(root, 'src'));
   fs.writeFileSync(path.join(root, 'src/.keep'), '');
@@ -23,6 +23,7 @@ function project(config) {
   fs.writeFileSync(path.join(root, 'leanpowers.json'), JSON.stringify(config));
   fs.writeFileSync(path.join(root, '.gitignore'), '.leanpowers/\n');
   git('add', '.'); git('commit', '-qm', 'init');
+  git('checkout', '-q', '-b', 'feat/test');
   return root;
 }
 
@@ -333,4 +334,26 @@ test('a missing plan file outside paths.plans gives no outside warning', () => {
   const root = project({ commands: { test: 'node ok.mjs' } });
   const r = runCheck({ root, plan: 'plans/missing.md', task: 1, userConfigPath: NO_USER });
   assert.doesNotMatch(r.text, /⚠ plan outside/);
+});
+
+const BRANCH_WARNING = '⚠ on default branch main: leanpowers works on a feature branch (feat/<topic>) unless the user named this branch';
+
+test('the task and brief forms warn on the default branch, never on a feature branch or without a task or brief', () => {
+  const root = project({ commands: { test: 'node ok.mjs' } });
+  const git = (...a) => execFileSync('git', a, { cwd: root, stdio: 'pipe' });
+  medium(root);
+  writeBaseFor(root, BRIEF);
+  const { config } = loadConfig(root, { userConfigPath: NO_USER });
+  writeBrief(root, 'docs/plans/demo.md', 1, config);
+  fs.writeFileSync(path.join(root, 'src/a.ts'), 'a');
+  const ok = '✔ leanpowers check: ok (gates:test, scope, structure)';
+  assert.equal(runCheck({ root, plan: 'docs/plans/demo.md', task: 1, userConfigPath: NO_USER }).text, ok);
+  assert.equal(runCheck({ root, brief: BRIEF, userConfigPath: NO_USER }).text, ok);
+  git('checkout', '-q', 'main');
+  assert.equal(runCheck({ root, plan: 'docs/plans/demo.md', task: 1, userConfigPath: NO_USER }).text, `${ok}\n${BRANCH_WARNING}`);
+  assert.equal(runCheck({ root, brief: BRIEF, userConfigPath: NO_USER }).text, `${ok}\n${BRANCH_WARNING}`);
+  const all = runCheck({ root, all: true, userConfigPath: NO_USER });
+  assert.equal(all.ok, true);
+  assert.doesNotMatch(all.text, /default branch/);
+  assert.equal(runCheck({ root, userConfigPath: NO_USER }).text, '✔ leanpowers check: ok (gates:test)');
 });
