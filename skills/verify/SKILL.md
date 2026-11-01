@@ -10,8 +10,9 @@ If `skills.verify` is false in leanpowers.json, say "leanpowers: verify is disab
 
 ## Evidence
 
-- Run `leanpowers check`, which runs the configured gates (tests, doc-lint, skill-lint). It is the deterministic judge; your own confidence is not.
+- Run `leanpowers check`, which runs the configured gates (tests, typecheck, lint); `--all` adds doc-lint and skill-lint. It is the deterministic judge; your own confidence is not.
 - Inside a run, use the task form from the brief's "When done": `leanpowers check --plan <plan> --task <n>`. It adds scope and structure checks.
+- For a medium task, use `leanpowers check --brief <brief>`.
 - Before a branch is finished, run `leanpowers check --all`.
 - A task that changes behavior also needs its test run directly, to see the specific RED and GREEN lines.
 

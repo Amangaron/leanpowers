@@ -61,3 +61,13 @@ test('start text tells how to run the CLI unless it is on PATH', () => {
     if (saved !== undefined) process.env.LEANPOWERS_CLI = saved;
   }
 });
+
+test('start text names the size marker, the plan gate for large and finish for medium', () => {
+  const t = startText(repo, DEFAULTS, 'leanpowers');
+  assert.ok(t.includes('leanpowers workflow by size (unclear → larger), named first as `Size: small|medium|large`:'));
+  assert.ok(t.includes('Large plan approval before any code or subagent dispatch'));
+  assert.match(t, /^- Medium \(bounded change in existing code\): `design` in chat, one subagent, `leanpowers check`, `finish`\.$/m);
+  assert.match(t, /^- Large \(new feature or project, several areas, interfaces\): `design` \(spec\), `plan`, `staff`, `run`, `finish`\.$/m);
+  assert.doesNotMatch(t, /explicit requests/);
+  assert.ok(estimateTokens(t) <= 150);
+});

@@ -7,6 +7,7 @@ import { packageMeta } from './meta.mjs';
 // (unverified) whether Gemini CLI substitutes ${extensionPath} in context files and command prompts.
 const CLI = 'node "${extensionPath}/bin/leanpowers.mjs"';
 const FALLBACK = 'if `${extensionPath}` is not expanded, the extension folder is the one containing gemini-extension.json';
+const CONTEXT_FALLBACK = 'unexpanded: the folder holding gemini-extension.json';
 
 const DESCRIPTIONS = {
   design: 'Turn an idea into an approved design before any code',
@@ -61,7 +62,7 @@ export function buildGemini(repoRoot, outDir) {
     description: meta.description,
     contextFileName: 'GEMINI.md',
   }, null, 2)}\n`);
-  emit('GEMINI.md', `${startText(repoRoot, DEFAULTS, `${CLI} (${FALLBACK})`)}\n`);
+  emit('GEMINI.md', `${startText(repoRoot, DEFAULTS, `${CLI} (${CONTEXT_FALLBACK})`)}\n`);
   for (const cmd of COMMANDS) emit(`commands/leanpowers/${cmd}.toml`, commandToml(cmd));
   for (const tier of TIERS) emit(`agents/lp-${tier}.md`, tierAgent(tier));
   return written.sort();

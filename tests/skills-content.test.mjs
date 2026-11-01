@@ -68,8 +68,7 @@ test('subagents without a generated brief get the resolved CLI', () => {
   const orchestrator = read('agents/orchestrator.md');
   assert.match(orchestrator, /run every `leanpowers` command as `\{\{cli\}\}`/);
   assert.match(read('skills/staff/SKILL.md'), /`\{\{cli\}\}` the command from the `CLI:` line/);
-  const design = read('skills/design/SKILL.md');
-  assert.match(design, /`## When done`: run the `check` command as the `CLI:` line names it/);
+  assert.match(read('skills/design/details/medium.md'), /`## When done`: run the `check` command as the `CLI:` line names it/);
   assert.match(read('skills/run/details/loops.md'), /inside an orchestrator, run `leanpowers brief`, `check` and `metrics` as `\{\{cli\}\}`/);
 });
 
@@ -95,4 +94,27 @@ test('ledger formats cover final minors, final rulings and extra sections; run p
 test('readmes tell users to start a new session after a plugin update', () => {
   for (const rel of ['README.md', 'docs/README.md']) assert.match(read(rel), /start a new session/, rel);
   assert.match(read('docs/README.de.md'), /neue Sitzung/);
+});
+
+test('design names the size marker, the plan gate and the medium brief check', () => {
+  const design = read('skills/design/SKILL.md');
+  assert.ok(design.includes('open your reply with the class in this exact form, in any language'), 'marker rule');
+  assert.ok(design.includes('"Size: medium —'), 'marker example');
+  assert.ok(design.includes('   This yes opens the spec, not the code: no implementer before an approved plan.'), 'step 4');
+  assert.ok(design.includes('- "Design approved, one implementer will do" → that is medium; large needs spec and plan.'), 'red flag');
+  assert.ok(design.includes('write the brief as [details/medium.md](details/medium.md) says and run `leanpowers brief --file <brief>`'), 'medium brief');
+  assert.ok(design.includes('run `leanpowers check --brief <brief>` yourself, then invoke the `finish` skill. No spec, no plan.'), 'check --brief and finish');
+  const medium = read('skills/design/details/medium.md');
+  assert.ok(medium.startsWith('# Medium brief\n'), 'title');
+  assert.ok(medium.includes('in the form `<cli> check --brief <brief path>`'), 'check form');
+  assert.ok(medium.includes('never store\n  it in a shell variable'), 'shell variable');
+  assert.ok(medium.includes('Commit with `<type>: <topic>`, one commit.'), 'commit');
+  assert.ok(medium.includes('list those folders\n  as `Approved new folders: <folders>`.'), 'approved folders');
+  assert.ok(medium.includes('Then run `leanpowers brief --file <brief path>`'), 'base');
+});
+
+test('verify names what check and check --all run, and the medium check', () => {
+  const verify = read('skills/verify/SKILL.md');
+  assert.ok(verify.includes('which runs the configured gates (tests, typecheck, lint); `--all` adds doc-lint and skill-lint.'));
+  assert.ok(verify.includes('- For a medium task, use `leanpowers check --brief <brief>`.'));
 });
