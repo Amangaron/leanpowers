@@ -201,22 +201,26 @@ test('every role writes shell commands and paths out', () => {
   assert.ok(read('platforms/codex-cli.md').includes('never pick a model name from a catalog or a model list'), 'codex model');
 });
 
-test('readmes name the report command, staffing with the plan, the branch warning and version 0.1.6', () => {
+test('readmes name the report command, staffing with the plan, the branch warning, design first and version 0.1.7', () => {
   const flat = (s) => s.replace(/\s+/g, ' ');
   const en = flat(read('docs/README.md'));
   assert.ok(en.includes('| `report --plan <file>` |'), 'en report');
-  assert.ok(en.includes('Version 0.1.6.'), 'en version');
+  assert.ok(en.includes('Version 0.1.7.'), 'en version');
   assert.ok(en.includes('`plan` asks you to approve the plan and the staffing in one message.'), 'en staffing');
   assert.ok(en.includes('`design` (before the spec commit) and the medium path create `feat/<topic>`'), 'en branch');
   assert.ok(en.includes('warn when HEAD is on the default branch; the warning changes neither the result nor the exit code.'), 'en warning');
+  assert.ok(en.includes('Every change request starts in `design`, before any text or tool: it reads the code first and then names the size'), 'en design first');
+  assert.ok(en.includes('Small means one file plus its test. Every size needs your yes on its design before code or an implementer dispatch'), 'en every size');
   const de = flat(read('docs/README.de.md'));
   assert.ok(de.includes('| `report --plan <Datei>` |'), 'de report');
-  assert.ok(de.includes('Version 0.1.6.'), 'de version');
+  assert.ok(de.includes('Version 0.1.7.'), 'de version');
   assert.ok(de.includes('`plan` fragt die Freigabe von Plan und Besetzung in einer Nachricht ab.'), 'de staffing');
   assert.ok(de.includes('legen `design` (vor dem Spec-Commit) und der mittlere Weg `feat/<topic>` an'), 'de branch');
   assert.ok(de.includes('warnen, wenn HEAD auf dem Standard-Branch steht; die Warnung ändert weder das Ergebnis noch den Exit-Code.'), 'de warning');
-  assert.ok(read('README.md').includes('Current version: 0.1.6.'), 'root readme');
-  assert.match(read('CHANGELOG.md'), /^## \[0\.1\.6\] - 2026-11-01$/m);
+  assert.ok(de.includes('Jeder Änderungsauftrag beginnt in `design`, vor jedem Text und jedem Tool: Der Skill liest zuerst den Code und nennt dann die Größe'), 'de design first');
+  assert.ok(de.includes('Klein heißt: eine Datei plus ihr Test. Jede Größe braucht Ihr Ja zum Design, bevor Code entsteht oder ein Implementierer startet'), 'de every size');
+  assert.ok(read('README.md').includes('Current version: 0.1.7.'), 'root readme');
+  assert.match(read('CHANGELOG.md'), /^## \[0\.1\.7\] - 2026-11-01$/m);
 });
 
 test('design calls a new command large, stops on unreadable files and branches before the spec commit', () => {

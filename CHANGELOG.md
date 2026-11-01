@@ -4,6 +4,16 @@ All notable changes to leanpowers are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.7] - 2026-11-01
+
+These changes follow from a test run of 0.1.6 in a test project.
+
+### Changed
+
+- The start text invokes `design` before any text or tool; `design` opens with the `Size:` marker only after reading the code and counting its files, and a new red flag says to read the code before calling a request one file.
+- The start text says that every size needs the user's yes on its design (large: also on the plan) before code or implementer dispatch, delegation rules included.
+- Small means one file plus its test, in the start text and in `design`.
+
 ## [0.1.6] - 2026-11-01
 
 These changes follow from a test run of 0.1.5 in a test project.
