@@ -31,7 +31,7 @@ test('brief contains only what the implementer needs', () => {
 
 test('brief names the plan path in the check command', () => {
   const b = buildBrief(parsePlan(PLAN), 1, config, 'r', 'docs/plans/demo.md');
-  assert.match(b, /Run `(node ".*\/bin\/leanpowers\.mjs"|[^`]+) check --plan docs\/plans\/demo\.md --task 1`\./);
+  assert.match(b, /Run `(node ".*\/bin\/leanpowers\.mjs"|[^`]+) check --plan docs\/plans\/demo\.md --task 1`, written out in every call \(never stored in a shell variable\)\. Write your report/);
   const d = buildBrief(parsePlan(PLAN), 1, config, 'r');
   assert.match(d, /--plan the plan --task 1/);
 });
@@ -95,7 +95,7 @@ test('writeBrief keeps an existing base sha when re-run', () => {
 
 test('brief names exactly the resolvable CLI command', () => {
   const b = buildBrief(parsePlan(PLAN), 1, config, '.leanpowers/runs/demo', 'docs/plans/demo.md');
-  assert.ok(b.includes(`Run \`${cliCommand()} check --plan docs/plans/demo.md --task 1\``));
+  assert.ok(b.includes(`Run \`${cliCommand()} check --plan docs/plans/demo.md --task 1\`, written out in every call`));
   assert.doesNotMatch(b, /Run `leanpowers check/);
 });
 
@@ -193,4 +193,10 @@ test('parseBriefFile reads allowed files and approved folders', () => {
     allowed: ['src/components/Button.tsx', 'tests/button.test.ts'],
     approvedFolders: ['src/components', 'tests'],
   });
+});
+
+test('brief tells the implementer never to store the command in a shell variable', () => {
+  const b = buildBrief(parsePlan(PLAN), 1, config, 'r', 'p.md');
+  const whenDone = b.slice(b.indexOf('## When done'));
+  assert.ok(whenDone.includes('(never stored in a shell variable)'), whenDone);
 });

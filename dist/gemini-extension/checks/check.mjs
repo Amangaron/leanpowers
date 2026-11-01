@@ -4,7 +4,7 @@ import { loadConfig } from './lib/config.mjs';
 import { compress, formatResults } from './lib/output.mjs';
 import { parsePlan } from './lib/plan.mjs';
 import { changedFiles, dirsAt } from './lib/git.mjs';
-import { toPosix } from './lib/glob.mjs';
+import { toPosix, matchesAny } from './lib/glob.mjs';
 import { checkScope } from './scope.mjs';
 import { checkStructure } from './structure.mjs';
 import { runGates } from './gates.mjs';
@@ -73,6 +73,19 @@ function briefChecks(root, config, briefPath) {
   return scopeAndStructure(root, config, { base, allowed, approvedFolders });
 }
 
+/** Warning text when files differ from HEAD outside the run folder; null when clean or git is unusable. */
+function uncommittedWarning(root, config) {
+  let files;
+  try {
+    files = changedFiles(root, 'HEAD');
+  } catch {
+    return null;
+  }
+  files = files.filter((f) => !matchesAny(f, [`${toPosix(config.paths.runs)}/**`]));
+  if (files.length === 0) return null;
+  return `uncommitted changes: ${files.length} files (${files.slice(0, 3).join(', ')})`;
+}
+
 /**
  * Run all configured checks and format them token-lean.
  * Scope and structure come from either a plan task (plan + task) or a hand-written brief (brief), never both.
@@ -94,6 +107,8 @@ export function runCheck({ root, plan, task, brief, all = false, userConfigPath 
     const skills = lintSkills(root, config);
     results.push(lintDocs(root, config), skills);
     warnings.push(...(skills.warnings ?? []));
+    const uncommitted = uncommittedWarning(root, config);
+    if (uncommitted) warnings.push(uncommitted);
   }
   // Gate results are already compressed by runGates.
   const compressed = results.map((r) => (r.name.startsWith('gates:') ? r : { ...r, messages: compress(r.messages, 20) }));

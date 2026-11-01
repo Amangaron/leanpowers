@@ -44,7 +44,7 @@ export function buildBrief(plan, n, config, runDirRel, planRel = 'the plan', exi
       : []),
     `## Structure rules\n\n${structure}`,
     `## Task\n\n${body}`,
-    `## When done\n\nRun \`${cliCommand()} check --plan ${planRel} --task ${n}\`. Write your report (max 150 words) to \`${reportPath}\`: what changed, test result, open questions.`,
+    `## When done\n\nRun \`${cliCommand()} check --plan ${planRel} --task ${n}\`, written out in every call (never stored in a shell variable). Write your report (max 150 words) to \`${reportPath}\`: what changed, test result, open questions.`,
   ].join('\n\n') + '\n';
 }
 

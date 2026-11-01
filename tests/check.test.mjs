@@ -253,3 +253,33 @@ test('brief mode excludes the plan form and combines with --all', () => {
   assert.equal(runCheck({ root, brief: BRIEF, all: true, userConfigPath: NO_USER }).text,
     '✔ leanpowers check: ok (gates:test, scope, structure, doc-lint, skill-lint)');
 });
+
+test('--all warns about uncommitted files outside the run folder and stays ok', () => {
+  const root = project({ commands: { test: 'node ok.mjs' }, paths: { runs: 'runs' } });
+  fs.mkdirSync(path.join(root, 'runs/demo'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'runs/demo/progress.md'), 'p');
+  assert.equal(runCheck({ root, all: true, userConfigPath: NO_USER }).text,
+    '✔ leanpowers check: ok (gates:test, doc-lint, skill-lint)');
+  fs.writeFileSync(path.join(root, 'x.txt'), 'x');
+  const one = runCheck({ root, all: true, userConfigPath: NO_USER });
+  assert.equal(one.ok, true);
+  assert.equal(one.text, '✔ leanpowers check: ok (gates:test, doc-lint, skill-lint)\n⚠ uncommitted changes: 1 files (x.txt)');
+  assert.equal(runCheck({ root, userConfigPath: NO_USER }).text, '✔ leanpowers check: ok (gates:test)');
+});
+
+test('the uncommitted warning names at most three paths and counts modified files', () => {
+  const root = project({ commands: { test: 'node ok.mjs' } });
+  for (const f of ['a.txt', 'b.txt', 'c.txt']) fs.writeFileSync(path.join(root, f), f);
+  fs.writeFileSync(path.join(root, 'src/.keep'), 'changed');
+  const r = runCheck({ root, all: true, userConfigPath: NO_USER });
+  assert.equal(r.ok, true);
+  assert.match(r.text, /\n⚠ uncommitted changes: 4 files \(a\.txt, b\.txt, c\.txt\)$/);
+});
+
+test('--all outside a git repository gives no uncommitted warning', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-nogit-'));
+  fs.writeFileSync(path.join(root, 'ok.mjs'), 'process.exit(0)');
+  fs.writeFileSync(path.join(root, 'leanpowers.json'), JSON.stringify({ commands: { test: 'node ok.mjs' } }));
+  assert.equal(runCheck({ root, all: true, userConfigPath: NO_USER }).text,
+    '✔ leanpowers check: ok (gates:test, doc-lint, skill-lint)');
+});
