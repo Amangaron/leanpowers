@@ -117,6 +117,10 @@ Ort der Regel im Text: `design` Schritt 5 (Spec), `plan` Schritt 7 (Plan), `staf
 - **Struktur-Check:** `checkStructure` bekommt `ownFolders` (die vier Pfade, posix, ohne `./` und Schrägstrich am
   Ende). Ein Ordner, der einer davon ist oder ein Elternordner davon, wird nie als neuer Ordner gemeldet – bei `ask`
   und bei `deny`. Unterordner eigener Pfade (`.leanpowers/runs/<plan>`) zählen ebenfalls als eigen.
+- **Hinweis zur Freigabezeile** (Nachtrag vor dem Lauf, vom Nutzer freigegeben; Befund aus einem echten mittleren
+  Lauf: Ein Brief hielt die Ordnerfreigabe in eigenen Worten fest, `check --brief` erkennt nur die feste Zeile): In
+  der Brief-Form endet `new folder needs approval: <dir>` mit `` (if the user approved it, add `Approved new folders:
+  <dir>` to the brief)``. Die Plan-Form bleibt unverändert.
 - **Warnungen** (scheitern nie, Text `plan outside paths.plans (<paths.plans>): <pfad>` bzw. `brief outside
   paths.runs (<paths.runs>): <pfad>`):
   - `check --plan … --task …` und `check --brief …`: in der Warnungsliste von `formatResults`;

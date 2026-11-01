@@ -212,6 +212,7 @@ test('report without a ledger exits 1; without --plan it prints usage', () => {
   - `scopeAndStructure` passes `ownFolders: ownFolders(config)` to `checkStructure`.
   - `runCheck`: when the plan form runs (`plan` and `task` set, no `brief`), push `outsideWarning(root, config, plan, 'plan')` into the warnings if not null; when the brief form runs, push `outsideWarning(root, config, brief, 'brief')`. These warnings come after the config errors and before the `--all` warnings.
   - `briefChecks` uses `briefTaskNumber` from `brief.mjs` (its message `check --brief needs a task-<n>-brief.md` stays).
+  - `briefChecks` only (never the plan form): every structure message `new folder needs approval: <dir>` gets the suffix `` (if the user approved it, add `Approved new folders: <dir>` to the brief)``; other messages unchanged.
   - `uncommittedWarning`: `` `uncommitted changes: ${n} ${n === 1 ? 'file' : 'files'} (…)` ``.
 - Produces in `checks/brief.mjs`: `export const BRIEF_NAME_ERROR = 'brief --file needs a task-<n>-brief.md';` and `export function briefTaskNumber(file: string): number | null` (basename matches `/^task-(\d+)-brief\.md$/` → `Number(m[1])`, else `null`). `writeBaseFor` uses both instead of its own regex and string.
 - Produces in `checks/init.mjs`: `proposeConfig(root)` returns `{ $schema, paths: { ...DEFAULTS.paths }, commands, structure }` in this key order (import `DEFAULTS` from `./lib/defaults.mjs`).
@@ -278,6 +279,22 @@ test('own folders created under a brief count as approved', () => {
   fs.writeFileSync(path.join(root, 'docs/specs/s.md'), '# S\n\n## A\n\n## B\n');
   assert.equal(runCheck({ root, brief: BRIEF, userConfigPath: NO_USER }).text,
     '✔ leanpowers check: ok (gates:test, scope, structure)');
+});
+
+test('an unapproved new folder under a brief names the approval line', () => {
+  const root = project({ commands: { test: 'node ok.mjs' } });
+  medium(root, { allowed: ['marke/a.ts'] });
+  writeBaseFor(root, BRIEF);
+  fs.mkdirSync(path.join(root, 'marke'));
+  fs.writeFileSync(path.join(root, 'marke/a.ts'), 'a');
+  assert.match(runCheck({ root, brief: BRIEF, userConfigPath: NO_USER }).text,
+    /^  new folder needs approval: marke \(if the user approved it, add `Approved new folders: marke` to the brief\)$/m);
+  const { config } = loadConfig(root, { userConfigPath: NO_USER });
+  writeBrief(root, 'docs/plans/demo.md', 1, config);
+  fs.mkdirSync(path.join(root, 'neu'));
+  fs.writeFileSync(path.join(root, 'neu/b.ts'), 'b');
+  assert.match(runCheck({ root, plan: 'docs/plans/demo.md', task: 1, userConfigPath: NO_USER }).text,
+    /^  new folder needs approval: neu$/m);
 });
 
 test('a plan or brief outside its configured folder gives a warning', () => {
