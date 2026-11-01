@@ -8,7 +8,7 @@ Translates leanpowers' neutral actions into OpenAI Codex tools.
 | --- | --- |
 | Dispatch a subagent at a tier with a template | `spawn_agent` with `task_name`, `message` (the template text), `model`, `reasoning_effort` and `fork_turns: "none"` (unverified value). |
 | Resume a subagent with a message | `send_message` or `followup_task` (unverified) to the existing agent. |
-| Wait for a subagent | Wait for the agent's result before continuing; how a resumed agent reports back is (unverified). Never poll or end the turn while it works. |
+| Wait for a subagent | Wait for the agent's result before continuing; how a resumed agent reports back is (unverified). Never poll or end the turn while it works. Never dispatch a second agent for a task while the first may still be working. |
 | Ask the user | Ask in chat. |
 | Track tasks | Use the built-in plan tool. |
 | Invoke a skill | `$leanpowers-<name>`; plugins have no real slash commands. |

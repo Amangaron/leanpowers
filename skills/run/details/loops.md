@@ -4,9 +4,9 @@ Both loops are capped at `review.maxFixRounds` and counted separately: gate retr
 
 ## Dispatches and the CLI
 
-- Dispatch every subagent in the foreground and wait for its result. A subagent resumed by a message reports back with its own notification: wait for it. Never poll, and never end the turn while one of your subagents works.
+- Dispatch every subagent in the foreground and wait for its result. A subagent resumed by a message reports back with its own notification: wait for it. Never poll, and never end the turn while one of your subagents works. Never dispatch a second implementer for a task while the first may still be working.
 - With a worktree, every dispatch names its root as working directory, and every `leanpowers` call runs there.
-- The plugin's CLI may not be on PATH: inside an orchestrator, run `leanpowers brief`, `check` and `metrics` as `{{cli}}`; in the session, as the `CLI:` line names it. Briefs and dispatch texts you write by hand (final fix wave, substitute gate) name the command the same way, with absolute paths. Briefs from `leanpowers brief` already do.
+- The plugin's CLI may not be on PATH: inside an orchestrator, run `leanpowers brief`, `check` and `metrics` as `{{cli}}`; in the session, as the `CLI:` line names it. Briefs and dispatch texts you write by hand (final fix wave, substitute gate) name the command the same way, with absolute paths. Briefs from `leanpowers brief` already do. Write the command out in every call; never store it in a shell variable (`S="node …"; $S` fails in zsh, which does not split words).
 
 ## Gate
 

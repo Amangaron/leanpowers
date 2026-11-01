@@ -118,3 +118,28 @@ test('verify names what check and check --all run, and the medium check', () => 
   assert.ok(verify.includes('which runs the configured gates (tests, typecheck, lint); `--all` adds doc-lint and skill-lint.'));
   assert.ok(verify.includes('- For a medium task, use `leanpowers check --brief <brief>`.'));
 });
+
+test('orchestrator turn rule, resume before re-dispatch, one implementer per task', () => {
+  const orchestrator = read('agents/orchestrator.md');
+  const turn = orchestrator.indexOf('## Turn rule');
+  assert.ok(turn > 0 && turn < orchestrator.indexOf('## Inputs'), 'turn rule before inputs');
+  assert.ok(orchestrator.includes('Dispatch every implementer and reviewer in the foreground, never in the background.'), 'foreground');
+  assert.ok(orchestrator.includes('Never dispatch a second implementer for a task while the first may still be working.'), 'second implementer');
+  assert.ok(orchestrator.includes('- CLI: run every `leanpowers` command as `{{cli}}`, written out, never from a shell variable.'), 'cli line');
+  assert.ok(orchestrator.includes('4. Stop only for the four reasons in `run`. Write `Stop: <question>` to the ledger, then return:'), 'stop reasons');
+  assert.ok(!orchestrator.includes('- Wait for every subagent in the foreground'), 'old hard rule removed');
+  const staff = read('skills/staff/SKILL.md');
+  assert.ok(staff.includes('Add the "Wait for a subagent" line of `platform.md` to its prompt verbatim.'), 'platform line');
+  assert.ok(staff.includes('resume the same orchestrator once'), 'resume once');
+  assert.ok(staff.includes('Only if it cannot be resumed or ends with neither again, dispatch a fresh one with the same inputs'), 'fresh only after');
+  assert.ok(read('platforms/claude-code.md').includes('Dispatch in the foreground: never set `run_in_background`.'), 'claude');
+  for (const p of ['codex-cli', 'gemini-cli']) {
+    assert.ok(read(`platforms/${p}.md`).includes('Never dispatch a second agent for a task while the first may still be working.'), p);
+  }
+  const ledger = read('skills/run/details/ledger.md');
+  assert.ok(ledger.includes('`Task <n>: implementer dispatched (<agent name or id>)`'), 'ledger line');
+  assert.ok(ledger.includes('if a dispatched line names an implementer, resume that one; re-dispatch only when it cannot be resumed.'), 'resume rule');
+  const loops = read('skills/run/details/loops.md');
+  assert.ok(loops.includes('Never poll, and never end the turn while one of your subagents works. Never dispatch a second implementer for a task while the first may still be working.'), 'loops dispatch');
+  assert.ok(loops.includes('never store it in a shell variable (`S="node …"; $S` fails in zsh, which does not split words).'), 'loops zsh');
+});
