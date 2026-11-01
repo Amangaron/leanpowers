@@ -20,7 +20,7 @@ einen echten Lauf brauchen, stehen in `platforms/*.md` mit dem Zusatz `(unverifi
 
 ## Stand / Selbst prüfen
 
-Version 0.1.6. Die Autoren haben keine kostenpflichtigen Testläufe gemacht (bewusste
+Version 0.1.7. Die Autoren haben keine kostenpflichtigen Testläufe gemacht (bewusste
 Entscheidung, siehe Entwurf, Abschnitt 16). So ist der Stand:
 
 Bestätigt:
@@ -150,6 +150,12 @@ auf einem Feature-Branch: Steht HEAD auf dem Standard-Branch, legen `design` (vo
 und der mittlere Weg `feat/<topic>` an, außer Sie haben selbst einen Branch genannt. `brief` und
 der Task-Check (`check --plan`, `check --brief`) warnen, wenn HEAD auf dem Standard-Branch steht;
 die Warnung ändert weder das Ergebnis noch den Exit-Code.
+
+Jeder Änderungsauftrag beginnt in `design`, vor jedem Text und jedem Tool: Der Skill liest zuerst
+den Code und nennt dann die Größe (`Size: small|medium|large`). Klein heißt: eine Datei plus ihr
+Test. Jede Größe braucht Ihr Ja zum Design, bevor Code entsteht oder ein Implementierer startet,
+auch wenn Delegationsregeln etwas anderes sagen; groß braucht zusätzlich Ihr Ja zum Plan. Nur
+„implement directly“ für diese Aufgabe überspringt das.
 
 ## Skills umschalten: `leanpowers skills`
 

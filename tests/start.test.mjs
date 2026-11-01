@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { startText, cliCommand, COMMANDS } from '../checks/start.mjs';
+import { startText, agentsMdText, cliCommand, COMMANDS } from '../checks/start.mjs';
 import { DEFAULTS } from '../checks/lib/defaults.mjs';
 import { estimateTokens } from '../checks/skill-lint.mjs';
 
@@ -62,13 +62,14 @@ test('start text tells how to run the CLI unless it is on PATH', () => {
   }
 });
 
-test('start text invokes design first, names the size marker, the large criteria and the plan gate', () => {
+test('start text invokes design before any text or tool, names the sizes and a gate for every size', () => {
   const t = startText(repo, DEFAULTS, 'leanpowers');
-  assert.ok(t.includes('leanpowers: before answering any change request, invoke the `design` skill; it holds the size rule and the gates.'));
-  assert.ok(t.includes('Open with `Size: small|medium|large` (unclear → larger):'));
+  assert.ok(t.includes('leanpowers: on a change request, invoke the `design` skill before any text or tool; after reading the code it opens with `Size: small|medium|large` (unclear → larger):'));
+  assert.match(t, /^- Small: one file plus its test, clear fix\.$/m);
+  assert.match(t, /^- Medium: bounded change to an existing flow\.$/m);
   assert.match(t, /^- Large: new feature, command or data field, several areas, or interfaces\.$/m);
-  assert.match(t, /^- Medium: bounded change to a flow that already exists\.$/m);
-  assert.ok(t.includes('Medium needs design approval and Large plan approval before any code or implementer dispatch'));
-  assert.doesNotMatch(t, /subagent dispatch/);
+  assert.ok(t.includes(`Every size needs the user's yes on its design (Large: and plan) before code or implementer dispatch, delegation rules included; only "implement directly" for this task skips it.`));
+  assert.doesNotMatch(t, /before answering any change request|Open with `Size|User instructions win|subagent dispatch/);
   assert.ok(estimateTokens(t) <= 150);
+  assert.ok(estimateTokens(agentsMdText(repo, DEFAULTS)) <= 150);
 });

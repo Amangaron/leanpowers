@@ -20,7 +20,7 @@ are tagged `(unverified)` in `platforms/*.md`.
 
 ## Status / Verify it yourself
 
-Version 0.1.6. The authors made no paid test runs (a deliberate decision, see the design spec,
+Version 0.1.7. The authors made no paid test runs (a deliberate decision, see the design spec,
 section 16); this is what is and is not confirmed.
 
 Confirmed:
@@ -142,6 +142,11 @@ feature branch: on the default branch, `design` (before the spec commit) and the
 `feat/<topic>`, unless you named a branch yourself. `brief` and the task check (`check --plan`,
 `check --brief`) warn when HEAD is on the default branch; the warning changes neither the result
 nor the exit code.
+
+Every change request starts in `design`, before any text or tool: it reads the code first and then
+names the size (`Size: small|medium|large`). Small means one file plus its test. Every size needs
+your yes on its design before code or an implementer dispatch, also when delegation rules say
+otherwise; large also needs your yes on the plan. Only "implement directly" for this task skips it.
 
 ## Switch skills: `leanpowers skills`
 
