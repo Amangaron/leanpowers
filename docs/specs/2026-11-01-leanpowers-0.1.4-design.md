@@ -28,7 +28,7 @@ Claude Code, Codex CLI und Gemini CLI, keine kostenpflichtigen KI-Läufe in Test
 Mehrere betroffene Texte stehen bereits an der Grenze von `skill-lint`. Gezählt mit `countWords` aus
 `checks/skill-lint.mjs` (Body ohne Frontmatter):
 
-| Datei | heute | Grenze | nach diesem Entwurf |
+| Datei | heute | Grenze | nach dieser Spec |
 | --- | --- | --- | --- |
 | `skills/start/SKILL.md` (Starttext) | 92 Wörter ≈ 123 Token | 150 Token | 100 Wörter ≈ 134 Token |
 | `skills/design/SKILL.md` | 597 | 600 | 593 |
@@ -242,7 +242,7 @@ Stillstand.
 
 **Deterministische Prüfung.** Nicht für den Stillstand selbst (Verhalten im Lauf). Teilweise für die Doppelung:
 `leanpowers metrics` könnte melden, wenn ein Task zwei `implementer dispatched`-Zeilen ohne `gate retry`,
-`gate escalated` oder `review round` dazwischen hat. Vorschlag: nicht in 0.1.4, erst wenn die Ledger-Zeile sich im
+`gate escalated` oder `review round` dazwischen hat. Entschieden: nicht in 0.1.4, erst wenn die Ledger-Zeile sich im
 Pilot bewährt.
 
 **Tests.** `skills-content`: Vorlage enthält `## Turn rule` vor `## Inputs` und `Never dispatch a second implementer
@@ -362,7 +362,7 @@ nur nach Rückfrage beim Nutzer. Veröffentlichung (Marketplace und Gemini-Exten
 ## 13. Reihenfolge und Größe
 
 Nach der eigenen Größenregel ist 0.1.4 **groß** (CLI, Checks, mehrere Skills, Vorlage, Plattform-Dateien, Tests):
-aus diesem Entwurf die Spec, dann ein Plan mit etwa sechs Aufgaben, `staff`, `run`, `finish`.
+aus dieser Spec ein Plan mit etwa sechs Aufgaben, `staff`, `run`, `finish`.
 
 1. **Code: `brief --file` und `check --brief`** inkl. gemeinsamer Scope-/Struktur-Funktion und
    `leanpowers.json`-Meldung (Risiko high, gemeinsamer Vertrag; Befund 3).
