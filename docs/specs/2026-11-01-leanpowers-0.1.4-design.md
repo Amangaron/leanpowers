@@ -336,6 +336,7 @@ Zählregel des Repos: `estimateTokens` = ⌈Wörter × 4/3⌉ (`checks/skill-lin
 | Body (`skill-lint`, Test Zeile 21) | 92 Wörter → 123 Token | 100 Wörter → 134 Token |
 | mit CLI-Zeile `CLI: run leanpowers as node "<pfad>".` (Test Zeile 58, SessionStart) | 98 → 131 | 106 → 142 |
 | `AGENTS.md`-Block (ohne Subagenten- und CLI-Zeile) | 88 → 118 | 96 → 128 |
+| `GEMINI.md` (CLI-Zeile mit Hinweis auf `${extensionPath}`) | 111 → 148 | 111 → 148, weil der Hinweis kürzer wird: `(unexpanded: the folder holding gemini-extension.json)` (Nachtrag bei der Planung) |
 
 Reserve mit CLI-Zeile: 8 Token (6 Wörter; ein Pfad mit Leerzeichen kostet je Leerzeichen ein Wort). Weggefallen
 gegenüber heute: „and explicit requests“ (die Haupt-Spec 6.1 sagt ohnehin nur „User instructions win“). Nicht im
