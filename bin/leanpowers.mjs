@@ -7,16 +7,18 @@ import { loadConfig } from '../checks/lib/config.mjs';
 import { toPosix } from '../checks/lib/glob.mjs';
 import { writeBrief, writeBaseFor, runDirFor } from '../checks/brief.mjs';
 import { writeMetrics } from '../checks/metrics.mjs';
+import { writeReport } from '../checks/report.mjs';
 import { startText, agentsMdText } from '../checks/start.mjs';
 import { updateAgentsMd } from '../checks/agents-md.mjs';
 import { proposeConfig, applyTemplate } from '../checks/init.mjs';
 import { listSkills, setSkills, nativeHint, formatList, parseSet, interactiveChecklist, loadSkillConfig, NATIVE_PLATFORMS } from '../checks/skills-cmd.mjs';
 
 const USAGE = [
-  'usage: leanpowers <check|brief|metrics|config|start|skills|init> [options]',
+  'usage: leanpowers <check|brief|metrics|report|config|start|skills|init> [options]',
   '  check [--all] [--plan <file> --task <n> | --brief <file>]',
   '  brief (--plan <file> --task <n> | --file <brief>) [--reset-base]',
   '  metrics --plan <file>',
+  '  report --plan <file>',
   '  config',
   '  start [--format plain|claude]',
   '  skills [--list | --set <name>=on|off,... | --native claude|codex|gemini]',
@@ -111,6 +113,19 @@ switch (command) {
     const { config } = loadConfig(root);
     const m = writeMetrics(runDirFor(root, config, plan));
     console.log(`metrics: ${m.briefs} briefs, ${m.reports} reports, ${m.reviews} reviews`);
+    break;
+  }
+  case 'report': {
+    const { plan } = parseArgs(rest);
+    if (!plan) usage();
+    const { config } = loadConfig(root);
+    try {
+      console.log(toPosix(path.relative(root, writeReport(root, config, plan))));
+    } catch (err) {
+      if (!String(err.message).startsWith('no ledger for ')) throw err;
+      console.error(err.message);
+      process.exit(1);
+    }
     break;
   }
   case 'config': {

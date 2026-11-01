@@ -35,7 +35,7 @@ function project() {
 test('unknown command prints usage and exits 2', () => {
   const r = run('nope');
   assert.equal(r.status, 2);
-  assert.match(r.stderr, /usage: leanpowers <check\|brief\|metrics\|config\|start\|skills\|init>/);
+  assert.match(r.stderr, /usage: leanpowers <check\|brief\|metrics\|report\|config\|start\|skills\|init>/);
 });
 
 test('usage lists every command with its flags', () => {
@@ -44,6 +44,7 @@ test('usage lists every command with its flags', () => {
     'check [--all] [--plan <file> --task <n> | --brief <file>]',
     'brief (--plan <file> --task <n> | --file <brief>) [--reset-base]',
     'metrics --plan <file>',
+    'report --plan <file>',
     'config',
     'start [--format plain|claude]',
     'skills [--list | --set <name>=on|off,... | --native claude|codex|gemini]',
@@ -65,7 +66,7 @@ test('check with only --plan or only --task is a usage error', () => {
   for (const args of [['--plan', 'x.md'], ['--task', '1']]) {
     const r = run('check', ...args);
     assert.equal(r.status, 2);
-    assert.match(r.stderr, /usage: leanpowers <check\|brief\|metrics\|config\|start\|skills\|init>/);
+    assert.match(r.stderr, /usage: leanpowers <check\|brief\|metrics\|report\|config\|start\|skills\|init>/);
   }
 });
 
@@ -213,4 +214,24 @@ test('brief --file with a wrong name or a missing brief prints one line and exit
   const missing = spawn(root, 'brief', '--file', 'runs/task-1-brief.md');
   assert.equal(missing.status, 1);
   assert.equal(missing.stderr.trim(), 'brief not found: runs/task-1-brief.md');
+});
+
+test('report writes the run report and prints its path', () => {
+  const root = project();
+  fs.mkdirSync(path.join(root, '.leanpowers/runs/demo'), { recursive: true });
+  fs.writeFileSync(path.join(root, '.leanpowers/runs/demo/progress.md'), '# leanpowers ledger — plan: docs/plans/demo.md\n\n## Tasks\nRuling: a — b — c\n');
+  const r = spawn(root, 'report', '--plan', 'docs/plans/demo.md');
+  assert.equal(r.status, 0);
+  assert.equal(r.stdout, 'docs/reports/demo.md\n');
+  assert.match(fs.readFileSync(path.join(root, 'docs/reports/demo.md'), 'utf8'), /^Ruling: a — b — c$/m);
+});
+
+test('report without a ledger exits 1; without --plan it prints usage', () => {
+  const root = project();
+  const r = spawn(root, 'report', '--plan', 'docs/plans/demo.md');
+  assert.equal(r.status, 1);
+  assert.equal(r.stderr, 'no ledger for docs/plans/demo.md: .leanpowers/runs/demo/progress.md\n');
+  const u = spawn(root, 'report');
+  assert.equal(u.status, 2);
+  assert.match(u.stderr, /^  report --plan <file>$/m);
 });
