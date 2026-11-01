@@ -1,7 +1,7 @@
 # leanpowers 0.1.7 – `design` vor jedem Text, Freigabe für jede Größe, Small mit Test – Design-Spezifikation
 
-**Stand:** 2026-11-01 · **Status:** vom Nutzer freigegeben (Design abschnittsweise am 2026-11-01; Spec-Durchsicht
-steht aus) · **Grundlage:** Prüflauf von 0.1.6 auf Sonnet in einem Testprojekt (kleine TypeScript-CLI) · **Bezug:**
+**Stand:** 2026-11-01 · **Status:** vom Nutzer freigegeben (Design abschnittsweise am 2026-11-01; Spec am
+2026-11-01) · **Grundlage:** Prüflauf von 0.1.6 auf Sonnet in einem Testprojekt (kleine TypeScript-CLI) · **Bezug:**
 Haupt-Spec `docs/specs/2026-10-29-leanpowers-design.md`, Spec 0.1.6 `docs/specs/2026-11-01-leanpowers-0.1.6-design.md`,
 Stand des Repos 0.1.6 (`057ad52`).
 
