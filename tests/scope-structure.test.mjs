@@ -50,3 +50,11 @@ test('structure: deny and allow policies', () => {
 test('structure: files in the root create no folder', () => {
   assert.equal(checkStructure({ changed: ['README.md'], rules: [], newFolders: 'deny', existingDirs }).ok, true);
 });
+
+test('scope names leanpowers.json as the project configuration', () => {
+  assert.deepEqual(checkScope(['leanpowers.json', 'pkg/leanpowers.json'], []).messages, [
+    "not in brief: leanpowers.json (project configuration: change it only with the user's yes)",
+    'not in brief: pkg/leanpowers.json',
+  ]);
+  assert.equal(checkScope(['leanpowers.json'], ['leanpowers.json']).ok, true);
+});

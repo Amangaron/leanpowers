@@ -43,6 +43,7 @@ The first line names the plan. `Base branch` is the branch you started from: the
 | Event | Line |
 |---|---|
 | Task base reset | `Task <n>: base reset (<sha7>) — <why>` |
+| Implementer dispatched, written before each implementer dispatch | `Task <n>: implementer dispatched (<agent name or id>)` |
 | Task gated green (any risk) | `Task <n>: gated (commits <base7>..<head7>)` |
 | Red gate sent back | `Task <n>: gate retry <r>/<max> (<one-liner>)` |
 | Gate escalated after the cap | `Task <n>: gate escalated (<fresh implementer at tier X, or split>)` |
@@ -69,7 +70,7 @@ Read each task's last line, not the file's last line.
 - `gate retry <r>/<max>` → gate again; red → retry r+1, or escalate if r equals max.
 - `gate escalated` → gate the escalated work; still red → stop.
 - `review round <r>/<max>` → continue with round r+1, or rule if r equals max.
-- `task-<n>-base.txt` exists but no line → the task started: look for its commits since that base and for its report file. Work present → gate it; otherwise resume or re-dispatch the implementer.
+- `implementer dispatched`, or `task-<n>-base.txt` exists but no line → the task started: look for its commits since that base and for its report file. Work present → gate it; otherwise, if a dispatched line names an implementer, resume that one; re-dispatch only when it cannot be resumed.
 - No line and no base file → not started.
 - Reset a base (`leanpowers brief --reset-base`) only after a plan correction and before the task has commits; log `base reset` together with a `Ruling:` line.
 - `Stop: <question>` with no user-answer ruling after it → if the answer came with your dispatch or resume, log it as a ruling and continue; otherwise ask the same question again (an orchestrator subagent returns `NEEDS_USER`).

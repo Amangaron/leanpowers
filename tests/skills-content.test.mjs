@@ -68,8 +68,7 @@ test('subagents without a generated brief get the resolved CLI', () => {
   const orchestrator = read('agents/orchestrator.md');
   assert.match(orchestrator, /run every `leanpowers` command as `\{\{cli\}\}`/);
   assert.match(read('skills/staff/SKILL.md'), /`\{\{cli\}\}` the command from the `CLI:` line/);
-  const design = read('skills/design/SKILL.md');
-  assert.match(design, /`## When done`: run the `check` command as the `CLI:` line names it/);
+  assert.match(read('skills/design/details/medium.md'), /`## When done`: run the `check` command as the `CLI:` line names it/);
   assert.match(read('skills/run/details/loops.md'), /inside an orchestrator, run `leanpowers brief`, `check` and `metrics` as `\{\{cli\}\}`/);
 });
 
@@ -95,4 +94,62 @@ test('ledger formats cover final minors, final rulings and extra sections; run p
 test('readmes tell users to start a new session after a plugin update', () => {
   for (const rel of ['README.md', 'docs/README.md']) assert.match(read(rel), /start a new session/, rel);
   assert.match(read('docs/README.de.md'), /neue Sitzung/);
+});
+
+test('design names the size marker, the plan gate and the medium brief check', () => {
+  const design = read('skills/design/SKILL.md');
+  assert.ok(design.includes('open your reply with the class in this exact form, in any language'), 'marker rule');
+  assert.ok(design.includes('"Size: medium —'), 'marker example');
+  assert.ok(design.includes('   This yes opens the spec, not the code: no implementer before an approved plan.'), 'step 4');
+  assert.ok(design.includes('- "Design approved, one implementer will do" → that is medium; large needs spec and plan.'), 'red flag');
+  assert.ok(design.includes('write the brief as [details/medium.md](details/medium.md) says and run `leanpowers brief --file <brief>`'), 'medium brief');
+  assert.ok(design.includes('run `leanpowers check --brief <brief>` yourself, then invoke the `finish` skill. No spec, no plan.'), 'check --brief and finish');
+  const medium = read('skills/design/details/medium.md');
+  assert.ok(medium.startsWith('# Medium brief\n'), 'title');
+  assert.ok(medium.includes('in the form `<cli> check --brief <brief path>`'), 'check form');
+  assert.ok(medium.includes('never store\n  it in a shell variable'), 'shell variable');
+  assert.ok(medium.includes('Commit with `<type>: <topic>`, one commit.'), 'commit');
+  assert.ok(medium.includes('list those folders\n  as `Approved new folders: <folders>`.'), 'approved folders');
+  assert.ok(medium.includes('Then run `leanpowers brief --file <brief path>`'), 'base');
+});
+
+test('verify names what check and check --all run, and the medium check', () => {
+  const verify = read('skills/verify/SKILL.md');
+  assert.ok(verify.includes('which runs the configured gates (tests, typecheck, lint); `--all` adds doc-lint and skill-lint.'));
+  assert.ok(verify.includes('- For a medium task, use `leanpowers check --brief <brief>`.'));
+});
+
+test('orchestrator turn rule, resume before re-dispatch, one implementer per task', () => {
+  const orchestrator = read('agents/orchestrator.md');
+  const turn = orchestrator.indexOf('## Turn rule');
+  assert.ok(turn > 0 && turn < orchestrator.indexOf('## Inputs'), 'turn rule before inputs');
+  assert.ok(orchestrator.includes('Dispatch every implementer and reviewer in the foreground, never in the background.'), 'foreground');
+  assert.ok(orchestrator.includes('Never dispatch a second implementer for a task while the first may still be working.'), 'second implementer');
+  assert.ok(orchestrator.includes('- CLI: run every `leanpowers` command as `{{cli}}`, written out, never from a shell variable.'), 'cli line');
+  assert.ok(orchestrator.includes('4. Stop only for the four reasons in `run`. Write `Stop: <question>` to the ledger, then return:'), 'stop reasons');
+  assert.ok(!orchestrator.includes('- Wait for every subagent in the foreground'), 'old hard rule removed');
+  const staff = read('skills/staff/SKILL.md');
+  assert.ok(staff.includes('Add the "Wait for a subagent" line of `platform.md` to its prompt verbatim.'), 'platform line');
+  assert.ok(staff.includes('resume the same orchestrator once'), 'resume once');
+  assert.ok(staff.includes('Only if it cannot be resumed or ends with neither again, dispatch a fresh one with the same inputs'), 'fresh only after');
+  assert.ok(read('platforms/claude-code.md').includes('Dispatch in the foreground: never set `run_in_background`.'), 'claude');
+  for (const p of ['codex-cli', 'gemini-cli']) {
+    assert.ok(read(`platforms/${p}.md`).includes('Never dispatch a second agent for a task while the first may still be working.'), p);
+  }
+  const ledger = read('skills/run/details/ledger.md');
+  assert.ok(ledger.includes('`Task <n>: implementer dispatched (<agent name or id>)`'), 'ledger line');
+  assert.ok(ledger.includes('if a dispatched line names an implementer, resume that one; re-dispatch only when it cannot be resumed.'), 'resume rule');
+  const loops = read('skills/run/details/loops.md');
+  assert.ok(loops.includes('Never poll, and never end the turn while one of your subagents works. Never dispatch a second implementer for a task while the first may still be working.'), 'loops dispatch');
+  assert.ok(loops.includes('never store it in a shell variable (`S="node …"; $S` fails in zsh, which does not split words).'), 'loops zsh');
+});
+
+test('finish blocks on uncommitted changes and the readmes name the medium check', () => {
+  assert.ok(read('skills/finish/SKILL.md').includes('Uncommitted changes outside the run folder (the check warns about them) also block merge and pull request: list them and ask whether to commit them first.'));
+  const en = read('docs/README.md');
+  assert.ok(en.includes('| `check --brief <file>` |'), 'en check --brief');
+  assert.ok(en.includes('| `brief --file <brief> [--reset-base]` |'), 'en brief --file');
+  const de = read('docs/README.de.md');
+  assert.ok(de.includes('| `check --brief <Datei>` |'), 'de check --brief');
+  assert.ok(de.includes('| `brief --file <Brief> [--reset-base]` |'), 'de brief --file');
 });

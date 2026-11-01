@@ -4,15 +4,31 @@ All notable changes to leanpowers are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.1.4] - 2026-11-01
+
+### Added
+
+- `brief --file <brief>` records the base commit for a hand-written medium brief; `check --brief <brief>` checks its scope and structure (combines with `--all`).
+- `check --all` warns about uncommitted changes outside the run folder.
+- `skills/design/details/medium.md`: the medium brief form with commit message and `check --brief`.
 
 ### Changed
 
+- Start text and `design`: the reply opens with `Size: small|medium|large`; large needs plan approval before any code or subagent dispatch; medium ends with `finish`.
+- Scope names a changed `leanpowers.json` as the user's project configuration.
+- The orchestrator template starts with a turn rule; `staff` resumes a stalled orchestrator once before dispatching a fresh one; the ledger logs each implementer dispatch.
+- Briefs, the orchestrator and the run loops say to write the CLI command out in every call, never in a shell variable.
+- `finish` blocks merge and pull request while uncommitted changes remain.
+- The Gemini context file uses a shorter CLI fallback note, so the start text stays within 150 tokens.
 - Docs: the maintainer confirmed by hand on macOS (2026-10-31) that installing the Gemini CLI
   extension works (`gemini extensions list` shows leanpowers 0.1.3 with 12 skills); use in a
   session remains unverified. The Gemini install instructions now describe the three prompts
   (trust the folder, `git clone` after a 404 for a release, third-party warning). Details in
   `docs/research/2026-10-29-verifikation.md`.
+
+### Fixed
+
+- `verify` no longer says that plain `leanpowers check` runs doc-lint and skill-lint (only `--all` does).
 
 ## [0.1.3] - 2026-10-31
 

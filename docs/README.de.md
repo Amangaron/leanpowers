@@ -20,7 +20,7 @@ einen echten Lauf brauchen, stehen in `platforms/*.md` mit dem Zusatz `(unverifi
 
 ## Stand / Selbst prüfen
 
-Version 0.1.3. Die Autoren haben keine kostenpflichtigen Testläufe gemacht (bewusste
+Version 0.1.4. Die Autoren haben keine kostenpflichtigen Testläufe gemacht (bewusste
 Entscheidung, siehe Entwurf, Abschnitt 16). So ist der Stand:
 
 Bestätigt:
@@ -130,6 +130,8 @@ Klon starten Sie `node bin/leanpowers.mjs <Befehl>`.
 | `check [--all]` | Führt die Gates aus (Test-, Typecheck- und Lint-Befehle); `--all` ergänzt Doc-Lint und Skill-Lint. |
 | `check --plan <Datei> --task <n>` | Prüft zusätzlich Scope und Struktur einer Plan-Aufgabe. |
 | `brief --plan <Datei> --task <n>` | Schreibt den Brief für eine Plan-Aufgabe und gibt den Pfad aus. |
+| `check --brief <Datei>` | Prüft zusätzlich Scope und Struktur gegen einen von Hand geschriebenen mittleren Brief (Basis aus `brief --file`). |
+| `brief --file <Brief> [--reset-base]` | Hält den Basis-Commit für einen von Hand geschriebenen `task-<n>-brief.md` fest und gibt seinen Pfad aus. |
 | `metrics --plan <Datei>` | Zählt Briefs, Berichte und Reviews eines Laufs. |
 | `config` | Gibt die wirksame Konfiguration aus (mit Standardwerten ergänzt). |
 | `start [--format plain\|claude]` | Gibt den Starttext der Sitzung aus. |
