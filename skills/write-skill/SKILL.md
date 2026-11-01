@@ -19,7 +19,7 @@ A skill is a short, reusable instruction for a technique or discipline that agen
 
 ## Content rules
 
-- Use actions, not tools: "dispatch a subagent at tier small|medium|large with template `prompts/<name>.md`", "ask the user", "track tasks", "run `leanpowers check …`", "invoke the `<name>` skill". Never name a platform tool.
+- Use actions, not tools: "dispatch a subagent at tier small|medium|large with template `<plugin>/prompts/<name>.md`", "ask the user", "track tasks", "run `leanpowers check …`", "invoke the `<name>` skill". Never name a platform tool.
 - No hard-coded locations. Refer to `paths.specs`, `paths.plans`, `paths.reports`, `paths.runs` and the run folder `<paths.runs>/<plan-basename>/`.
 - Imperative, concrete, no filler. One good example beats three. State the iron rule once, then the steps, then the red flags.
 - Discipline skills (rules agents are tempted to skip) need a short list of rationalizations and what to do instead. Technique skills need steps and a worked example.

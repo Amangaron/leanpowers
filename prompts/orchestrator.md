@@ -12,7 +12,7 @@ Dispatch every implementer and reviewer in the foreground, never in the backgrou
 
 - Plan: `{{plan}}`
 - Run folder: `{{run}}` (`besetzung.md`, ledger `progress.md`)
-- CLI: run every `leanpowers` command as `{{cli}}`, written out, never from a shell variable.
+- CLI: run every `leanpowers` command as `{{cli}}`; write commands and paths out, never in shell variables.
 
 ## Process
 
@@ -24,7 +24,7 @@ Dispatch every implementer and reviewer in the foreground, never in the backgrou
    - one precise question, answerable in a sentence, with the options if there are any
    - the ledger path
 5. When resumed with the answer, log it as `Ruling: <answer> — user decided — <cost if wrong>` and continue from the ledger.
-6. Skip `run`'s last step (invoking `finish`): the main session does that after your report. Return `DONE` only when `leanpowers check --all` is green; a red check is a stop.
+6. Skip `run`'s last step (invoking `finish`); the main session does it. Return `DONE` only when `leanpowers check --all` is green; a red check is a stop.
 
 ## Final reply
 
