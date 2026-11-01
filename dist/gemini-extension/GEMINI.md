@@ -8,4 +8,4 @@ leanpowers workflow by size (unclear → larger), named first as `Size: small|me
 Commands: design, plan, staff, run, debug, finish, check, skills, init.
 
 User instructions win, but Medium needs design approval and Large plan approval before any code or subagent dispatch, delegation rules included; only "implement directly" for this task skips it. Answer in the user's language.
-CLI: run leanpowers as node "${extensionPath}/bin/leanpowers.mjs" (unexpanded: the folder holding gemini-extension.json).
+CLI: run leanpowers as node "${extensionPath}/bin/leanpowers.mjs" (else: folder of gemini-extension.json).

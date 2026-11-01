@@ -26,7 +26,7 @@ export function writeText(file, text) {
 
 /**
  * Copy the shared runtime into outDir. `agents/*.md` ships as `prompts/*.md`; in copied
- * `skills/**\/*.md` the references `` `agents/`` and `(agents/` are rewritten to `prompts/`.
+ * `skills/**\/*.md` the references `` `agents/`` is rewritten to `` `<plugin>/prompts/`` and `(agents/` to `(prompts/`.
  * Text files are written with LF line endings; files containing a NUL byte are copied as is.
  * Returns the written files (posix, relative to outDir).
  */
@@ -43,7 +43,7 @@ export function copyRuntime(repoRoot, outDir) {
     } else {
       let text = data.toString('utf8');
       if (srcRel.startsWith('skills/') && srcRel.endsWith('.md')) {
-        text = text.replaceAll('`agents/', '`prompts/').replaceAll('(agents/', '(prompts/');
+        text = text.replaceAll('`agents/', '`<plugin>/prompts/').replaceAll('(agents/', '(prompts/');
       }
       writeText(dest, text);
     }

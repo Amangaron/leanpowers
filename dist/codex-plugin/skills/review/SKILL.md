@@ -18,10 +18,10 @@ Inside a run, `run`'s loop governs; this skill covers reviews outside a run and 
 
 **How:**
 1. Write the diff to a file in the run folder (`<paths.runs>/<plan-basename>/`) with `git diff <base>..HEAD`. The task's base commit is recorded there; for a final review it is the base branch (use `git merge-base <base branch> HEAD`).
-2. Dispatch a subagent at tier medium with template `prompts/reviewer.md`. Use tier large for the final whole-branch review. Fill `{{brief}}`, `{{report}}`, `{{diff}}`, `{{constraints}}` (the Global Constraints copied verbatim, not summarized) and `{{review}}`.
+2. Dispatch a subagent at tier medium with template `<plugin>/prompts/reviewer.md`. Use tier large for the final whole-branch review. Fill `{{brief}}`, `{{report}}`, `{{diff}}`, `{{constraints}}` (the Global Constraints copied verbatim, not summarized) and `{{review}}`.
 3. Reviewers write to `<run folder>/review-<task or a-b>.md` (re-review round n: `review-<task or a-b>-r<n>.md`), so metrics can count them. For batch and final reviews `{{brief}}` is the list of the batch's brief paths and `{{report}}` the list of their report paths.
 4. Fix Critical and Important findings before the next task. Resume the original implementer with the findings; do not fix them in the controller.
-5. After the fix, dispatch a subagent at tier small with template `prompts/re-reviewer.md`: `{{findings}}` the raised findings, `{{diff}}` only the fix range, `{{report}}` the report path. Do not repeat the full review.
+5. After the fix, dispatch a subagent at tier small with template `<plugin>/prompts/re-reviewer.md`: `{{findings}}` the raised findings, `{{diff}}` only the fix range, `{{report}}` the report path. Do not repeat the full review.
 
 ## Receiving
 

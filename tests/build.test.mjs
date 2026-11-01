@@ -33,6 +33,13 @@ test('agent templates ship as prompts, never as agents', () => {
   assert.ok(exists('claude-plugin/prompts/implementer.md'));
   const run = read('claude-plugin/skills/run/SKILL.md');
   assert.doesNotMatch(run, /`agents\//);
+  for (const pkg of ['claude-plugin', 'codex-plugin', 'gemini-extension']) {
+    for (const rel of ['skills/run/SKILL.md', 'skills/staff/SKILL.md', 'skills/design/SKILL.md', 'skills/review/SKILL.md', 'skills/run/details/loops.md']) {
+      const text = read(`${pkg}/${rel}`);
+      assert.doesNotMatch(text, /`(agents|prompts)\//, `${pkg}/${rel}`);
+    }
+  }
+  assert.ok(run.includes('template `<plugin>/prompts/implementer.md`'));
 });
 
 test('marketplace points at the claude package', () => {
@@ -144,7 +151,7 @@ test('the skills command passes arguments through, else lists and asks', () => {
 
 test('gemini start text names the extension folder fallback and stays small', () => {
   const text = read('gemini-extension/GEMINI.md');
-  assert.match(text, /^CLI: run leanpowers as node "\$\{extensionPath\}\/bin\/leanpowers\.mjs" \(unexpanded: the folder holding gemini-extension\.json\)\.$/m);
+  assert.match(text, /^CLI: run leanpowers as node "\$\{extensionPath\}\/bin\/leanpowers\.mjs" \(else: folder of gemini-extension\.json\)\.$/m);
   assert.match(text, /named first as `Size: small\|medium\|large`/);
   assert.ok(estimateTokens(text) <= 150);
   for (const cmd of ['skills', 'init']) {

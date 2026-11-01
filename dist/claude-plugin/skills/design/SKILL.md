@@ -22,7 +22,7 @@ Unsure → take the larger class. If hidden complexity shows up later, stop, say
 
 Read the relevant code and ask only the questions that matter, one at a time. Present the design in chat — for small one or two sentences; for medium the approach, files touched and how it is tested. **Stop and wait for an explicit yes.** Presenting and starting in the same message skips the gate.
 
-After approval: small → implement, then run `leanpowers check`. Medium → write the brief as [details/medium.md](details/medium.md) says and run `leanpowers brief --file <brief>` to record its base. Dispatch a subagent at tier medium with template `prompts/implementer.md`, `{{brief}}` that file and `{{report}}` the report path. Handle its status as `run` does (per task, step 3), run `leanpowers check --brief <brief>` yourself, then invoke the `finish` skill. No spec, no plan.
+After approval: small → implement, then run `leanpowers check`. Medium → write the brief as [details/medium.md](details/medium.md) says and run `leanpowers brief --file <brief>` to record its base. Dispatch a subagent at tier medium with template `<plugin>/prompts/implementer.md`, `{{brief}}` that file and `{{report}}` the report path. Handle its status as `run` does (per task, step 3), run `leanpowers check --brief <brief>` yourself, then invoke the `finish` skill. No spec, no plan.
 
 ## 3. Large
 

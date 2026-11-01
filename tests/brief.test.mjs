@@ -31,7 +31,7 @@ test('brief contains only what the implementer needs', () => {
 
 test('brief names the plan path in the check command', () => {
   const b = buildBrief(parsePlan(PLAN), 1, config, 'r', 'docs/plans/demo.md');
-  assert.match(b, /Run `(node ".*\/bin\/leanpowers\.mjs"|[^`]+) check --plan docs\/plans\/demo\.md --task 1`, written out in every call \(never stored in a shell variable\)\. Write your report/);
+  assert.match(b, /Run `(node ".*\/bin\/leanpowers\.mjs"|[^`]+) check --plan docs\/plans\/demo\.md --task 1`, written out in every call\. Write every shell command and path out in full; never store a command or path in a shell variable\. Write your report/);
   const d = buildBrief(parsePlan(PLAN), 1, config, 'r');
   assert.match(d, /--plan the plan --task 1/);
 });
@@ -198,7 +198,7 @@ test('parseBriefFile reads allowed files and approved folders', () => {
 test('brief tells the implementer never to store the command in a shell variable', () => {
   const b = buildBrief(parsePlan(PLAN), 1, config, 'r', 'p.md');
   const whenDone = b.slice(b.indexOf('## When done'));
-  assert.ok(whenDone.includes('(never stored in a shell variable)'), whenDone);
+  assert.ok(whenDone.includes('never store a command or path in a shell variable.'), whenDone);
 });
 
 test('briefTaskNumber reads the task number from a brief file name', () => {
