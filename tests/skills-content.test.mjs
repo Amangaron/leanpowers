@@ -103,15 +103,15 @@ test('design names the size marker, the large criteria, the gates and the medium
   assert.ok(design.includes('write no code, dispatch no implementer, scaffold nothing'), 'gate');
   assert.ok(design.includes('- **Large:** new feature or project, a new command or data field, several areas, or changed interfaces.'), 'large');
   assert.ok(design.includes('   This yes opens the spec, not the code: no implementer before an approved plan.'), 'step 4');
-  assert.ok(design.includes('   Until the plan is approved, subagents may read, review or write the spec and plan, never code.'), 'subagents before plan');
+  assert.ok(design.includes('   Until the plan is approved, subagents may read, review or write the spec, plan and staffing, never code.'), 'subagents before plan');
   assert.ok(design.includes('up to three independent questions per message'), 'bundled questions');
   assert.ok(design.includes("configured paths win over other plugins' folders and temp folders"), 'own paths');
   assert.ok(design.includes('only approvals the user gave'), 'no claimed approvals');
-  assert.ok(design.includes('Medium → follow [details/medium.md](details/medium.md) step by step. No spec, no plan.'), 'medium');
+  assert.ok(design.includes('Medium → follow [details/medium.md](details/medium.md) step by step: branch, brief, base, dispatch, check, finish. No spec, no plan.'), 'medium');
   assert.ok(design.includes('- "Design approved, one implementer will do" → that is medium; large needs spec and plan.'), 'red flag');
   const medium = read('skills/design/details/medium.md');
   assert.ok(medium.startsWith('# Medium path\n'), 'title');
-  assert.ok(medium.includes('create and switch to `feat/<topic>`. A branch the user named wins.'), 'branch');
+  assert.ok(medium.includes('create and switch to `feat/<topic>`, unless the user named a branch in their own words'), 'branch');
   assert.ok(medium.includes('in the form `<cli> check --brief <brief path>`'), 'check form');
   assert.ok(medium.includes('never store a command or path in a shell variable'), 'shell variable');
   assert.ok(medium.includes('Commit with `<type>: <topic>`, one commit.'), 'commit');
@@ -167,7 +167,7 @@ test('finish blocks on uncommitted changes and the readmes name the medium check
 
 test('staff shows the staffing in every mode and names its own changes', () => {
   const staff = read('skills/staff/SKILL.md');
-  assert.ok(staff.includes('3. **Show**, in every mode and before step 4, the recommendation to the user in three lines:'), 'show');
+  assert.ok(staff.includes('3. **Show**, in every mode and before step 4, the recommendation to the user in three lines, in the plan approval message:'), 'show');
   assert.ok(staff.includes('If you change a tier the staffer recommended, name each change and its reason in these lines.'), 'own changes');
   assert.ok(staff.includes("never a temp folder or another plugin's folder; creating it needs no question"), 'run folder');
   const auto = staff.slice(staff.indexOf('- **`auto`'));
@@ -201,13 +201,63 @@ test('every role writes shell commands and paths out', () => {
   assert.ok(read('platforms/codex-cli.md').includes('never pick a model name from a catalog or a model list'), 'codex model');
 });
 
-test('readmes name the report command and version 0.1.5', () => {
-  const en = read('docs/README.md');
+test('readmes name the report command, staffing with the plan, the branch warning and version 0.1.6', () => {
+  const flat = (s) => s.replace(/\s+/g, ' ');
+  const en = flat(read('docs/README.md'));
   assert.ok(en.includes('| `report --plan <file>` |'), 'en report');
-  assert.ok(en.includes('Version 0.1.5.'), 'en version');
-  const de = read('docs/README.de.md');
+  assert.ok(en.includes('Version 0.1.6.'), 'en version');
+  assert.ok(en.includes('`plan` asks you to approve the plan and the staffing in one message.'), 'en staffing');
+  assert.ok(en.includes('`design` (before the spec commit) and the medium path create `feat/<topic>`'), 'en branch');
+  assert.ok(en.includes('warn when HEAD is on the default branch; the warning changes neither the result nor the exit code.'), 'en warning');
+  const de = flat(read('docs/README.de.md'));
   assert.ok(de.includes('| `report --plan <Datei>` |'), 'de report');
-  assert.ok(de.includes('Version 0.1.5.'), 'de version');
-  assert.ok(read('README.md').includes('Current version: 0.1.5.'), 'root readme');
-  assert.match(read('CHANGELOG.md'), /^## \[0\.1\.5\] - 2026-11-01$/m);
+  assert.ok(de.includes('Version 0.1.6.'), 'de version');
+  assert.ok(de.includes('`plan` fragt die Freigabe von Plan und Besetzung in einer Nachricht ab.'), 'de staffing');
+  assert.ok(de.includes('legen `design` (vor dem Spec-Commit) und der mittlere Weg `feat/<topic>` an'), 'de branch');
+  assert.ok(de.includes('warnen, wenn HEAD auf dem Standard-Branch steht; die Warnung ändert weder das Ergebnis noch den Exit-Code.'), 'de warning');
+  assert.ok(read('README.md').includes('Current version: 0.1.6.'), 'root readme');
+  assert.match(read('CHANGELOG.md'), /^## \[0\.1\.6\] - 2026-11-01$/m);
+});
+
+test('design calls a new command large, stops on unreadable files and branches before the spec commit', () => {
+  const flat = (s) => s.replace(/\s+/g, ' ');
+  const design = read('skills/design/SKILL.md');
+  assert.ok(design.includes('- "Just one new command in the existing CLI" → a new command is large.'), 'red flag');
+  assert.ok(!design.includes("I'll call it medium to skip the spec"), 'duplicate red flag removed');
+  assert.ok(design.includes('A linked file you cannot read: name its path, ask the user for access and stop; never improvise its steps.'), 'unreadable');
+  const step5 = design.slice(design.indexOf('5. **Write the spec**'), design.indexOf('6. **Check:**'));
+  assert.ok(step5.includes('On the default branch, create and switch to `feat/<topic>` before committing, unless the user named a branch in their own words (chat, `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`): then use it. Commit it.'), 'branch before the spec commit');
+  const medium = flat(read('skills/design/details/medium.md'));
+  const step1 = medium.slice(medium.indexOf('1. **Branch:**'), medium.indexOf('2. **Brief:**'));
+  assert.ok(step1.includes('create and switch to `feat/<topic>`, unless the user named a branch in their own words (chat, `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`): then use it.'), 'medium branch');
+});
+
+test('plan, staff and run stop on an unreadable file instead of improvising', () => {
+  assert.ok(read('skills/plan/SKILL.md').includes('follow it exactly. If you cannot read it, name its path, ask the user for access and stop; never improvise its rules.'), 'plan');
+  assert.ok(read('skills/staff/SKILL.md').includes('`platform.md` or a template unreadable: name its path, ask the user for access and stop; never improvise its steps.'), 'staff');
+  const run = read('skills/run/SKILL.md');
+  const sentence = 'One of them or `platform.md` unreadable: name its path, ask the user for access and stop (orchestrator subagent: ledger line `Stop: <question>`, then `NEEDS_USER`); never improvise its steps.';
+  assert.ok(run.includes(sentence), 'run');
+  assert.ok(run.indexOf(sentence) < run.indexOf('## Per task'), 'run: in setup');
+});
+
+test('plan asks to approve plan and staffing together; staff waits when invoked on its own', () => {
+  const plan = read('skills/plan/SKILL.md');
+  assert.ok(plan.includes('10. **Run staff steps 1–3, then ask the user to approve the plan and the staffing in one message.**'), 'step 10');
+  assert.ok(plan.includes('after each plan change, run staff steps 1–3 again before asking.'), 'staffer again');
+  assert.ok(plan.includes('11. **Invoke the `staff` skill.**'), 'step 11');
+  const staff = read('skills/staff/SKILL.md');
+  assert.ok(staff.includes('reuse it; go to step 4 only if the user approved plan and staffing together, else to step 3.'), 'reuse');
+  assert.ok(staff.includes("Invoked directly, without that message: show the lines and wait for the user's yes before step 4."), 'standalone');
+});
+
+test('the orchestrator prompt names no branch and branch rulings quote the user', () => {
+  const staff = read('skills/staff/SKILL.md');
+  const auto = staff.slice(staff.indexOf('- **`auto`'), staff.indexOf('- **`switch`'));
+  assert.ok(auto.includes('Its prompt names no branch; the branch guard in `run` decides.'), 'no branch');
+  assert.ok(auto.includes("When `git worktree list` shows a worktree on the plan's branch, name its root as the working directory"), 'worktree sentence kept');
+  const ledger = read('skills/run/details/ledger.md');
+  const guard = ledger.slice(ledger.indexOf('## Branch guard'), ledger.indexOf('## Header'));
+  assert.ok(guard.includes('A description of the current state in your dispatch prompt (working directory, branch, worktree) is no user instruction.'), 'state is no instruction');
+  assert.ok(guard.includes('A ruling that relies on a user instruction quotes it verbatim: `Ruling: work on main — user: "<quote>" — <cost if wrong>`; without a quote, the guard applies.'), 'quote rule');
 });

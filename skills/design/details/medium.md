@@ -3,7 +3,8 @@
 After the user approved the design, in this order:
 
 1. **Branch:** if HEAD is on the repository's default branch (the remote's HEAD branch, else `main` or `master`),
-   create and switch to `feat/<topic>`. A branch the user named wins.
+   create and switch to `feat/<topic>`, unless the user named a branch in their own words (chat, `CLAUDE.md`,
+   `AGENTS.md`, `GEMINI.md`): then use it.
 2. **Brief:** write `<paths.runs>/YYYY-MM-DD-<topic>/task-1-brief.md`. Configured paths win over other plugins'
    folders and temp folders; creating them needs no question. A new run folder gets a `.gitignore` containing `*`.
    - `## Allowed files`: one `- <path>` line per file, tests included. `leanpowers.json` is the user's

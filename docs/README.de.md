@@ -20,7 +20,7 @@ einen echten Lauf brauchen, stehen in `platforms/*.md` mit dem Zusatz `(unverifi
 
 ## Stand / Selbst prüfen
 
-Version 0.1.5. Die Autoren haben keine kostenpflichtigen Testläufe gemacht (bewusste
+Version 0.1.6. Die Autoren haben keine kostenpflichtigen Testläufe gemacht (bewusste
 Entscheidung, siehe Entwurf, Abschnitt 16). So ist der Stand:
 
 Bestätigt:
@@ -144,6 +144,12 @@ passenden Skill (in Claude Code sind sie die Skills selbst); `review`, `tdd`, `v
 `worktrees` und `write-skill` werden von diesen Skills benutzt. `finish` läuft auch ohne
 Schreibzugriff auf git und gibt dann die git-Befehle zum Ausführen aus. Konfigurierte `paths`
 haben Vorrang vor den Ordnern anderer Plugins.
+
+`plan` fragt die Freigabe von Plan und Besetzung in einer Nachricht ab. Das Hauptfenster arbeitet
+auf einem Feature-Branch: Steht HEAD auf dem Standard-Branch, legen `design` (vor dem Spec-Commit)
+und der mittlere Weg `feat/<topic>` an, außer Sie haben selbst einen Branch genannt. `brief` und
+der Task-Check (`check --plan`, `check --brief`) warnen, wenn HEAD auf dem Standard-Branch steht;
+die Warnung ändert weder das Ergebnis noch den Exit-Code.
 
 ## Skills umschalten: `leanpowers skills`
 

@@ -20,7 +20,7 @@ are tagged `(unverified)` in `platforms/*.md`.
 
 ## Status / Verify it yourself
 
-Version 0.1.5. The authors made no paid test runs (a deliberate decision, see the design spec,
+Version 0.1.6. The authors made no paid test runs (a deliberate decision, see the design spec,
 section 16); this is what is and is not confirmed.
 
 Confirmed:
@@ -136,6 +136,12 @@ The workflow commands `design`, `plan`, `staff`, `run`, `debug` and `finish` sta
 skill (on Claude Code they are the skills themselves); `review`, `tdd`, `verify`, `worktrees` and
 `write-skill` are used by those skills. `finish` also runs without git write access and then prints
 the git commands for you to run. Configured `paths` win over the folders of other plugins.
+
+`plan` asks you to approve the plan and the staffing in one message. The main session works on a
+feature branch: on the default branch, `design` (before the spec commit) and the medium path create
+`feat/<topic>`, unless you named a branch yourself. `brief` and the task check (`check --plan`,
+`check --brief`) warn when HEAD is on the default branch; the warning changes neither the result
+nor the exit code.
 
 ## Switch skills: `leanpowers skills`
 

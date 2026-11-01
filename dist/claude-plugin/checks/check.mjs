@@ -3,7 +3,7 @@ import path from 'node:path';
 import { loadConfig } from './lib/config.mjs';
 import { compress, formatResults } from './lib/output.mjs';
 import { parsePlan } from './lib/plan.mjs';
-import { changedFiles, dirsAt } from './lib/git.mjs';
+import { changedFiles, dirsAt, defaultBranchWarning } from './lib/git.mjs';
 import { toPosix, matchesAny } from './lib/glob.mjs';
 import { checkScope } from './scope.mjs';
 import { checkStructure } from './structure.mjs';
@@ -118,6 +118,13 @@ export function runCheck({ root, plan, task, brief, all = false, userConfigPath 
     outside = outsideWarning(root, config, plan, 'plan');
   }
   if (outside) warnings.push(outside);
+  // Only the task and brief forms get the branch warning; the plain check and --all would raise false alarms after a merge.
+  const taskForm = brief === undefined && plan !== undefined && task !== undefined;
+  const briefForm = brief !== undefined && plan === undefined && task === undefined;
+  if (taskForm || briefForm) {
+    const branch = defaultBranchWarning(root);
+    if (branch) warnings.push(branch);
+  }
   if (all) {
     const skills = lintSkills(root, config);
     results.push(lintDocs(root, config), skills);

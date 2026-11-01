@@ -7,6 +7,7 @@ import { loadConfig } from '../checks/lib/config.mjs';
 import { toPosix } from '../checks/lib/glob.mjs';
 import { writeBrief, writeBaseFor, runDirFor, BRIEF_NAME_ERROR } from '../checks/brief.mjs';
 import { outsideWarning } from '../checks/lib/paths.mjs';
+import { defaultBranchWarning } from '../checks/lib/git.mjs';
 import { writeMetrics } from '../checks/metrics.mjs';
 import { writeReport } from '../checks/report.mjs';
 import { startText, agentsMdText } from '../checks/start.mjs';
@@ -29,6 +30,12 @@ const USAGE = [
 /** Print a path warning to stderr; stdout and the exit code stay unchanged. */
 function warnOutside(config, file, kind) {
   const warning = outsideWarning(root, config, file, kind);
+  if (warning) console.error(`warning: ${warning}`);
+}
+
+/** Print the default-branch warning to stderr; stdout and the exit code stay unchanged. */
+function warnBranch() {
+  const warning = defaultBranchWarning(root);
   if (warning) console.error(`warning: ${warning}`);
 }
 
@@ -102,6 +109,7 @@ switch (command) {
         process.exit(1);
       }
       warnOutside(loadConfig(root).config, file, 'brief');
+      warnBranch();
       break;
     }
     if (!plan || task === undefined) usage();
@@ -114,6 +122,7 @@ switch (command) {
       process.exit(1);
     }
     warnOutside(config, plan, 'plan');
+    warnBranch();
     break;
   }
   case 'metrics': {

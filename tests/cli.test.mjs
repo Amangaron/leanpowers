@@ -22,13 +22,14 @@ const PLAN = `# Demo\n\n**Goal:** g\n\n**Spec:** \`docs/specs/s.md\`\n\n## Globa
 function project() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-cli-'));
   const git = (...a) => execFileSync('git', a, { cwd: root, stdio: 'pipe' });
-  git('init', '-q'); git('config', 'user.email', 't@t'); git('config', 'user.name', 't'); git('config', 'commit.gpgsign', 'false'); git('config', 'core.autocrlf', 'false');
+  git('init', '-q', '-b', 'main'); git('config', 'user.email', 't@t'); git('config', 'user.name', 't'); git('config', 'commit.gpgsign', 'false'); git('config', 'core.autocrlf', 'false');
   fs.mkdirSync(path.join(root, 'docs/plans'), { recursive: true });
   fs.writeFileSync(path.join(root, 'docs/plans/demo.md'), PLAN);
   fs.writeFileSync(path.join(root, 'ok.mjs'), 'process.exit(0)');
   fs.writeFileSync(path.join(root, 'leanpowers.json'), JSON.stringify({ commands: { test: 'node ok.mjs' } }));
   fs.writeFileSync(path.join(root, '.gitignore'), '.leanpowers/\n');
   git('add', '.'); git('commit', '-qm', 'init');
+  git('checkout', '-q', '-b', 'feat/test');
   return root;
 }
 
@@ -267,4 +268,29 @@ test('brief --file warns on stderr when the brief is outside paths.runs', () => 
   assert.equal(r.status, 0);
   assert.equal(r.stdout, 'notes/task-1-brief.md\n');
   assert.equal(r.stderr, 'warning: brief outside paths.runs (.leanpowers/runs): notes/task-1-brief.md\n');
+});
+
+test('brief warns on stderr on the default branch; stdout and exit code stay', () => {
+  const root = project();
+  const git = (...a) => execFileSync('git', a, { cwd: root, stdio: 'pipe' });
+  const warning = 'warning: on default branch main: leanpowers works on a feature branch (feat/<topic>) unless the user named this branch\n';
+  git('checkout', '-q', 'main');
+  const b = spawn(root, 'brief', '--plan', 'docs/plans/demo.md', '--task', '1');
+  assert.equal(b.status, 0);
+  assert.equal(b.stdout, '.leanpowers/runs/demo/task-1-brief.md\n');
+  assert.equal(b.stderr, warning);
+  const rel = '.leanpowers/runs/2026-01-01-fix/task-1-brief.md';
+  fs.mkdirSync(path.join(root, '.leanpowers/runs/2026-01-01-fix'), { recursive: true });
+  fs.writeFileSync(path.join(root, rel), '# Task 1 brief: fix\n');
+  const f = spawn(root, 'brief', '--file', rel);
+  assert.equal(f.status, 0);
+  assert.equal(f.stdout, `${rel}\n`);
+  assert.equal(f.stderr, warning);
+  fs.mkdirSync(path.join(root, 'plans'));
+  fs.writeFileSync(path.join(root, 'plans/x.md'), PLAN);
+  assert.equal(spawn(root, 'brief', '--plan', 'plans/x.md', '--task', '1').stderr,
+    `warning: plan outside paths.plans (docs/plans): plans/x.md\n${warning}`);
+  assert.equal(spawn(root, 'metrics', '--plan', 'docs/plans/demo.md').stderr, '');
+  git('checkout', '-q', 'feat/test');
+  assert.equal(spawn(root, 'brief', '--plan', 'docs/plans/demo.md', '--task', '1').stderr, '');
 });
