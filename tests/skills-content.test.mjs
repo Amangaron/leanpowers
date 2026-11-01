@@ -200,3 +200,14 @@ test('every role writes shell commands and paths out', () => {
   }
   assert.ok(read('platforms/codex-cli.md').includes('never pick a model name from a catalog or a model list'), 'codex model');
 });
+
+test('readmes name the report command and version 0.1.5', () => {
+  const en = read('docs/README.md');
+  assert.ok(en.includes('| `report --plan <file>` |'), 'en report');
+  assert.ok(en.includes('Version 0.1.5.'), 'en version');
+  const de = read('docs/README.de.md');
+  assert.ok(de.includes('| `report --plan <Datei>` |'), 'de report');
+  assert.ok(de.includes('Version 0.1.5.'), 'de version');
+  assert.ok(read('README.md').includes('Current version: 0.1.5.'), 'root readme');
+  assert.match(read('CHANGELOG.md'), /^## \[0\.1\.5\] - 2026-11-01$/m);
+});

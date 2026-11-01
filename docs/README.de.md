@@ -20,7 +20,7 @@ einen echten Lauf brauchen, stehen in `platforms/*.md` mit dem Zusatz `(unverifi
 
 ## Stand / Selbst prüfen
 
-Version 0.1.4. Die Autoren haben keine kostenpflichtigen Testläufe gemacht (bewusste
+Version 0.1.5. Die Autoren haben keine kostenpflichtigen Testläufe gemacht (bewusste
 Entscheidung, siehe Entwurf, Abschnitt 16). So ist der Stand:
 
 Bestätigt:
@@ -133,6 +133,7 @@ Klon starten Sie `node bin/leanpowers.mjs <Befehl>`.
 | `check --brief <Datei>` | Prüft zusätzlich Scope und Struktur gegen einen von Hand geschriebenen mittleren Brief (Basis aus `brief --file`). |
 | `brief --file <Brief> [--reset-base]` | Hält den Basis-Commit für einen von Hand geschriebenen `task-<n>-brief.md` fest und gibt seinen Pfad aus. |
 | `metrics --plan <Datei>` | Zählt Briefs, Berichte und Reviews eines Laufs. |
+| `report --plan <Datei>` | Schreibt Entscheidungen, offene Kleinigkeiten und Schlusszeilen eines Laufs aus dem Ledger nach `paths.reports`. |
 | `config` | Gibt die wirksame Konfiguration aus (mit Standardwerten ergänzt). |
 | `start [--format plain\|claude]` | Gibt den Starttext der Sitzung aus. |
 | `skills` | Listet Skills und schaltet sie um (siehe unten). |
@@ -140,7 +141,9 @@ Klon starten Sie `node bin/leanpowers.mjs <Befehl>`.
 
 Die Workflow-Befehle `design`, `plan`, `staff`, `run`, `debug` und `finish` starten den
 passenden Skill (in Claude Code sind sie die Skills selbst); `review`, `tdd`, `verify`,
-`worktrees` und `write-skill` werden von diesen Skills benutzt.
+`worktrees` und `write-skill` werden von diesen Skills benutzt. `finish` läuft auch ohne
+Schreibzugriff auf git und gibt dann die git-Befehle zum Ausführen aus. Konfigurierte `paths`
+haben Vorrang vor den Ordnern anderer Plugins.
 
 ## Skills umschalten: `leanpowers skills`
 
