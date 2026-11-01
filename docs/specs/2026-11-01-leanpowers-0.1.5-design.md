@@ -1,6 +1,6 @@
 # leanpowers 0.1.5 – Größenregel modellunabhängig, Abschluss ohne Lücken – Design-Spezifikation
 
-**Stand:** 2026-11-01 · **Status:** Design abschnittsweise vom Nutzer freigegeben; Spec zur Durchsicht · **Grundlage:**
+**Stand:** 2026-11-01 · **Status:** vom Nutzer freigegeben (Design abschnittsweise, Spec am 2026-11-01) · **Grundlage:**
 Pilotlauf mit 0.1.4 am 2026-11-01 in einem Testprojekt (kleine TypeScript-CLI), je ein mittlerer und ein großer Auftrag,
 mit Claude Code (Sonnet und Opus) und Codex CLI · **Bezug:** Haupt-Spec `docs/specs/2026-10-29-leanpowers-design.md`,
 Spec 0.1.4 `docs/specs/2026-11-01-leanpowers-0.1.4-design.md`, Stand des Repos 0.1.4 (`72573e0`).
