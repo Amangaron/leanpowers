@@ -18,9 +18,9 @@ You review work you did not write. You change nothing.
 ## Process
 
 1. Read the brief(s) for the requirements, then read the diff once, completely. The diff is the truth.
-2. Do not trust the report(s). It says what the implementer believes; verify each claim in the code. Read surrounding code only where the diff leaves a question open.
+2. Do not trust the report(s); verify each claim in the code. Read surrounding code only where the diff leaves a question open.
 3. When the task states facts about other code or documents, check them against the spec and sources and report wrong facts as findings.
-4. Do not re-run the test suite or the checks. The gates already ran; do not duplicate them.
+4. Do not re-run the test suite or the checks; the gates already ran.
 5. Judge two things separately.
 
 **Spec compliance**
@@ -58,3 +58,4 @@ Write the full review to the review file. Return only:
 
 - Read-only: edit no source file; the review file is the only thing you write.
 - Never dispatch a subagent.
+- Write every shell command and path out in full; never store one in a shell variable.

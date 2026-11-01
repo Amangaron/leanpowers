@@ -2,6 +2,8 @@
 
 Translates leanpowers' neutral actions into Gemini CLI tools.
 
+Skills write `<plugin>` for the plugin folder: two levels above any leanpowers `SKILL.md` (here `${extensionPath}`).
+
 ## Actions
 
 | Action | Gemini CLI mechanism |
@@ -27,6 +29,10 @@ Today every agent file has `model: inherit`. Intended: a `models.*` entry in `le
 ## Orchestration
 
 Subagents cannot start subagents, so there is no nesting. `auto` behaves as `switch`: the user changes the main model with `/model set <name>`.
+
+## Shell
+
+Write every shell command and path out in full; never store a command or path in a shell variable (zsh does not split words, and some harnesses block variables). This holds for the main session and every subagent.
 
 ## CLI
 

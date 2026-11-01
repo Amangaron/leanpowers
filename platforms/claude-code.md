@@ -2,6 +2,8 @@
 
 Translates leanpowers' neutral actions into Claude Code tools.
 
+Skills write `<plugin>` for the plugin folder: two levels above any leanpowers `SKILL.md` (here `${CLAUDE_PLUGIN_ROOT}`).
+
 ## Actions
 
 | Action | Claude Code mechanism |
@@ -27,6 +29,10 @@ A `models.*` entry in `leanpowers.json` overrides the alias; `auto` means this t
 ## Orchestration
 
 `auto` is supported. Subagents may start subagents (default depth 3, limit via `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`), so an orchestrator subagent can dispatch implementers and reviewers. Use depth orchestrator, then worker. A plugin `settings.json` with `"agent": "<plugin-agent>"` can run an agent as main thread with its own model.
+
+## Shell
+
+Write every shell command and path out in full; never store a command or path in a shell variable (zsh does not split words, and some harnesses block variables). This holds for the main session and every subagent.
 
 ## CLI
 

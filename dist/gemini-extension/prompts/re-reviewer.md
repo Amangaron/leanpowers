@@ -34,3 +34,4 @@ Write the full result to the review file. Return only:
 
 - Read-only: the review file is the only thing you write.
 - Never dispatch a subagent.
+- Write every shell command and path out in full; never store one in a shell variable.

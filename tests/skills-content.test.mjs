@@ -136,7 +136,7 @@ test('orchestrator turn rule, resume before re-dispatch, one implementer per tas
   assert.ok(turn > 0 && turn < orchestrator.indexOf('## Inputs'), 'turn rule before inputs');
   assert.ok(orchestrator.includes('Dispatch every implementer and reviewer in the foreground, never in the background.'), 'foreground');
   assert.ok(orchestrator.includes('Never dispatch a second implementer for a task while the first may still be working.'), 'second implementer');
-  assert.ok(orchestrator.includes('- CLI: run every `leanpowers` command as `{{cli}}`, written out, never from a shell variable.'), 'cli line');
+  assert.ok(orchestrator.includes('- CLI: run every `leanpowers` command as `{{cli}}`; write commands and paths out, never in shell variables.'), 'cli line');
   assert.ok(orchestrator.includes('4. Stop only for the four reasons in `run`. Write `Stop: <question>` to the ledger, then return:'), 'stop reasons');
   assert.ok(!orchestrator.includes('- Wait for every subagent in the foreground'), 'old hard rule removed');
   const staff = read('skills/staff/SKILL.md');
@@ -148,8 +148,8 @@ test('orchestrator turn rule, resume before re-dispatch, one implementer per tas
     assert.ok(read(`platforms/${p}.md`).includes('Never dispatch a second agent for a task while the first may still be working.'), p);
   }
   const ledger = read('skills/run/details/ledger.md');
-  assert.ok(ledger.includes('`Task <n>: implementer dispatched (<agent name or id>)`'), 'ledger line');
-  assert.ok(ledger.includes('if a dispatched line names an implementer, resume that one; re-dispatch only when it cannot be resumed.'), 'resume rule');
+  assert.ok(ledger.includes('`Task <n>: implementer dispatched (<name>)`'), 'ledger line'); assert.ok(ledger.includes('`Task <n>: implementer id <id>`'), 'id line');
+  assert.ok(ledger.includes('otherwise resume the implementer named by its `implementer id` line, else by its dispatched line; re-dispatch only when it cannot be resumed.'), 'resume rule');
   const loops = read('skills/run/details/loops.md');
   assert.ok(loops.includes('Never poll, and never end the turn while one of your subagents works. Never dispatch a second implementer for a task while the first may still be working.'), 'loops dispatch');
   assert.ok(loops.includes('never store it in a shell variable (`S="node …"; $S` fails in zsh, which does not split words).'), 'loops zsh');
@@ -163,4 +163,40 @@ test('finish blocks on uncommitted changes and the readmes name the medium check
   const de = read('docs/README.de.md');
   assert.ok(de.includes('| `check --brief <Datei>` |'), 'de check --brief');
   assert.ok(de.includes('| `brief --file <Brief> [--reset-base]` |'), 'de brief --file');
+});
+
+test('staff shows the staffing in every mode and names its own changes', () => {
+  const staff = read('skills/staff/SKILL.md');
+  assert.ok(staff.includes('3. **Show**, in every mode and before step 4, the recommendation to the user in three lines:'), 'show');
+  assert.ok(staff.includes('If you change a tier the staffer recommended, name each change and its reason in these lines.'), 'own changes');
+  assert.ok(staff.includes("never a temp folder or another plugin's folder; creating it needs no question"), 'run folder');
+  const auto = staff.slice(staff.indexOf('- **`auto`'));
+  assert.ok(auto.indexOf('(none → `leanpowers`). Add the "Wait for a subagent" line of `platform.md` to its prompt verbatim.') !== -1, 'platform line follows the dispatch');
+});
+
+test('finish runs without a feature branch or git write access and keeps the run report', () => {
+  const finish = read('skills/finish/SKILL.md');
+  assert.ok(finish.includes('If the work sits uncommitted on the base branch, create `feat/<topic>`'), 'uncommitted on base');
+  assert.ok(finish.includes("offer only keep and push, and never rewrite the base branch's history"), 'committed on base');
+  assert.ok(finish.includes('**Git read-only:**'), 'read-only');
+  assert.ok(finish.includes('print the exact git commands for the user to run'), 'commands');
+  assert.ok(finish.includes('only when `<paths.reports>/<plan-basename>.md` exists'), 'report before cleanup');
+  const run = read('skills/run/SKILL.md');
+  assert.ok(run.includes('then `leanpowers report --plan <plan>`, and commit the report.'), 'run end');
+  const ledger = read('skills/run/details/ledger.md');
+  assert.ok(ledger.indexOf('## Report') !== -1 && ledger.indexOf('## Report') < ledger.indexOf('## Metrics'), 'ledger report section');
+  assert.ok(read('skills/plan/SKILL.md').includes('State only approvals the user gave.'), 'plan approvals');
+});
+
+test('every role writes shell commands and paths out', () => {
+  for (const rel of ['agents/reviewer.md', 'agents/re-reviewer.md']) {
+    assert.ok(read(rel).includes('- Write every shell command and path out in full; never store one in a shell variable.'), rel);
+  }
+  for (const p of ['claude-code', 'codex-cli', 'gemini-cli']) {
+    const text = read(`platforms/${p}.md`);
+    assert.ok(text.includes('\n## Shell\n\nWrite every shell command and path out in full; never store a command or path in a shell variable'), `${p}: shell`);
+    assert.ok(text.indexOf('## Shell') < text.indexOf('## CLI'), `${p}: shell before CLI`);
+    assert.ok(text.includes('Skills write `<plugin>` for the plugin folder: two levels above any leanpowers `SKILL.md`'), `${p}: plugin`);
+  }
+  assert.ok(read('platforms/codex-cli.md').includes('never pick a model name from a catalog or a model list'), 'codex model');
 });

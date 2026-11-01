@@ -184,6 +184,7 @@ test('codex skills that use the CLI say how to run it, right after the switch li
 test('every package ships its platform map as platform.md', () => {
   for (const [p, dir] of [['claude', 'claude-plugin'], ['codex', 'codex-plugin'], ['gemini', 'gemini-extension']]) {
     assert.equal(read(`${dir}/platform.md`), fs.readFileSync(path.join(repo, `platforms/${PLATFORM_MAP[p]}.md`), 'utf8').replace(/\r\n/g, '\n'), p);
+    assert.ok(read(`${dir}/platform.md`).includes('`<plugin>`'), `${p}: defines <plugin>`);
   }
 });
 
