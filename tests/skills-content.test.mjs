@@ -103,15 +103,15 @@ test('design names the size marker, the large criteria, the gates and the medium
   assert.ok(design.includes('write no code, dispatch no implementer, scaffold nothing'), 'gate');
   assert.ok(design.includes('- **Large:** new feature or project, a new command or data field, several areas, or changed interfaces.'), 'large');
   assert.ok(design.includes('   This yes opens the spec, not the code: no implementer before an approved plan.'), 'step 4');
-  assert.ok(design.includes('   Until the plan is approved, subagents may read, review or write the spec and plan, never code.'), 'subagents before plan');
+  assert.ok(design.includes('   Until the plan is approved, subagents may read, review or write the spec, plan and staffing, never code.'), 'subagents before plan');
   assert.ok(design.includes('up to three independent questions per message'), 'bundled questions');
   assert.ok(design.includes("configured paths win over other plugins' folders and temp folders"), 'own paths');
   assert.ok(design.includes('only approvals the user gave'), 'no claimed approvals');
-  assert.ok(design.includes('Medium → follow [details/medium.md](details/medium.md) step by step. No spec, no plan.'), 'medium');
+  assert.ok(design.includes('Medium → follow [details/medium.md](details/medium.md) step by step: branch, brief, base, dispatch, check, finish. No spec, no plan.'), 'medium');
   assert.ok(design.includes('- "Design approved, one implementer will do" → that is medium; large needs spec and plan.'), 'red flag');
   const medium = read('skills/design/details/medium.md');
   assert.ok(medium.startsWith('# Medium path\n'), 'title');
-  assert.ok(medium.includes('create and switch to `feat/<topic>`. A branch the user named wins.'), 'branch');
+  assert.ok(medium.includes('create and switch to `feat/<topic>`, unless the user named a branch in their own words'), 'branch');
   assert.ok(medium.includes('in the form `<cli> check --brief <brief path>`'), 'check form');
   assert.ok(medium.includes('never store a command or path in a shell variable'), 'shell variable');
   assert.ok(medium.includes('Commit with `<type>: <topic>`, one commit.'), 'commit');
@@ -210,4 +210,17 @@ test('readmes name the report command and version 0.1.5', () => {
   assert.ok(de.includes('Version 0.1.5.'), 'de version');
   assert.ok(read('README.md').includes('Current version: 0.1.5.'), 'root readme');
   assert.match(read('CHANGELOG.md'), /^## \[0\.1\.5\] - 2026-11-01$/m);
+});
+
+test('design calls a new command large, stops on unreadable files and branches before the spec commit', () => {
+  const flat = (s) => s.replace(/\s+/g, ' ');
+  const design = read('skills/design/SKILL.md');
+  assert.ok(design.includes('- "Just one new command in the existing CLI" → a new command is large.'), 'red flag');
+  assert.ok(!design.includes("I'll call it medium to skip the spec"), 'duplicate red flag removed');
+  assert.ok(design.includes('A linked file you cannot read: name its path, ask the user for access and stop; never improvise its steps.'), 'unreadable');
+  const step5 = design.slice(design.indexOf('5. **Write the spec**'), design.indexOf('6. **Check:**'));
+  assert.ok(step5.includes('On the default branch, create and switch to `feat/<topic>` before committing, unless the user named a branch in their own words (chat, `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`): then use it. Commit it.'), 'branch before the spec commit');
+  const medium = flat(read('skills/design/details/medium.md'));
+  const step1 = medium.slice(medium.indexOf('1. **Branch:**'), medium.indexOf('2. **Brief:**'));
+  assert.ok(step1.includes('create and switch to `feat/<topic>`, unless the user named a branch in their own words (chat, `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`): then use it.'), 'medium branch');
 });
