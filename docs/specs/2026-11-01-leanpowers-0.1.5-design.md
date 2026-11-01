@@ -133,8 +133,8 @@ Ort der Regel im Text: `design` Schritt 5 (Spec), `plan` Schritt 7 (Plan), `staf
 ### 6.1 Neuer Befehl `leanpowers report --plan <plan>`
 
 - Quelle: `<paths.runs>/<plan-basename>/progress.md`. Fehlt sie: Exit 1, `no ledger for <plan>: <pfad>`.
-- Ziel: `<paths.reports>/<plan-basename>.md`; eine vorhandene Datei wird überschrieben, gleiche Eingabe ergibt gleiche
-  Datei. Ausgabe auf stdout: der Pfad der Datei.
+- Ziel: `<paths.reports>/<plan-basename>.md`; der Ordner wird bei Bedarf angelegt (eigener Pfad, Abschnitt 5.1); eine
+  vorhandene Datei wird überschrieben, gleiche Eingabe ergibt gleiche Datei. Ausgabe auf stdout: der Pfad der Datei.
 - Inhalt:
 
   ```markdown
