@@ -3,7 +3,7 @@
 A lean workflow plugin for AI coding assistants: design, plan, subagent execution and
 deterministic checks, with as little always-loaded text as possible. It is built for Claude Code,
 Codex and Gemini CLI (status: see the [platform table](docs/README.md#platform-status)), has zero
-dependencies and needs Node.js 20 or newer. Current version: 0.1.5.
+dependencies and needs Node.js 20 or newer. Current version: 0.1.6.
 
 ## Why lean
 
@@ -56,7 +56,7 @@ After a plugin update, start a new session: running sessions keep the old skills
 
 ## Status / Verify it yourself
 
-Version 0.1.5. The authors made no paid test runs (a deliberate decision, see the design spec,
+Version 0.1.6. The authors made no paid test runs (a deliberate decision, see the design spec,
 section 16); this is what is and is not confirmed.
 
 Confirmed:

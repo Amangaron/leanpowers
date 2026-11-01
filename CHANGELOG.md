@@ -4,6 +4,22 @@ All notable changes to leanpowers are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.6] - 2026-11-01
+
+These changes follow from a test run of 0.1.5 in a test project.
+
+### Added
+
+- `brief --plan`, `brief --file`, `check --plan … --task …` and `check --brief …` warn when HEAD is on the default branch (a remote's HEAD branch, else `main` or `master`); the warning never changes the result or the exit code.
+
+### Changed
+
+- `plan` runs the first three `staff` steps and asks the user to approve the plan and the staffing in one message; after a plan change the staffer runs again. `staff` invoked on its own shows the staffing and waits for a yes.
+- `design` creates `feat/<topic>` before the spec commit, and the medium path before its brief, unless the user named a branch in their own words.
+- The ledger's branch guard treats a description of the current state in a dispatch prompt as no user instruction; a ruling that relies on a user instruction quotes it. The orchestrator prompt names no branch.
+- `design`, `plan`, `staff` and `run` stop and ask for access when a file they rely on cannot be read, instead of improvising its steps.
+- The medium line in `design` names its steps; a new red flag says that a new command is large.
+
 ## [0.1.5] - 2026-11-01
 
 These changes follow from a second pilot in a test project.
