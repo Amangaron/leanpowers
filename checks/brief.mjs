@@ -6,6 +6,14 @@ import { matchesAny, toPosix } from './lib/glob.mjs';
 import { cliCommand } from './start.mjs';
 import { approvedFoldersFor } from './check.mjs';
 
+export const BRIEF_NAME_ERROR = 'brief --file needs a task-<n>-brief.md';
+
+/** Task number of a task-<n>-brief.md file name, or null for any other name. */
+export function briefTaskNumber(file) {
+  const m = /^task-(\d+)-brief\.md$/.exec(path.basename(file));
+  return m ? Number(m[1]) : null;
+}
+
 /** Run directory for a plan: <root>/<paths.runs>/<plan basename without .md>, self-ignoring. */
 export function runDirFor(root, config, planPath) {
   const name = path.basename(planPath).replace(/\.md$/, '');
@@ -44,7 +52,7 @@ export function buildBrief(plan, n, config, runDirRel, planRel = 'the plan', exi
       : []),
     `## Structure rules\n\n${structure}`,
     `## Task\n\n${body}`,
-    `## When done\n\nRun \`${cliCommand()} check --plan ${planRel} --task ${n}\`, written out in every call (never stored in a shell variable). Write your report (max 150 words) to \`${reportPath}\`: what changed, test result, open questions.`,
+    `## When done\n\nRun \`${cliCommand()} check --plan ${planRel} --task ${n}\`, written out in every call. Write every shell command and path out in full; never store a command or path in a shell variable. Write your report (max 150 words) to \`${reportPath}\`: what changed, test result, open questions.`,
   ].join('\n\n') + '\n';
 }
 
@@ -69,10 +77,10 @@ export function writeBrief(root, planPath, n, config, { resetBase = false } = {}
 export function writeBaseFor(root, briefPath, { resetBase = false } = {}) {
   const abs = path.resolve(root, briefPath);
   const rel = toPosix(path.relative(root, abs));
-  const m = /^task-(\d+)-brief\.md$/.exec(path.basename(abs));
-  if (!m) throw new Error('brief --file needs a task-<n>-brief.md');
+  const n = briefTaskNumber(abs);
+  if (n === null) throw new Error(BRIEF_NAME_ERROR);
   if (!fs.existsSync(abs)) throw new Error(`brief not found: ${rel}`);
-  const baseFile = path.join(path.dirname(abs), `task-${m[1]}-base.txt`);
+  const baseFile = path.join(path.dirname(abs), `task-${n}-base.txt`);
   if (resetBase || !fs.existsSync(baseFile)) fs.writeFileSync(baseFile, `${headSha(root)}\n`);
   return abs;
 }

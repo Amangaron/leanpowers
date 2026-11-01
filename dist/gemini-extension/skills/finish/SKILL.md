@@ -10,11 +10,11 @@ Verify first, then let the user choose. Never push, merge or discard on your own
 
 ## 1. Verify
 
-Run `leanpowers check --all`. If it is not green, show the user the findings. Merge and pull request stay blocked until it is green (fix first; invoke the `debug` skill for failures you do not understand). The user may still explicitly choose to keep the branch or to discard it. Uncommitted changes outside the run folder (the check warns about them) also block merge and pull request: list them and ask whether to commit them first.
+Run `leanpowers check --all`. If it is not green, show the user the findings. Merge and pull request stay blocked until it is green (fix first; invoke the `debug` skill for failures you do not understand). The user may still explicitly choose keep or discard. Uncommitted changes outside the run folder (the check warns about them) also block merge and pull request: list them and ask whether to commit them first.
 
 ## 2. Establish the base
 
-Find the branch this work merges into. For a plan run, read it from the ledger's `Base branch:` line (not a commit); otherwise take the nearest of `main` or `master`. If unsure, ask the user.
+Find the branch this work merges into. For a plan run, read it from the ledger's `Base branch:` line (not a commit); otherwise the nearest of `main` or `master`. If unsure, ask the user. If the work sits uncommitted on the base branch, create `feat/<topic>` and commit there (after the question from step 1) before the options. If it is already committed on the base branch, say so: there is nothing to merge; offer only keep and push, and never rewrite the base branch's history.
 
 ## 3. Offer exactly four options
 
@@ -25,23 +25,25 @@ Present these four, nothing more (while the check is red, mark options 1 and 2 a
 3. **Keep the branch** as it is; the user handles it later.
 4. **Discard** the work.
 
+**Git read-only:** if a git write fails because `.git` is not writable (sandbox, permissions), still offer the four options; for the chosen one, print the exact git commands for the user to run, say clearly that nothing is committed, and clean up nothing.
+
 ## 4. Execute the choice
 
-**Merge locally:** from the main checkout (not inside the worktree), check out the base, update it if a remote exists, merge the feature branch, run `leanpowers check --all` again on the merged result. Red: report, delete and remove nothing. Green: clean up (step 5), which ends with the safe branch delete (`git branch -d`).
+**Merge locally:** from the main checkout (not inside the worktree), check out the base, update it if a remote exists, merge the feature branch, run `leanpowers check --all` on the merged result. Red: report, delete and remove nothing. Green: clean up (step 5), which ends with the safe branch delete (`git branch -d`).
 
-**Push and PR:** push the branch with upstream tracking, then open a pull request whose body has a short summary and a test plan taken from the plan and the check output. Show the user the PR link. Keep the worktree: review may need changes.
+**Push and PR:** push the branch with upstream tracking, then open a pull request whose body has a short summary and a test plan from the plan and the check output. Show the user the PR link. Keep the worktree: review may need changes.
 
 **Keep:** report the branch name and worktree location. Clean up nothing.
 
-**Discard:** list what would be lost (branch, commits, worktree path) and ask the user to type the word `discard`. Anything else cancels. Only after that exact confirmation clean up (step 5), ending with a force delete (`git branch -D`).
+**Discard:** list what would be lost (branch, commits, worktree path) and ask the user to type `discard`. Anything else cancels. Only after that exact confirmation clean up (step 5), ending with a force delete (`git branch -D`).
 
 ## 5. Clean up
 
 After a merge or confirmed discard only:
 
-- If the work lives in a git worktree, remove it first: run `git worktree remove <path>` from the main checkout. Git refuses to delete a branch that is still checked out in a worktree.
+- If the work lives in a git worktree, remove it first: run `git worktree remove <path>` from the main checkout. Git refuses to delete a branch still checked out in a worktree.
 - Then delete the feature branch: `git branch -d` after a merge, `git branch -D` only after the typed `discard`.
-- Remove the plan's run folder `<paths.runs>/<plan-basename>/` once the user has seen the final ruling lines and open minors (the `run` skill shows them before invoking this skill). Skip this when there is no run folder.
+- Remove the plan's run folder `<paths.runs>/<plan-basename>/` only when `<paths.reports>/<plan-basename>.md` exists (otherwise run `leanpowers report --plan <plan>` and commit it first) and the user has seen the final ruling lines and open minors. Skip this when there is no run folder.
 
 ## Never
 

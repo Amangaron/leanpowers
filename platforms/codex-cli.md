@@ -2,6 +2,8 @@
 
 Translates leanpowers' neutral actions into OpenAI Codex tools.
 
+Skills write `<plugin>` for the plugin folder: two levels above any leanpowers `SKILL.md` (here the folder holding this platform.md).
+
 ## Actions
 
 | Action | Codex mechanism |
@@ -22,15 +24,21 @@ Translates leanpowers' neutral actions into OpenAI Codex tools.
 | medium | `models.medium` if set, else default subagent model with `reasoning_effort` `medium` |
 | large | `models.large` if set, else default subagent model with `reasoning_effort` `high` |
 
+Set the tier through `reasoning_effort` only. Pass `model` only when `models.*` in `leanpowers.json` names one; never pick a model name from a catalog or a model list.
+
 `auto` means this table. The model is chosen per call; only the user can switch the main model (`/model`).
 
 ## Orchestration
 
 `auto` is supported. Nesting is allowed, so an orchestrator subagent can dispatch implementers and reviewers. Plugins cannot ship agent definitions, so templates are passed as the `message`.
 
+## Shell
+
+Write every shell command and path out in full; never store a command or path in a shell variable (zsh does not split words, and some harnesses block variables). This holds for the main session and every subagent.
+
 ## CLI
 
-Run checks with `node "<this plugin>/bin/leanpowers.mjs" <args>`; the plugin folder is two levels above any leanpowers SKILL.md (each skill that uses the CLI carries this line). `$PLUGIN_ROOT` is not relied on (unverified).
+Run checks with `node "<plugin>/bin/leanpowers.mjs" <args>`; the plugin folder is two levels above any leanpowers SKILL.md (each skill that uses the CLI carries this line). `$PLUGIN_ROOT` is not relied on (unverified).
 
 Disabling a skill: add `[[skills.config]]` with `path=...` and `enabled=false` to `config.toml`. `leanpowers skills --native codex` prints these blocks; leanpowers never edits Codex's configuration itself.
 

@@ -20,7 +20,7 @@ are tagged `(unverified)` in `platforms/*.md`.
 
 ## Status / Verify it yourself
 
-Version 0.1.4. The authors made no paid test runs (a deliberate decision, see the design spec,
+Version 0.1.5. The authors made no paid test runs (a deliberate decision, see the design spec,
 section 16); this is what is and is not confirmed.
 
 Confirmed:
@@ -126,6 +126,7 @@ The CLI is `bin/leanpowers.mjs`. Inside a plugin, the commands run it for you; f
 | `check --brief <file>` | Also check scope and structure against a hand-written medium brief (base from `brief --file`). |
 | `brief --file <brief> [--reset-base]` | Record the base commit for a hand-written `task-<n>-brief.md` and print its path. |
 | `metrics --plan <file>` | Count the briefs, reports and reviews of a run. |
+| `report --plan <file>` | Write the rulings, open minors and final lines of a run from the ledger to `paths.reports`. |
 | `config` | Print the effective configuration (defaults merged). |
 | `start [--format plain\|claude]` | Print the session start text. |
 | `skills` | List skills and switch them (see below). |
@@ -133,7 +134,8 @@ The CLI is `bin/leanpowers.mjs`. Inside a plugin, the commands run it for you; f
 
 The workflow commands `design`, `plan`, `staff`, `run`, `debug` and `finish` start the matching
 skill (on Claude Code they are the skills themselves); `review`, `tdd`, `verify`, `worktrees` and
-`write-skill` are used by those skills.
+`write-skill` are used by those skills. `finish` also runs without git write access and then prints
+the git commands for you to run. Configured `paths` win over the folders of other plugins.
 
 ## Switch skills: `leanpowers skills`
 

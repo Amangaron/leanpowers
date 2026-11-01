@@ -35,7 +35,7 @@ function project() {
 test('unknown command prints usage and exits 2', () => {
   const r = run('nope');
   assert.equal(r.status, 2);
-  assert.match(r.stderr, /usage: leanpowers <check\|brief\|metrics\|config\|start\|skills\|init>/);
+  assert.match(r.stderr, /usage: leanpowers <check\|brief\|metrics\|report\|config\|start\|skills\|init>/);
 });
 
 test('usage lists every command with its flags', () => {
@@ -44,6 +44,7 @@ test('usage lists every command with its flags', () => {
     'check [--all] [--plan <file> --task <n> | --brief <file>]',
     'brief (--plan <file> --task <n> | --file <brief>) [--reset-base]',
     'metrics --plan <file>',
+    'report --plan <file>',
     'config',
     'start [--format plain|claude]',
     'skills [--list | --set <name>=on|off,... | --native claude|codex|gemini]',
@@ -65,7 +66,7 @@ test('check with only --plan or only --task is a usage error', () => {
   for (const args of [['--plan', 'x.md'], ['--task', '1']]) {
     const r = run('check', ...args);
     assert.equal(r.status, 2);
-    assert.match(r.stderr, /usage: leanpowers <check\|brief\|metrics\|config\|start\|skills\|init>/);
+    assert.match(r.stderr, /usage: leanpowers <check\|brief\|metrics\|report\|config\|start\|skills\|init>/);
   }
 });
 
@@ -204,6 +205,16 @@ test('brief --file records the base for a hand-written brief and check --brief u
   assert.match(c.stdout, /✖ scope\n  not in brief: stray\.txt/);
 });
 
+test('brief --file accepts a brief inside paths.runs without a warning', () => {
+  const root = project();
+  const rel = '.leanpowers/runs/demo/task-1-brief.md';
+  fs.mkdirSync(path.join(root, '.leanpowers/runs/demo'), { recursive: true });
+  fs.writeFileSync(path.join(root, rel), '# Task 1 brief: A\n');
+  const r = spawn(root, 'brief', '--file', rel);
+  assert.equal(r.status, 0, r.stderr);
+  assert.equal(r.stderr, '');
+});
+
 test('brief --file with a wrong name or a missing brief prints one line and exits 1', () => {
   const root = project();
   fs.writeFileSync(path.join(root, 'notes.md'), 'n');
@@ -213,4 +224,47 @@ test('brief --file with a wrong name or a missing brief prints one line and exit
   const missing = spawn(root, 'brief', '--file', 'runs/task-1-brief.md');
   assert.equal(missing.status, 1);
   assert.equal(missing.stderr.trim(), 'brief not found: runs/task-1-brief.md');
+});
+
+test('report writes the run report and prints its path', () => {
+  const root = project();
+  fs.mkdirSync(path.join(root, '.leanpowers/runs/demo'), { recursive: true });
+  fs.writeFileSync(path.join(root, '.leanpowers/runs/demo/progress.md'), '# leanpowers ledger — plan: docs/plans/demo.md\n\n## Tasks\nRuling: a — b — c\n');
+  const r = spawn(root, 'report', '--plan', 'docs/plans/demo.md');
+  assert.equal(r.status, 0);
+  assert.equal(r.stdout, 'docs/reports/demo.md\n');
+  assert.match(fs.readFileSync(path.join(root, 'docs/reports/demo.md'), 'utf8'), /^Ruling: a — b — c$/m);
+});
+
+test('report without a ledger exits 1; without --plan it prints usage', () => {
+  const root = project();
+  const r = spawn(root, 'report', '--plan', 'docs/plans/demo.md');
+  assert.equal(r.status, 1);
+  assert.equal(r.stderr, 'no ledger for docs/plans/demo.md: .leanpowers/runs/demo/progress.md\n');
+  const u = spawn(root, 'report');
+  assert.equal(u.status, 2);
+  assert.match(u.stderr, /^  report --plan <file>$/m);
+});
+
+test('brief and metrics warn on stderr when the plan is outside paths.plans', () => {
+  const root = project();
+  fs.mkdirSync(path.join(root, 'plans'));
+  fs.writeFileSync(path.join(root, 'plans/x.md'), PLAN);
+  const b = spawn(root, 'brief', '--plan', 'plans/x.md', '--task', '1');
+  assert.equal(b.status, 0);
+  assert.equal(b.stderr, 'warning: plan outside paths.plans (docs/plans): plans/x.md\n');
+  const m = spawn(root, 'metrics', '--plan', 'plans/x.md');
+  assert.equal(m.status, 0);
+  assert.equal(m.stderr, 'warning: plan outside paths.plans (docs/plans): plans/x.md\n');
+  assert.equal(spawn(root, 'brief', '--plan', 'docs/plans/demo.md', '--task', '1').stderr, '');
+});
+
+test('brief --file warns on stderr when the brief is outside paths.runs', () => {
+  const root = project();
+  fs.mkdirSync(path.join(root, 'notes'));
+  fs.writeFileSync(path.join(root, 'notes/task-1-brief.md'), '# Task 1 brief: A\n');
+  const r = spawn(root, 'brief', '--file', 'notes/task-1-brief.md');
+  assert.equal(r.status, 0);
+  assert.equal(r.stdout, 'notes/task-1-brief.md\n');
+  assert.equal(r.stderr, 'warning: brief outside paths.runs (.leanpowers/runs): notes/task-1-brief.md\n');
 });

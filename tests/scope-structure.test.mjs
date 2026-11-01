@@ -58,3 +58,12 @@ test('scope names leanpowers.json as the project configuration', () => {
   ]);
   assert.equal(checkScope(['leanpowers.json'], ['leanpowers.json']).ok, true);
 });
+
+test('structure: own folders, their parents and children are never new, in ask and deny', () => {
+  const own = ['docs/specs', 'docs/plans', 'docs/reports', '.leanpowers/runs'];
+  const changed = ['docs/specs/s.md', '.leanpowers/runs/p/x.md', 'docs/neu/x.md'];
+  for (const newFolders of ['ask', 'deny']) {
+    const r = checkStructure({ changed, rules: [], newFolders, existingDirs: new Set(), ownFolders: own });
+    assert.deepEqual(r.messages, [newFolders === 'ask' ? 'new folder needs approval: docs/neu' : 'new folder not allowed: docs/neu'], newFolders);
+  }
+});

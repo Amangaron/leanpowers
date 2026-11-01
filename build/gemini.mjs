@@ -7,7 +7,7 @@ import { packageMeta } from './meta.mjs';
 // (unverified) whether Gemini CLI substitutes ${extensionPath} in context files and command prompts.
 const CLI = 'node "${extensionPath}/bin/leanpowers.mjs"';
 const FALLBACK = 'if `${extensionPath}` is not expanded, the extension folder is the one containing gemini-extension.json';
-const CONTEXT_FALLBACK = 'unexpanded: the folder holding gemini-extension.json';
+const CONTEXT_FALLBACK = 'else: folder of gemini-extension.json';
 
 const DESCRIPTIONS = {
   design: 'Turn an idea into an approved design before any code',

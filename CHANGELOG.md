@@ -4,6 +4,33 @@ All notable changes to leanpowers are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.5] - 2026-11-01
+
+These changes follow from a second pilot in a test project.
+
+### Added
+
+- `report --plan <file>` writes the rulings, open minors and final lines of a run from the ledger to `paths.reports`.
+- Plan and brief path warnings: a plan or brief outside the configured `paths` folder prints a warning.
+- `init` writes `paths` into `leanpowers.json`.
+
+### Changed
+
+- The start text invokes `design` first and shares one large-size rule with it; large allows subagents for reading, reviewing and writing spec and plan before plan approval.
+- `design` asks up to three independent questions per message.
+- Configured `paths` win over other plugins' folders and count as approved folders.
+- The medium path creates a feature branch and always ends in `finish`; `finish` handles work on the base branch and read-only git.
+- `staff` always shows the staffing and names its own changes.
+- Template paths are written as `<plugin>/prompts/...`.
+- The rule against shell variables for commands and paths covers every role.
+- Codex tiers are set only via `reasoning_effort`.
+- The ledger logs the implementer name before dispatch and its id after.
+
+### Fixed
+
+- `1 file` instead of `1 files` in the check output.
+- One shared brief file-name check.
+
 ## [0.1.4] - 2026-11-01
 
 ### Added

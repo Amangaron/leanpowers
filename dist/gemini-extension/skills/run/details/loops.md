@@ -21,7 +21,7 @@ Both loops are capped at `review.maxFixRounds` and counted separately: gate retr
 1. Note HEAD. Resume the implementer that owns the files with the review file path; if it cannot be resumed, dispatch a fresh one with brief, report and the review path.
 2. When the substitute gate applies, the dispatch says so explicitly: "Later tasks are committed, so your brief's When-done check cannot pass. Change only your allowed files; run `leanpowers check` instead and commit when it is green."
 3. Run the gate (normal or substitute) yourself; red → gate rules above.
-4. Write the diff from the noted commit to HEAD into `review-<id>-r<r>.diff`. Dispatch a subagent at tier small with template `prompts/re-reviewer.md`: `{{findings}}` = the previous review file, `{{diff}}`, `{{report}}`, `{{review}}` = `review-<id>-r<r>.md`.
+4. Write the diff from the noted commit to HEAD into `review-<id>-r<r>.diff`. Dispatch a subagent at tier small with template `<plugin>/prompts/re-reviewer.md`: `{{findings}}` = the previous review file, `{{diff}}`, `{{report}}`, `{{review}}` = `review-<id>-r<r>.md`.
 5. New Critical or Important problems in the fix diff join the open list. Log `review round <r>/<max>`.
 6. After the cap, rule on each open finding: park it, or order the smallest change that dependent tasks need and carry it into their dispatch.
 
