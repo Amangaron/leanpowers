@@ -20,7 +20,7 @@ einen echten Lauf brauchen, stehen in `platforms/*.md` mit dem Zusatz `(unverifi
 
 ## Stand / Selbst prüfen
 
-Version 0.1.3. Die Autoren haben keine kostenpflichtigen Testläufe gemacht (bewusste
+Version 0.1.4. Die Autoren haben keine kostenpflichtigen Testläufe gemacht (bewusste
 Entscheidung, siehe Entwurf, Abschnitt 16). So ist der Stand:
 
 Bestätigt:

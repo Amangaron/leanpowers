@@ -1,6 +1,6 @@
 {
   "name": "leanpowers",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Lean, cross-assistant workflow plugin: design, plan, subagent execution, deterministic checks.",
   "author": {
     "name": "Dominic Shin"
