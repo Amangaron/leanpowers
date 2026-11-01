@@ -62,12 +62,13 @@ test('start text tells how to run the CLI unless it is on PATH', () => {
   }
 });
 
-test('start text names the size marker, the plan gate for large and finish for medium', () => {
+test('start text invokes design first, names the size marker, the large criteria and the plan gate', () => {
   const t = startText(repo, DEFAULTS, 'leanpowers');
-  assert.ok(t.includes('leanpowers workflow by size (unclear → larger), named first as `Size: small|medium|large`:'));
-  assert.ok(t.includes('Large plan approval before any code or subagent dispatch'));
-  assert.match(t, /^- Medium \(bounded change in existing code\): `design` in chat, one subagent, `leanpowers check`, `finish`\.$/m);
-  assert.match(t, /^- Large \(new feature or project, several areas, interfaces\): `design` \(spec\), `plan`, `staff`, `run`, `finish`\.$/m);
-  assert.doesNotMatch(t, /explicit requests/);
+  assert.ok(t.includes('leanpowers: before answering any change request, invoke the `design` skill; it holds the size rule and the gates.'));
+  assert.ok(t.includes('Open with `Size: small|medium|large` (unclear → larger):'));
+  assert.match(t, /^- Large: new feature, command or data field, several areas, or interfaces\.$/m);
+  assert.match(t, /^- Medium: bounded change to a flow that already exists\.$/m);
+  assert.ok(t.includes('Medium needs design approval and Large plan approval before any code or implementer dispatch'));
+  assert.doesNotMatch(t, /subagent dispatch/);
   assert.ok(estimateTokens(t) <= 150);
 });

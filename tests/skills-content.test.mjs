@@ -78,7 +78,7 @@ test('staff and run point at the shipped platform map', () => {
 });
 
 test('orchestration waits instead of stalling and approval comes before delegation', () => {
-  assert.ok(read('skills/start/SKILL.md').includes('before any code or subagent dispatch'), 'start');
+  assert.ok(read('skills/start/SKILL.md').includes('before any code or implementer dispatch'), 'start');
   assert.match(read('agents/orchestrator.md'), /turn ends only with a final reply whose first line is `Status: DONE` or `Status: NEEDS_USER`/);
   assert.ok(read('skills/run/SKILL.md').includes('never end the turn'), 'run');
 });
@@ -96,21 +96,32 @@ test('readmes tell users to start a new session after a plugin update', () => {
   assert.match(read('docs/README.de.md'), /neue Sitzung/);
 });
 
-test('design names the size marker, the plan gate and the medium brief check', () => {
+test('design names the size marker, the large criteria, the gates and the medium path', () => {
   const design = read('skills/design/SKILL.md');
   assert.ok(design.includes('open your reply with the class in this exact form, in any language'), 'marker rule');
   assert.ok(design.includes('"Size: medium —'), 'marker example');
+  assert.ok(design.includes('write no code, dispatch no implementer, scaffold nothing'), 'gate');
+  assert.ok(design.includes('- **Large:** new feature or project, a new command or data field, several areas, or changed interfaces.'), 'large');
   assert.ok(design.includes('   This yes opens the spec, not the code: no implementer before an approved plan.'), 'step 4');
+  assert.ok(design.includes('   Until the plan is approved, subagents may read, review or write the spec and plan, never code.'), 'subagents before plan');
+  assert.ok(design.includes('up to three independent questions per message'), 'bundled questions');
+  assert.ok(design.includes("configured paths win over other plugins' folders and temp folders"), 'own paths');
+  assert.ok(design.includes('only approvals the user gave'), 'no claimed approvals');
+  assert.ok(design.includes('Medium → follow [details/medium.md](details/medium.md) step by step. No spec, no plan.'), 'medium');
   assert.ok(design.includes('- "Design approved, one implementer will do" → that is medium; large needs spec and plan.'), 'red flag');
-  assert.ok(design.includes('write the brief as [details/medium.md](details/medium.md) says and run `leanpowers brief --file <brief>`'), 'medium brief');
-  assert.ok(design.includes('run `leanpowers check --brief <brief>` yourself, then invoke the `finish` skill. No spec, no plan.'), 'check --brief and finish');
   const medium = read('skills/design/details/medium.md');
-  assert.ok(medium.startsWith('# Medium brief\n'), 'title');
+  assert.ok(medium.startsWith('# Medium path\n'), 'title');
+  assert.ok(medium.includes('create and switch to `feat/<topic>`. A branch the user named wins.'), 'branch');
   assert.ok(medium.includes('in the form `<cli> check --brief <brief path>`'), 'check form');
-  assert.ok(medium.includes('never store\n  it in a shell variable'), 'shell variable');
+  assert.ok(medium.includes('never store a command or path in a shell variable'), 'shell variable');
   assert.ok(medium.includes('Commit with `<type>: <topic>`, one commit.'), 'commit');
-  assert.ok(medium.includes('list those folders\n  as `Approved new folders: <folders>`.'), 'approved folders');
-  assert.ok(medium.includes('Then run `leanpowers brief --file <brief path>`'), 'base');
+  assert.ok(medium.includes('list those folders as `Approved new folders: <folders>`.'), 'approved folders');
+  assert.ok(medium.includes('run `leanpowers brief --file <brief path>`'), 'base');
+  assert.ok(medium.includes('template `agents/implementer.md`'), 'template');
+  assert.ok(medium.includes('run `leanpowers check --brief <brief path>` yourself'), 'check');
+  assert.ok(medium.includes('invoke the `finish` skill, also when a commit failed'), 'finish');
+  const startLarge = /^- Large: new feature, command or data field/m;
+  assert.match(read('skills/start/SKILL.md'), startLarge, 'start and design share the large criteria');
 });
 
 test('verify names what check and check --all run, and the medium check', () => {

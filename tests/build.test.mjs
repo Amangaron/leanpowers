@@ -152,7 +152,7 @@ test('the skills command passes arguments through, else lists and asks', () => {
 test('gemini start text names the extension folder fallback and stays small', () => {
   const text = read('gemini-extension/GEMINI.md');
   assert.match(text, /^CLI: run leanpowers as node "\$\{extensionPath\}\/bin\/leanpowers\.mjs" \(else: folder of gemini-extension\.json\)\.$/m);
-  assert.match(text, /named first as `Size: small\|medium\|large`/);
+  assert.match(text, /invoke the `design` skill/);
   assert.ok(estimateTokens(text) <= 150);
   for (const cmd of ['skills', 'init']) {
     assert.match(read(`gemini-extension/commands/leanpowers/${cmd}.toml`), /the extension folder is the one containing gemini-extension\.json/, cmd);
