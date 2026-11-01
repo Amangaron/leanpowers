@@ -205,6 +205,16 @@ test('brief --file records the base for a hand-written brief and check --brief u
   assert.match(c.stdout, /✖ scope\n  not in brief: stray\.txt/);
 });
 
+test('brief --file accepts a brief inside paths.runs without a warning', () => {
+  const root = project();
+  const rel = '.leanpowers/runs/demo/task-1-brief.md';
+  fs.mkdirSync(path.join(root, '.leanpowers/runs/demo'), { recursive: true });
+  fs.writeFileSync(path.join(root, rel), '# Task 1 brief: A\n');
+  const r = spawn(root, 'brief', '--file', rel);
+  assert.equal(r.status, 0, r.stderr);
+  assert.equal(r.stderr, '');
+});
+
 test('brief --file with a wrong name or a missing brief prints one line and exits 1', () => {
   const root = project();
   fs.writeFileSync(path.join(root, 'notes.md'), 'n');

@@ -78,7 +78,7 @@ Read each task's last line, not the file's last line.
 
 ## Report
 
-`leanpowers report --plan <plan>` copies the header line, every `Ruling:`, `minor (deferred)`, `parked`, `Stop:` and `Final:` line and the `## Metrics` section into `<paths.reports>/<plan-basename>.md`. Run it after `metrics` and commit the file; `finish` removes the run folder only when it exists.
+`leanpowers report --plan <plan>` copies the header line, every `Ruling:`, `minor (deferred)`, `parked`, `Stop:` and `Final:` line and the `## Metrics` section into `<paths.reports>/<plan-basename>.md`. Run it after `metrics` and commit the file as `docs: run report <topic>`; `finish` removes the run folder only when the report exists.
 
 ## Metrics
 

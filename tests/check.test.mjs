@@ -328,3 +328,9 @@ test('a plan or brief outside its configured folder gives a warning', () => {
   assert.match(runCheck({ root, brief: 'notes/task-1-brief.md', userConfigPath: NO_USER }).text,
     /\n⚠ brief outside paths\.runs \(\.leanpowers\/runs\): notes\/task-1-brief\.md$/);
 });
+
+test('a missing plan file outside paths.plans gives no outside warning', () => {
+  const root = project({ commands: { test: 'node ok.mjs' } });
+  const r = runCheck({ root, plan: 'plans/missing.md', task: 1, userConfigPath: NO_USER });
+  assert.doesNotMatch(r.text, /⚠ plan outside/);
+});

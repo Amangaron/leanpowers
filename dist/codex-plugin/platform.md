@@ -38,7 +38,7 @@ Write every shell command and path out in full; never store a command or path in
 
 ## CLI
 
-Run checks with `node "<this plugin>/bin/leanpowers.mjs" <args>`; the plugin folder is two levels above any leanpowers SKILL.md (each skill that uses the CLI carries this line). `$PLUGIN_ROOT` is not relied on (unverified).
+Run checks with `node "<plugin>/bin/leanpowers.mjs" <args>`; the plugin folder is two levels above any leanpowers SKILL.md (each skill that uses the CLI carries this line). `$PLUGIN_ROOT` is not relied on (unverified).
 
 Disabling a skill: add `[[skills.config]]` with `path=...` and `enabled=false` to `config.toml`. `leanpowers skills --native codex` prints these blocks; leanpowers never edits Codex's configuration itself.
 

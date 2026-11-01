@@ -6,6 +6,8 @@ All notable changes to leanpowers are documented here. The format follows
 
 ## [0.1.5] - 2026-11-01
 
+These changes follow from a second pilot in a test project.
+
 ### Added
 
 - `report --plan <file>` writes the rulings, open minors and final lines of a run from the ledger to `paths.reports`.
@@ -19,7 +21,6 @@ All notable changes to leanpowers are documented here. The format follows
 - Configured `paths` win over other plugins' folders and count as approved folders.
 - The medium path creates a feature branch and always ends in `finish`; `finish` handles work on the base branch and read-only git.
 - `staff` always shows the staffing and names its own changes.
-- Changes follow from a second pilot on a test project.
 - Template paths are written as `<plugin>/prompts/...`.
 - The rule against shell variables for commands and paths covers every role.
 - Codex tiers are set only via `reasoning_effort`.
