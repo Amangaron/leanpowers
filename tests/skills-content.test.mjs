@@ -143,3 +143,13 @@ test('orchestrator turn rule, resume before re-dispatch, one implementer per tas
   assert.ok(loops.includes('Never poll, and never end the turn while one of your subagents works. Never dispatch a second implementer for a task while the first may still be working.'), 'loops dispatch');
   assert.ok(loops.includes('never store it in a shell variable (`S="node …"; $S` fails in zsh, which does not split words).'), 'loops zsh');
 });
+
+test('finish blocks on uncommitted changes and the readmes name the medium check', () => {
+  assert.ok(read('skills/finish/SKILL.md').includes('Uncommitted changes outside the run folder (the check warns about them) also block merge and pull request: list them and ask whether to commit them first.'));
+  const en = read('docs/README.md');
+  assert.ok(en.includes('| `check --brief <file>` |'), 'en check --brief');
+  assert.ok(en.includes('| `brief --file <brief> [--reset-base]` |'), 'en brief --file');
+  const de = read('docs/README.de.md');
+  assert.ok(de.includes('| `check --brief <Datei>` |'), 'de check --brief');
+  assert.ok(de.includes('| `brief --file <Brief> [--reset-base]` |'), 'de brief --file');
+});

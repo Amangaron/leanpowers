@@ -123,6 +123,8 @@ The CLI is `bin/leanpowers.mjs`. Inside a plugin, the commands run it for you; f
 | `check [--all]` | Run the gates (test, typecheck, lint commands); `--all` adds doc lint and skill lint. |
 | `check --plan <file> --task <n>` | Also check scope and structure of one plan task. |
 | `brief --plan <file> --task <n>` | Write the brief for one plan task and print its path. |
+| `check --brief <file>` | Also check scope and structure against a hand-written medium brief (base from `brief --file`). |
+| `brief --file <brief> [--reset-base]` | Record the base commit for a hand-written `task-<n>-brief.md` and print its path. |
 | `metrics --plan <file>` | Count the briefs, reports and reviews of a run. |
 | `config` | Print the effective configuration (defaults merged). |
 | `start [--format plain\|claude]` | Print the session start text. |
