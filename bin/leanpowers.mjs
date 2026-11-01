@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { runCheck } from '../checks/check.mjs';
 import { loadConfig } from '../checks/lib/config.mjs';
 import { toPosix } from '../checks/lib/glob.mjs';
-import { writeBrief, runDirFor } from '../checks/brief.mjs';
+import { writeBrief, writeBaseFor, runDirFor } from '../checks/brief.mjs';
 import { writeMetrics } from '../checks/metrics.mjs';
 import { startText, agentsMdText } from '../checks/start.mjs';
 import { updateAgentsMd } from '../checks/agents-md.mjs';
@@ -14,8 +14,8 @@ import { listSkills, setSkills, nativeHint, formatList, parseSet, interactiveChe
 
 const USAGE = [
   'usage: leanpowers <check|brief|metrics|config|start|skills|init> [options]',
-  '  check [--all] [--plan <file> --task <n>]',
-  '  brief --plan <file> --task <n> [--reset-base]',
+  '  check [--all] [--plan <file> --task <n> | --brief <file>]',
+  '  brief (--plan <file> --task <n> | --file <brief>) [--reset-base]',
   '  metrics --plan <file>',
   '  config',
   '  start [--format plain|claude]',
@@ -28,13 +28,19 @@ function usage() {
   process.exit(2);
 }
 
-function parseArgs(argv, { skills = false, init = false, brief = false } = {}) {
+function parseArgs(argv, { skills = false, init = false, brief = false, check = false } = {}) {
   const opts = { all: false };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === '--all') opts.all = true;
     else if (brief && arg === '--reset-base') opts.resetBase = true;
-    else if (arg === '--plan') {
+    else if (brief && arg === '--file') {
+      opts.file = argv[++i];
+      if (!opts.file) usage();
+    } else if (check && arg === '--brief') {
+      opts.brief = argv[++i];
+      if (!opts.brief) usage();
+    } else if (arg === '--plan') {
       opts.plan = argv[++i];
       if (!opts.plan) usage();
     } else if (arg === '--task') {
@@ -66,7 +72,8 @@ const root = process.cwd();
 
 switch (command) {
   case 'check': {
-    const opts = parseArgs(rest);
+    const opts = parseArgs(rest, { check: true });
+    if (opts.brief !== undefined && (opts.plan !== undefined || opts.task !== undefined)) usage();
     if ((opts.plan === undefined) !== (opts.task === undefined)) usage();
     const result = runCheck({ root, ...opts });
     console.log(result.text);
@@ -74,7 +81,19 @@ switch (command) {
     break;
   }
   case 'brief': {
-    const { plan, task, resetBase } = parseArgs(rest, { brief: true });
+    const { plan, task, file, resetBase } = parseArgs(rest, { brief: true });
+    if (file !== undefined) {
+      if (plan !== undefined || task !== undefined) usage();
+      try {
+        console.log(toPosix(path.relative(root, writeBaseFor(root, file, { resetBase }))));
+      } catch (err) {
+        const msg = String(err.message);
+        if (!msg.startsWith('brief not found: ') && msg !== 'brief --file needs a task-<n>-brief.md') throw err;
+        console.error(msg);
+        process.exit(1);
+      }
+      break;
+    }
     if (!plan || task === undefined) usage();
     const { config } = loadConfig(root);
     try {

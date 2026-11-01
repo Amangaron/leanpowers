@@ -41,8 +41,8 @@ test('unknown command prints usage and exits 2', () => {
 test('usage lists every command with its flags', () => {
   const lines = run('nope').stderr.split('\n').map((l) => l.trim());
   for (const line of [
-    'check [--all] [--plan <file> --task <n>]',
-    'brief --plan <file> --task <n> [--reset-base]',
+    'check [--all] [--plan <file> --task <n> | --brief <file>]',
+    'brief (--plan <file> --task <n> | --file <brief>) [--reset-base]',
     'metrics --plan <file>',
     'config',
     'start [--format plain|claude]',
@@ -173,4 +173,44 @@ test('init --agents-md writes the start-text block without the subagent line', (
   assert.equal(write.status, 0);
   assert.match(write.stdout, /^AGENTS\.md: unchanged$/m);
   assert.equal(spawn(root, 'init', '--agents-md', '--write').status, 2);
+});
+
+test('check --brief and brief --file exclude the plan form', () => {
+  for (const args of [
+    ['check', '--brief', 'x.md', '--plan', 'y.md', '--task', '1'],
+    ['check', '--brief', 'x.md', '--task', '1'],
+    ['check', '--brief'],
+    ['check', '--file', 'x.md'],
+    ['brief', '--file', 'x.md', '--plan', 'y.md', '--task', '1'],
+    ['brief', '--file', 'x.md', '--plan', 'y.md'],
+    ['brief', '--file', 'x.md', '--task', '1'],
+    ['brief', '--file'],
+    ['brief', '--brief', 'x.md'],
+  ]) assert.equal(run(...args).status, 2, args.join(' '));
+});
+
+test('brief --file records the base for a hand-written brief and check --brief uses it', () => {
+  const root = project();
+  const rel = '.leanpowers/runs/2026-01-01-fix/task-1-brief.md';
+  fs.mkdirSync(path.join(root, '.leanpowers/runs/2026-01-01-fix'), { recursive: true });
+  fs.writeFileSync(path.join(root, rel), '# Task 1 brief: fix\n\n## Allowed files\n\n- `src/a.ts`\n');
+  const r = spawn(root, 'brief', '--file', rel);
+  assert.equal(r.status, 0, r.stderr);
+  assert.equal(r.stdout.trim(), rel);
+  assert.match(fs.readFileSync(path.join(root, '.leanpowers/runs/2026-01-01-fix/task-1-base.txt'), 'utf8'), /^[0-9a-f]{40}\n$/);
+  fs.writeFileSync(path.join(root, 'stray.txt'), 's');
+  const c = spawn(root, 'check', '--brief', rel);
+  assert.equal(c.status, 1);
+  assert.match(c.stdout, /✖ scope\n  not in brief: stray\.txt/);
+});
+
+test('brief --file with a wrong name or a missing brief prints one line and exits 1', () => {
+  const root = project();
+  fs.writeFileSync(path.join(root, 'notes.md'), 'n');
+  const wrong = spawn(root, 'brief', '--file', 'notes.md');
+  assert.equal(wrong.status, 1);
+  assert.equal(wrong.stderr.trim(), 'brief --file needs a task-<n>-brief.md');
+  const missing = spawn(root, 'brief', '--file', 'runs/task-1-brief.md');
+  assert.equal(missing.status, 1);
+  assert.equal(missing.stderr.trim(), 'brief not found: runs/task-1-brief.md');
 });

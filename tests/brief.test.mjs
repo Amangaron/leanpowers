@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { parsePlan } from '../checks/lib/plan.mjs';
-import { buildBrief, runDirFor, writeBrief } from '../checks/brief.mjs';
+import { buildBrief, runDirFor, writeBrief, writeBaseFor, parseBriefFile } from '../checks/brief.mjs';
 import { DEFAULTS } from '../checks/lib/defaults.mjs';
 import { cliCommand } from '../checks/start.mjs';
 
@@ -154,4 +154,43 @@ test('base is kept unless reset is requested', () => {
   assert.equal(fs.readFileSync(baseFile, 'utf8'), first);
   writeBrief(root, 'docs/plans/demo.md', 1, DEFAULTS, { resetBase: true });
   assert.equal(fs.readFileSync(baseFile, 'utf8').trim(), git('rev-parse', 'HEAD').trim());
+});
+
+test('writeBaseFor records the base next to a hand-written brief', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-brief-'));
+  const git = (...a) => execFileSync('git', ['-c', 'user.email=t@t', '-c', 'user.name=t', ...a], { cwd: root, encoding: 'utf8' });
+  git('init', '-q');
+  git('commit', '-q', '--allow-empty', '-m', 'one');
+  const dir = path.join(root, '.leanpowers/runs/2026-01-01-demo');
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, 'task-1-brief.md'), '# Task 1 brief: A\n');
+  const rel = '.leanpowers/runs/2026-01-01-demo/task-1-brief.md';
+  assert.equal(writeBaseFor(root, rel), path.join(dir, 'task-1-brief.md'));
+  const baseFile = path.join(dir, 'task-1-base.txt');
+  const first = fs.readFileSync(baseFile, 'utf8');
+  assert.equal(first, `${git('rev-parse', 'HEAD').trim()}\n`);
+  git('commit', '-q', '--allow-empty', '-m', 'two');
+  writeBaseFor(root, path.join(dir, 'task-1-brief.md'));
+  assert.equal(fs.readFileSync(baseFile, 'utf8'), first);
+  writeBaseFor(root, rel, { resetBase: true });
+  assert.equal(fs.readFileSync(baseFile, 'utf8').trim(), git('rev-parse', 'HEAD').trim());
+});
+
+test('writeBaseFor rejects other file names and missing briefs', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lp-brief-'));
+  fs.writeFileSync(path.join(root, 'notes.md'), 'n');
+  assert.throws(() => writeBaseFor(root, 'notes.md'), { message: 'brief --file needs a task-<n>-brief.md' });
+  assert.throws(() => writeBaseFor(root, 'r/task-2-brief.md'), { message: 'brief not found: r/task-2-brief.md' });
+  assert.equal(fs.existsSync(path.join(root, 'r')), false);
+});
+
+test('parseBriefFile reads allowed files and approved folders', () => {
+  const text = '# Task 1 brief: A\r\n\r\n## Allowed files\r\n\r\n- `src/a.ts`\r\n-  tests/a.test.ts \r\n- \r\nnot a path\r\n\r\n## Structure rules\r\n\r\n- src/** → allow *.ts\r\nNew folders: ask\r\nApproved new folders: `extra`, lib/x ,\r\n';
+  assert.deepEqual(parseBriefFile(text), { allowed: ['src/a.ts', 'tests/a.test.ts'], approvedFolders: ['extra', 'lib/x'] });
+  assert.deepEqual(parseBriefFile('## Allowed files\n\n- a.md\n'), { allowed: ['a.md'], approvedFolders: [] });
+  const generated = buildBrief(parsePlan(PLAN), 1, config, 'r', 'p.md', () => false);
+  assert.deepEqual(parseBriefFile(generated), {
+    allowed: ['src/components/Button.tsx', 'tests/button.test.ts'],
+    approvedFolders: ['src/components', 'tests'],
+  });
 });

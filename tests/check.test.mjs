@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { runCheck } from '../checks/check.mjs';
-import { writeBrief } from '../checks/brief.mjs';
+import { writeBrief, writeBaseFor } from '../checks/brief.mjs';
 import { loadConfig } from '../checks/lib/config.mjs';
 
 const NO_USER = path.join(os.tmpdir(), 'lp-none', 'config.json');
@@ -166,4 +166,90 @@ test('re-running brief keeps the original task base', () => {
   writeBrief(root, 'docs/plans/demo.md', 1, config);
   const r = runCheck({ root, plan: 'docs/plans/demo.md', task: 1, userConfigPath: NO_USER });
   assert.match(r.text, /✖ scope\n  not in brief: extra\.txt/);
+});
+
+const BRIEF_DIR = '.leanpowers/runs/2026-01-01-demo';
+const BRIEF = `${BRIEF_DIR}/task-1-brief.md`;
+
+function medium(root, { allowed = ['src/a.ts'], extra = '' } = {}) {
+  fs.mkdirSync(path.join(root, BRIEF_DIR), { recursive: true });
+  fs.writeFileSync(path.join(root, BRIEF),
+    `# Task 1 brief: A\n\n## Allowed files\n\n${allowed.map((p) => `- \`${p}\``).join('\n')}\n\n## Structure rules\n\nNew folders: ask\n${extra}\n## Task\n\nt\n`);
+}
+
+test('brief mode checks scope and structure against a hand-written brief', () => {
+  const root = project({ commands: { test: 'node ok.mjs' } });
+  medium(root);
+  writeBaseFor(root, BRIEF);
+  fs.writeFileSync(path.join(root, 'src/a.ts'), 'a');
+  assert.equal(runCheck({ root, brief: BRIEF, userConfigPath: NO_USER }).text,
+    '✔ leanpowers check: ok (gates:test, scope, structure)');
+  fs.mkdirSync(path.join(root, 'extra'));
+  fs.writeFileSync(path.join(root, 'extra/b.ts'), 'b');
+  const bad = runCheck({ root, brief: BRIEF, userConfigPath: NO_USER });
+  assert.equal(bad.ok, false);
+  assert.match(bad.text, /✖ scope\n  not in brief: extra\/b\.ts/);
+  assert.match(bad.text, /✖ structure\n  new folder needs approval: extra/);
+});
+
+test('approved new folders in a hand-written brief make structure green', () => {
+  const root = project({ commands: { test: 'node ok.mjs' } });
+  medium(root, { allowed: ['src/a.ts', 'extra/b.ts'], extra: 'Approved new folders: extra\n' });
+  writeBaseFor(root, BRIEF);
+  fs.mkdirSync(path.join(root, 'extra'));
+  fs.writeFileSync(path.join(root, 'extra/b.ts'), 'b');
+  assert.equal(runCheck({ root, brief: BRIEF, userConfigPath: NO_USER }).text,
+    '✔ leanpowers check: ok (gates:test, scope, structure)');
+});
+
+test('a changed leanpowers.json is named as project configuration in both check forms', () => {
+  const root = project({ commands: { test: 'node ok.mjs' } });
+  medium(root);
+  writeBaseFor(root, BRIEF);
+  const { config } = loadConfig(root, { userConfigPath: NO_USER });
+  writeBrief(root, 'docs/plans/demo.md', 1, config);
+  fs.writeFileSync(path.join(root, 'leanpowers.json'), JSON.stringify({ commands: { test: 'node ok.mjs' }, review: { batch: 2 } }));
+  const line = "  not in brief: leanpowers.json (project configuration: change it only with the user's yes)";
+  for (const opts of [{ brief: BRIEF }, { plan: 'docs/plans/demo.md', task: 1 }]) {
+    const r = runCheck({ root, ...opts, userConfigPath: NO_USER });
+    assert.equal(r.ok, false);
+    assert.ok(r.text.split('\n').includes(line), r.text);
+  }
+});
+
+test('brief mode without a base is red with the brief --file hint and creates nothing', () => {
+  const root = project({ commands: { test: 'node ok.mjs' } });
+  medium(root);
+  const r = runCheck({ root, brief: BRIEF, userConfigPath: NO_USER });
+  assert.equal(r.ok, false);
+  assert.match(r.text, /✖ scope\n  no base for \.leanpowers\/runs\/2026-01-01-demo\/task-1-brief\.md, run: leanpowers brief --file \.leanpowers\/runs\/2026-01-01-demo\/task-1-brief\.md$/);
+  assert.equal(fs.existsSync(path.join(root, BRIEF_DIR, 'task-1-base.txt')), false);
+});
+
+test('brief mode names a missing brief and a wrong file name', () => {
+  const root = project({ commands: { test: 'node ok.mjs' } });
+  const missing = runCheck({ root, brief: 'notes/task-1-brief.md', userConfigPath: NO_USER });
+  assert.equal(missing.ok, false);
+  assert.match(missing.text, /✖ scope\n  brief not found: notes\/task-1-brief\.md$/);
+  fs.writeFileSync(path.join(root, 'notes.md'), 'n');
+  const wrong = runCheck({ root, brief: 'notes.md', userConfigPath: NO_USER });
+  assert.equal(wrong.ok, false);
+  assert.match(wrong.text, /✖ scope\n  check --brief needs a task-<n>-brief\.md$/);
+});
+
+test('brief mode excludes the plan form and combines with --all', () => {
+  const root = project({ commands: { test: 'node ok.mjs' } });
+  const git = (...a) => execFileSync('git', a, { cwd: root, stdio: 'pipe' });
+  medium(root);
+  writeBaseFor(root, BRIEF);
+  for (const opts of [{ plan: 'docs/plans/demo.md', task: 1 }, { task: 1 }, { plan: 'docs/plans/demo.md' }]) {
+    const r = runCheck({ root, brief: BRIEF, ...opts, userConfigPath: NO_USER });
+    assert.equal(r.ok, false);
+    assert.match(r.text, /✖ scope\n  check takes --brief or --plan with --task, not both$/);
+    assert.doesNotMatch(r.text, /structure/);
+  }
+  fs.writeFileSync(path.join(root, 'src/a.ts'), 'a');
+  git('add', '.'); git('commit', '-qm', 'work');
+  assert.equal(runCheck({ root, brief: BRIEF, all: true, userConfigPath: NO_USER }).text,
+    '✔ leanpowers check: ok (gates:test, scope, structure, doc-lint, skill-lint)');
 });
