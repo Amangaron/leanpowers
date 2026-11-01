@@ -10,7 +10,7 @@ Verify first, then let the user choose. Never push, merge or discard on your own
 
 ## 1. Verify
 
-Run `leanpowers check --all`. If it is not green, show the user the findings. Merge and pull request stay blocked until it is green (fix first; invoke the `debug` skill for failures you do not understand). The user may still explicitly choose to keep the branch or to discard it.
+Run `leanpowers check --all`. If it is not green, show the user the findings. Merge and pull request stay blocked until it is green (fix first; invoke the `debug` skill for failures you do not understand). The user may still explicitly choose to keep the branch or to discard it. Uncommitted changes outside the run folder (the check warns about them) also block merge and pull request: list them and ask whether to commit them first.
 
 ## 2. Establish the base
 
