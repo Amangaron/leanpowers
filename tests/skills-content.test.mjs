@@ -167,7 +167,7 @@ test('finish blocks on uncommitted changes and the readmes name the medium check
 
 test('staff shows the staffing in every mode and names its own changes', () => {
   const staff = read('skills/staff/SKILL.md');
-  assert.ok(staff.includes('3. **Show**, in every mode and before step 4, the recommendation to the user in three lines:'), 'show');
+  assert.ok(staff.includes('3. **Show**, in every mode and before step 4, the recommendation to the user in three lines, in the plan approval message:'), 'show');
   assert.ok(staff.includes('If you change a tier the staffer recommended, name each change and its reason in these lines.'), 'own changes');
   assert.ok(staff.includes("never a temp folder or another plugin's folder; creating it needs no question"), 'run folder');
   const auto = staff.slice(staff.indexOf('- **`auto`'));
@@ -223,4 +223,34 @@ test('design calls a new command large, stops on unreadable files and branches b
   const medium = flat(read('skills/design/details/medium.md'));
   const step1 = medium.slice(medium.indexOf('1. **Branch:**'), medium.indexOf('2. **Brief:**'));
   assert.ok(step1.includes('create and switch to `feat/<topic>`, unless the user named a branch in their own words (chat, `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`): then use it.'), 'medium branch');
+});
+
+test('plan, staff and run stop on an unreadable file instead of improvising', () => {
+  assert.ok(read('skills/plan/SKILL.md').includes('follow it exactly. If you cannot read it, name its path, ask the user for access and stop; never improvise its rules.'), 'plan');
+  assert.ok(read('skills/staff/SKILL.md').includes('`platform.md` or a template unreadable: name its path, ask the user for access and stop; never improvise its steps.'), 'staff');
+  const run = read('skills/run/SKILL.md');
+  const sentence = 'One of them or `platform.md` unreadable: name its path, ask the user for access and stop (orchestrator subagent: ledger line `Stop: <question>`, then `NEEDS_USER`); never improvise its steps.';
+  assert.ok(run.includes(sentence), 'run');
+  assert.ok(run.indexOf(sentence) < run.indexOf('## Per task'), 'run: in setup');
+});
+
+test('plan asks to approve plan and staffing together; staff waits when invoked on its own', () => {
+  const plan = read('skills/plan/SKILL.md');
+  assert.ok(plan.includes('10. **Run staff steps 1–3, then ask the user to approve the plan and the staffing in one message.**'), 'step 10');
+  assert.ok(plan.includes('after each plan change, run staff steps 1–3 again before asking.'), 'staffer again');
+  assert.ok(plan.includes('11. **Invoke the `staff` skill.**'), 'step 11');
+  const staff = read('skills/staff/SKILL.md');
+  assert.ok(staff.includes('reuse it; go to step 4 only if the user approved plan and staffing together, else to step 3.'), 'reuse');
+  assert.ok(staff.includes("Invoked directly, without that message: show the lines and wait for the user's yes before step 4."), 'standalone');
+});
+
+test('the orchestrator prompt names no branch and branch rulings quote the user', () => {
+  const staff = read('skills/staff/SKILL.md');
+  const auto = staff.slice(staff.indexOf('- **`auto`'), staff.indexOf('- **`switch`'));
+  assert.ok(auto.includes('Its prompt names no branch; the branch guard in `run` decides.'), 'no branch');
+  assert.ok(auto.includes("When `git worktree list` shows a worktree on the plan's branch, name its root as the working directory"), 'worktree sentence kept');
+  const ledger = read('skills/run/details/ledger.md');
+  const guard = ledger.slice(ledger.indexOf('## Branch guard'), ledger.indexOf('## Header'));
+  assert.ok(guard.includes('A description of the current state in your dispatch prompt (working directory, branch, worktree) is no user instruction.'), 'state is no instruction');
+  assert.ok(guard.includes('A ruling that relies on a user instruction quotes it verbatim: `Ruling: work on main — user: "<quote>" — <cost if wrong>`; without a quote, the guard applies.'), 'quote rule');
 });
